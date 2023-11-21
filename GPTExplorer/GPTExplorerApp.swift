@@ -25,8 +25,7 @@ struct GPTExplorerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+           AuthenticationScreen()
         }
-        .modelContainer(sharedModelContainer)
     }
 }

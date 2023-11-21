@@ -15,6 +15,22 @@
 		7B1C76662B0C7B25008E161D /* GPTExplorerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76652B0C7B25008E161D /* GPTExplorerTests.swift */; };
 		7B1C76702B0C7B25008E161D /* GPTExplorerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C766F2B0C7B25008E161D /* GPTExplorerUITests.swift */; };
 		7B1C76722B0C7B25008E161D /* GPTExplorerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76712B0C7B25008E161D /* GPTExplorerUITestsLaunchTests.swift */; };
+		7B1C76802B0C7B49008E161D /* SwiftOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 7B1C767F2B0C7B49008E161D /* SwiftOpenAI */; };
+		7B1C76842B0C7B98008E161D /* Sizes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76832B0C7B98008E161D /* Sizes.swift */; };
+		7B1C76862B0C7BA5008E161D /* ThemeColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76852B0C7BA5008E161D /* ThemeColor.swift */; };
+		7B1C76882B0C7BBA008E161D /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76872B0C7BBA008E161D /* LoadingView.swift */; };
+		7B1C768A2B0C7BC9008E161D /* URLImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76892B0C7BC9008E161D /* URLImageView.swift */; };
+		7B1C768E2B0C7C24008E161D /* AuthenticationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C768D2B0C7C24008E161D /* AuthenticationScreen.swift */; };
+		7B1C76912B0C7DCF008E161D /* AssistantsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76902B0C7DCF008E161D /* AssistantsScreen.swift */; };
+		7B1C76942B0C7E39008E161D /* AssistantConfigurationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76932B0C7E39008E161D /* AssistantConfigurationProvider.swift */; };
+		7B1C76962B0C7FBA008E161D /* ImageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76952B0C7FBA008E161D /* ImageRow.swift */; };
+		7B1C76982B0C7FFA008E161D /* Padding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76972B0C7FFA008E161D /* Padding.swift */; };
+		7B1C769B2B0C8702008E161D /* AssistantConfigurationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C769A2B0C8702008E161D /* AssistantConfigurationScreen.swift */; };
+		7B1C769E2B0C8746008E161D /* CheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C769D2B0C8746008E161D /* CheckboxView.swift */; };
+		7B1C76A22B0C87A5008E161D /* CheckboxRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76A12B0C87A5008E161D /* CheckboxRow.swift */; };
+		7B1C76A42B0C87D2008E161D /* InputHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76A32B0C87D2008E161D /* InputHeaderView.swift */; };
+		7B1C76A62B0C8B85008E161D /* AssistantMessagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76A52B0C8B85008E161D /* AssistantMessagesScreen.swift */; };
+		7B1C76A82B0C948E008E161D /* MainActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76A72B0C948E008E161D /* MainActionButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +63,21 @@
 		7B1C766B2B0C7B25008E161D /* GPTExplorerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GPTExplorerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B1C766F2B0C7B25008E161D /* GPTExplorerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTExplorerUITests.swift; sourceTree = "<group>"; };
 		7B1C76712B0C7B25008E161D /* GPTExplorerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTExplorerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		7B1C76832B0C7B98008E161D /* Sizes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sizes.swift; sourceTree = "<group>"; };
+		7B1C76852B0C7BA5008E161D /* ThemeColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeColor.swift; sourceTree = "<group>"; };
+		7B1C76872B0C7BBA008E161D /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		7B1C76892B0C7BC9008E161D /* URLImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLImageView.swift; sourceTree = "<group>"; };
+		7B1C768D2B0C7C24008E161D /* AuthenticationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationScreen.swift; sourceTree = "<group>"; };
+		7B1C76902B0C7DCF008E161D /* AssistantsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantsScreen.swift; sourceTree = "<group>"; };
+		7B1C76932B0C7E39008E161D /* AssistantConfigurationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantConfigurationProvider.swift; sourceTree = "<group>"; };
+		7B1C76952B0C7FBA008E161D /* ImageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRow.swift; sourceTree = "<group>"; };
+		7B1C76972B0C7FFA008E161D /* Padding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Padding.swift; sourceTree = "<group>"; };
+		7B1C769A2B0C8702008E161D /* AssistantConfigurationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantConfigurationScreen.swift; sourceTree = "<group>"; };
+		7B1C769D2B0C8746008E161D /* CheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxView.swift; sourceTree = "<group>"; };
+		7B1C76A12B0C87A5008E161D /* CheckboxRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxRow.swift; sourceTree = "<group>"; };
+		7B1C76A32B0C87D2008E161D /* InputHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHeaderView.swift; sourceTree = "<group>"; };
+		7B1C76A52B0C8B85008E161D /* AssistantMessagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantMessagesScreen.swift; sourceTree = "<group>"; };
+		7B1C76A72B0C948E008E161D /* MainActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainActionButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +85,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B1C76802B0C7B49008E161D /* SwiftOpenAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +129,9 @@
 		7B1C76502B0C7B23008E161D /* GPTExplorer */ = {
 			isa = PBXGroup;
 			children = (
+				7B1C76922B0C7E27008E161D /* Providers */,
+				7B1C769C2B0C8705008E161D /* Screens */,
+				7B1C76812B0C7B52008E161D /* Components */,
 				7B1C76512B0C7B23008E161D /* GPTExplorerApp.swift */,
 				7B1C76532B0C7B23008E161D /* ContentView.swift */,
 				7B1C76552B0C7B23008E161D /* Item.swift */,
@@ -132,6 +167,66 @@
 			path = GPTExplorerUITests;
 			sourceTree = "<group>";
 		};
+		7B1C76812B0C7B52008E161D /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C76A02B0C8769008E161D /* Rows */,
+				7B1C769F2B0C8764008E161D /* Views */,
+				7B1C76822B0C7B89008E161D /* Theme */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		7B1C76822B0C7B89008E161D /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C76832B0C7B98008E161D /* Sizes.swift */,
+				7B1C76852B0C7BA5008E161D /* ThemeColor.swift */,
+				7B1C76972B0C7FFA008E161D /* Padding.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		7B1C76922B0C7E27008E161D /* Providers */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C76932B0C7E39008E161D /* AssistantConfigurationProvider.swift */,
+			);
+			path = Providers;
+			sourceTree = "<group>";
+		};
+		7B1C769C2B0C8705008E161D /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C768D2B0C7C24008E161D /* AuthenticationScreen.swift */,
+				7B1C76902B0C7DCF008E161D /* AssistantsScreen.swift */,
+				7B1C769A2B0C8702008E161D /* AssistantConfigurationScreen.swift */,
+				7B1C76A52B0C8B85008E161D /* AssistantMessagesScreen.swift */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		7B1C769F2B0C8764008E161D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C76872B0C7BBA008E161D /* LoadingView.swift */,
+				7B1C769D2B0C8746008E161D /* CheckboxView.swift */,
+				7B1C76892B0C7BC9008E161D /* URLImageView.swift */,
+				7B1C76A32B0C87D2008E161D /* InputHeaderView.swift */,
+				7B1C76A72B0C948E008E161D /* MainActionButton.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		7B1C76A02B0C8769008E161D /* Rows */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C76952B0C7FBA008E161D /* ImageRow.swift */,
+				7B1C76A12B0C87A5008E161D /* CheckboxRow.swift */,
+			);
+			path = Rows;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -148,6 +243,9 @@
 			dependencies = (
 			);
 			name = GPTExplorer;
+			packageProductDependencies = (
+				7B1C767F2B0C7B49008E161D /* SwiftOpenAI */,
+			);
 			productName = GPTExplorer;
 			productReference = 7B1C764E2B0C7B23008E161D /* GPTExplorer.app */;
 			productType = "com.apple.product-type.application";
@@ -220,6 +318,9 @@
 				Base,
 			);
 			mainGroup = 7B1C76452B0C7B23008E161D;
+			packageReferences = (
+				7B1C767E2B0C7B49008E161D /* XCRemoteSwiftPackageReference "SwiftOpenAI" */,
+			);
 			productRefGroup = 7B1C764F2B0C7B23008E161D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -262,9 +363,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B1C76A22B0C87A5008E161D /* CheckboxRow.swift in Sources */,
+				7B1C76912B0C7DCF008E161D /* AssistantsScreen.swift in Sources */,
+				7B1C768A2B0C7BC9008E161D /* URLImageView.swift in Sources */,
+				7B1C76842B0C7B98008E161D /* Sizes.swift in Sources */,
+				7B1C76A82B0C948E008E161D /* MainActionButton.swift in Sources */,
+				7B1C76A42B0C87D2008E161D /* InputHeaderView.swift in Sources */,
+				7B1C76962B0C7FBA008E161D /* ImageRow.swift in Sources */,
 				7B1C76542B0C7B23008E161D /* ContentView.swift in Sources */,
+				7B1C76942B0C7E39008E161D /* AssistantConfigurationProvider.swift in Sources */,
 				7B1C76562B0C7B23008E161D /* Item.swift in Sources */,
+				7B1C769B2B0C8702008E161D /* AssistantConfigurationScreen.swift in Sources */,
+				7B1C76A62B0C8B85008E161D /* AssistantMessagesScreen.swift in Sources */,
 				7B1C76522B0C7B23008E161D /* GPTExplorerApp.swift in Sources */,
+				7B1C768E2B0C7C24008E161D /* AuthenticationScreen.swift in Sources */,
+				7B1C76862B0C7BA5008E161D /* ThemeColor.swift in Sources */,
+				7B1C769E2B0C8746008E161D /* CheckboxView.swift in Sources */,
+				7B1C76882B0C7BBA008E161D /* LoadingView.swift in Sources */,
+				7B1C76982B0C7FFA008E161D /* Padding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -621,6 +737,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7B1C767E2B0C7B49008E161D /* XCRemoteSwiftPackageReference "SwiftOpenAI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jamesrochabrun/SwiftOpenAI";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7B1C767F2B0C7B49008E161D /* SwiftOpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B1C767E2B0C7B49008E161D /* XCRemoteSwiftPackageReference "SwiftOpenAI" */;
+			productName = SwiftOpenAI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7B1C76462B0C7B23008E161D /* Project object */;
 }
