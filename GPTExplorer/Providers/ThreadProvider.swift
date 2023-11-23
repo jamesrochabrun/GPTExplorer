@@ -12,6 +12,11 @@ import SwiftOpenAI
    
    private let service: OpenAIService
    let threadsIDStorage = UserDefaultsIDStorage<String>(key: "threadsIDStorage")
+   static let assistantMetadataID = "assistant_id"
+   static let assistantMetadataName = "assistant_name"
+   static let assistantMetadataDescription = "assistant_description"
+   static let assistantMessageSnippet = "assistant_message_snippet"
+
 
    var threadObject: ThreadObject?
    var errorMessage: String?

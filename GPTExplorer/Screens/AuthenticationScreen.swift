@@ -12,7 +12,7 @@ import SwiftOpenAI
 
 struct AuthenticationScreen: View {
    
-   @State private var apiKey = ""
+   @State private var apiKey = "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"
    @State private var organizationIdentifier = ""
    @State private var localOrganizationID: String? = nil
    
@@ -31,10 +31,12 @@ struct AuthenticationScreen: View {
             }
             .padding()
             .textFieldStyle(.roundedBorder)
-            NavigationLink(destination: SideMenuScreen(
-                  service: OpenAIServiceFactory.service(
-                     apiKey: apiKey,
-                     organizationID: localOrganizationID)))
+            NavigationLink(destination: PushedScreen {
+               SideMenuScreen(
+                     service: OpenAIServiceFactory.service(
+                        apiKey: apiKey,
+                        organizationID: localOrganizationID))
+            })
             {
                Text("Continue")
                   .padding()

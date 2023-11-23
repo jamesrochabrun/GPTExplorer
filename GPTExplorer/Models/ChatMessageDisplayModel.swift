@@ -58,7 +58,6 @@ struct ChatMessageDisplayModel: Identifiable {
          enum Assistant {
             case user
             case assistant(String)
-            case tool
          }
       }
    }

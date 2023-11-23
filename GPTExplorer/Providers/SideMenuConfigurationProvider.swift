@@ -30,9 +30,6 @@ enum SideMenuItem: Identifiable {
    
    // MARK: - Private Properties
    
-   static let avatarMetadataKey = "assistant_avatar"
-   static let assistantMetadataID = "assistant_id"
-   
    var assistant: AssistantObject?
    private var assistantItems: [SideMenuItem] = []
    private var threadItems: [SideMenuItem] = []
@@ -40,7 +37,6 @@ enum SideMenuItem: Identifiable {
       
    let threadProvider: ThreadProvider
    let assistantsProvider: AssistantsProvider
-   let messagesProvider: MessagesProvider
    
    var errorMessage: String?
 
@@ -57,7 +53,6 @@ enum SideMenuItem: Identifiable {
    {
       self.assistantsProvider = AssistantsProvider(service: service)
       self.threadProvider = ThreadProvider(service: service)
-      self.messagesProvider = MessagesProvider(service: service)
    }
    
    // MARK: Assistants

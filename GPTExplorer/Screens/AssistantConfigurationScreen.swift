@@ -55,7 +55,7 @@ struct AssistantConfigurationScreen: View {
       }
       .onChange(of: provider.avatarURL) { _, avatarURL in
          if let avatarURL {
-            self.parameters.metadata = [SideMenuConfigurationProvider.avatarMetadataKey: avatarURL.absoluteString]
+            self.parameters.metadata = [AssistantsProvider.avatarMetadataKey: avatarURL.absoluteString]
          }
       }
    }

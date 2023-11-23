@@ -43,6 +43,7 @@
 		7B1C76BE2B0DDB0E008E161D /* ThreadTextArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76BD2B0DDB0E008E161D /* ThreadTextArea.swift */; };
 		7B1C76C02B0EBD34008E161D /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76BF2B0EBD34008E161D /* View+Extensions.swift */; };
 		7B1C76C22B0F170D008E161D /* AssistantsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C12B0F170D008E161D /* AssistantsProvider.swift */; };
+		7B1C76C52B0F3665008E161D /* PushedScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C42B0F3665008E161D /* PushedScreen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +103,7 @@
 		7B1C76BD2B0DDB0E008E161D /* ThreadTextArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadTextArea.swift; sourceTree = "<group>"; };
 		7B1C76BF2B0EBD34008E161D /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
 		7B1C76C12B0F170D008E161D /* AssistantsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantsProvider.swift; sourceTree = "<group>"; };
+		7B1C76C42B0F3665008E161D /* PushedScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushedScreen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -196,6 +198,7 @@
 		7B1C76812B0C7B52008E161D /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				7B1C76C32B0F360E008E161D /* Screens */,
 				7B1C76A02B0C8769008E161D /* Rows */,
 				7B1C769F2B0C8764008E161D /* Views */,
 				7B1C76822B0C7B89008E161D /* Theme */,
@@ -277,6 +280,14 @@
 				7B1C76BF2B0EBD34008E161D /* View+Extensions.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		7B1C76C32B0F360E008E161D /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C76C42B0F3665008E161D /* PushedScreen.swift */,
+			);
+			path = Screens;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -443,6 +454,7 @@
 				7B1C76B52B0D77E2008E161D /* ChatMessageDisplayModel.swift in Sources */,
 				7B1C769E2B0C8746008E161D /* CheckboxView.swift in Sources */,
 				7B1C76882B0C7BBA008E161D /* LoadingView.swift in Sources */,
+				7B1C76C52B0F3665008E161D /* PushedScreen.swift in Sources */,
 				7B1C76BE2B0DDB0E008E161D /* ThreadTextArea.swift in Sources */,
 				7B1C76982B0C7FFA008E161D /* Padding.swift in Sources */,
 			);

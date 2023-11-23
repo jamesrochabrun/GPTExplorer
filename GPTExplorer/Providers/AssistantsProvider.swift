@@ -12,6 +12,8 @@ import SwiftOpenAI
    
    private let service: OpenAIService
    var avatarURL: URL?
+      
+   static let avatarMetadataKey = "assistant_avatar"
    
    init(service: OpenAIService) {
       self.service = service

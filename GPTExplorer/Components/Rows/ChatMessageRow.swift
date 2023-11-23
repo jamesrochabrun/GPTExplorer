@@ -27,8 +27,6 @@ struct ChatMessageRow: View {
                headerWith("person.circle", title: "USER")
             case .assistant(let assistantName):
                headerWith("wand.and.stars", title: assistantName)
-            case .tool:
-               EmptyView()
             }
          }
       case .sent:

@@ -24,28 +24,12 @@ import SwiftOpenAI
    func addMessage(
       threadID: String,
       parameters: MessageParameter)
-   async throws
+      async throws
    {
       do {
          let message = try await service.createMessage(threadID: threadID, parameters: parameters)
-         if let firstTextContent = message.content.first(where: { content in
-            if case .text = content {
-               return true
-            } else {
-               return false
-            }
-         }) {
-            switch firstTextContent {
-            case .text(let content):
-               let chatDisplayMessage = ChatMessageDisplayModel(
-                  id: message.id,
-                  content: .content(.init(text: content.text.value)),
-                  origin: .received(.asssistant(.user)))
-               await addMessage(chatDisplayMessage)
-            default:
-               break
-            }
-         }
+         let messageDisplayModel = createMessageDisplayModel(from: message)! // Intentionally force unwrapped
+         await addMessage(messageDisplayModel)
       } catch let error as APIError  {
          let chatDisplayMessage = ChatMessageDisplayModel(content: .error(error.displayDescription), origin: .received(.asssistant(.user)))
          await addMessage(chatDisplayMessage)
@@ -70,6 +54,7 @@ import SwiftOpenAI
    
    func listMessages(
       threadID: String,
+      metadata: [String: String],
       limit: Int? = nil,
       order: String? = nil,
       after: String? = nil,
@@ -82,7 +67,38 @@ import SwiftOpenAI
          order: order,
          after: after,
          before: before)
-      let messages = messagesData.data
+      let assistantName = metadata[ThreadProvider.assistantMetadataName]
+      for message in messagesData.data {
+         let messageDisplayModel = createMessageDisplayModel(from: message, assistantName: assistantName)!
+         await addMessage(messageDisplayModel)
+      }
+   }
+   
+   func createMessageDisplayModel(
+      from message: MessageObject,
+      assistantName: String? = nil)
+      -> ChatMessageDisplayModel?
+   {
+      let origin: ChatMessageDisplayModel.MessageOrigin.ReceivedSource.Assistant = message.role == "user" ?  .user : .assistant(assistantName ?? "")
+      
+      if let firstTextContent = message.content.first(where: { content in
+         if case .text = content {
+            return true
+         } else {
+            return false
+         }
+      }) {
+         switch firstTextContent {
+         case .text(let content):
+            return ChatMessageDisplayModel(
+               id: message.id,
+               content: .content(.init(text: content.text.value)),
+               origin: .received(.asssistant(origin)))
+         default:
+            return nil
+         }
+      }
+      return nil
    }
    
    func retrieveMessageFile(

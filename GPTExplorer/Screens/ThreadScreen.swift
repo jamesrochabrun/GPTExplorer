@@ -18,6 +18,7 @@ struct ThreadScreen: View {
    @State private var prompt: String = ""
    @State private var threadProviderFailed = false
    @State private var messagesProviderFailed = false
+   @State private var showDeleteThreadAlert = false
    
    init(
       service: OpenAIService,
@@ -45,7 +46,8 @@ struct ThreadScreen: View {
             list
             .task {
                Task {
-                  try await messagesProvider.listMessages(threadID: thread.id)
+                  threadProvider.threadObject = thread
+                  try await messagesProvider.listMessages(threadID: thread.id, metadata: thread.metadata)
                }
             }
          }
@@ -59,32 +61,35 @@ struct ThreadScreen: View {
       .onChange(of: messagesProvider.errorMessage) { oldValue, newValue in
          messagesProviderFailed = oldValue != newValue
       }
-      .alert(isPresented: $threadProviderFailed) {
-         alert(errorMessage: threadProvider.errorMessage ?? "")
+      .alert(threadProvider.errorMessage ?? "", isPresented: $threadProviderFailed) {
       }
-      .alert(isPresented: $messagesProviderFailed) {
-         alert(errorMessage: messagesProvider.errorMessage ?? "")
+      .alert(messagesProvider.errorMessage ?? "", isPresented: $messagesProviderFailed) {
       }
-   }
-   
-   func alert(
-      errorMessage: String)
-      -> Alert
-   {
-      Alert(
-         title: Text(errorMessage),
-         message: Text("Here's an important message for you."),
-         dismissButton: .default(Text("Got it!"))
+      .navigationBarItems(trailing: Button(action: {
+         showDeleteThreadAlert = true
+      }) {
+         Image(systemName: "trash")
+            .tint(ThemeColor.tintColor)
+      }
+         .disabled(threadProvider.threadObject == nil)
       )
+      .alert("Are you sure you want to delete this thread?", isPresented: $showDeleteThreadAlert) {
+         Button("Yes", role: .destructive) {
+            Task {
+               try await threadProvider.deleteThread(id: threadProvider.threadObject!.id)
+            }
+         }
+         Button("Nope", role: .cancel) {}
+      }
    }
-   
+
    @ViewBuilder
    var assistantPlaceholder: some View {
       if case .assistant(let assistant) = item {
          VStack {
             Spacer()
             EmptyPlaceholderView(
-               imageURL: assistant.metadata[SideMenuConfigurationProvider.avatarMetadataKey],
+               imageURL: assistant.metadata[AssistantsProvider.avatarMetadataKey],
                placeholder: Image(systemName: "oval.bottomhalf.filled"),
                title: assistant.name ?? "NO NAME",
                subtitle: assistant.description)
@@ -135,7 +140,11 @@ struct ThreadScreen: View {
       _ assistant: AssistantObject)
       async throws
    {
-      let threadMetadata = [SideMenuConfigurationProvider.assistantMetadataID: assistant.id]
+      let threadMetadata = [
+         ThreadProvider.assistantMetadataID: assistant.id,
+         ThreadProvider.assistantMetadataName: assistant.name ?? "",
+         ThreadProvider.assistantMetadataDescription: assistant.description ?? "",
+      ]
       try await threadProvider.createThread(parameters: CreateThreadParameters(metadata: threadMetadata))
    }
 }
