@@ -35,11 +35,8 @@ struct InputHeaderView<Content: View>: View {
 
 struct InputHeaderViewStyle {
    
-   let verticalPadding: CGFloat
-   
-   init(verticalPadding: CGFloat = 8.0) {
-      self.verticalPadding = verticalPadding
-   }
+   var verticalPadding: CGFloat = 8.0
+
 }
 
 // MARK: Environment

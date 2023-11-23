@@ -37,7 +37,7 @@ enum AssistantFunctionCallDefinition: String, CaseIterable {
 struct AssistantConfigurationScreen: View {
    
    init(service: OpenAIService) {
-      _provider = State(initialValue: AssistantConfigurationProvider(service: service))
+      _provider = State(initialValue: AssistantsProvider(service: service))
    }
    
    var body: some View {
@@ -55,21 +55,22 @@ struct AssistantConfigurationScreen: View {
       }
       .onChange(of: provider.avatarURL) { _, avatarURL in
          if let avatarURL {
-            parameters.metadata = [AssistantConfigurationProvider.avatarMetadataKey: avatarURL.absoluteString]
+            self.parameters.metadata = [SideMenuConfigurationProvider.avatarMetadataKey: avatarURL.absoluteString]
          }
       }
    }
    
    var footerActions: some View {
       HStack {
-         MainActionButton("Delete") {
-            Task {
-               for assistant in provider.assistants {
-                  try await provider.deleteAssistant(id: assistant.id)
-               }
-            }
+         ActionButton("Delete") {
+            // TODO...
+//            Task {
+//               for assistant in provider.assistants {
+//                  try await provider.deleteAssistant(id: assistant.id)
+//               }
+//            }
          }
-         MainActionButton("Save") {
+         ActionButton("Save") {
             Task {
                try await provider.createAssistant(parameters: parameters)
             }
@@ -164,7 +165,7 @@ struct AssistantConfigurationScreen: View {
    
    // MARK: Private
    
-   @State private var provider: AssistantConfigurationProvider
+   @State private var provider: AssistantsProvider
    @State private var parameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.rawValue))
    @State private var isAvatarLoading = false
 

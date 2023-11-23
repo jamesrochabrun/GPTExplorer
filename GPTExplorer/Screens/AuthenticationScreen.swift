@@ -31,7 +31,11 @@ struct AuthenticationScreen: View {
             }
             .padding()
             .textFieldStyle(.roundedBorder)
-            NavigationLink(destination: AssistantsScreen(service: OpenAIServiceFactory.service(apiKey: apiKey, organizationID: localOrganizationID))) {
+            NavigationLink(destination: SideMenuScreen(
+                  service: OpenAIServiceFactory.service(
+                     apiKey: apiKey,
+                     organizationID: localOrganizationID)))
+            {
                Text("Continue")
                   .padding()
                   .padding(.horizontal, 48)

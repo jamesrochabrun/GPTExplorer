@@ -1,5 +1,5 @@
 //
-//  AssistantsScreen.swift
+//  SideMenuScreen.swift
 //  GPTExplorer
 //
 //  Created by James Rochabrun on 11/20/23.
@@ -8,9 +8,9 @@
 import SwiftUI
 import SwiftOpenAI
 
-// MARK: AssistantsScreen
+// MARK: SideMenuScreen
 
-struct AssistantsScreen: View {
+struct SideMenuScreen: View {
    
    // MARK: Init
    
@@ -18,19 +18,33 @@ struct AssistantsScreen: View {
       service: OpenAIService)
    {
       self.service = service
-      _provider = State(initialValue: AssistantConfigurationProvider(service: service))
+      _provider = State(initialValue: SideMenuConfigurationProvider(service: service))
    }
    
    var body: some View {
-      List(provider.assistants, id: \.id) { assistant in
-         NavigationLink(destination: AssistantMessagesScreen(assistant: assistant)) {
-            let url = assistant.metadata[AssistantConfigurationProvider.avatarMetadataKey]
-            ImageRow(url: url, title: assistant.name ?? "NO NAME", subtitle: assistant.description)
+      List(0..<provider.items.count, id: \.self) { sectionIndex in
+         Section(header: Text("Section \(sectionIndex + 1)")) {
+            ForEach(provider.items[sectionIndex], id: \.id) { item in
+               NavigationLink(destination: ThreadScreen(service: service,
+                  item: item)) {
+                  switch item {
+                  case .assistant(let assistant):
+                     ImageRow(
+                        url: assistant.metadata[SideMenuConfigurationProvider.avatarMetadataKey],
+                        title: assistant.name ?? "NO NAME",
+                        subtitle: assistant.description)
+                  case .thread(let thread):
+                     Text(thread.id)
+                  }
+               }
+            }
          }
       }
-      .task {
+      .onFirstAppear {
          Task {
+            print("zizou excuting multiple requests!")
             try await provider.listAssistants()
+            try await provider.listThreads()
          }
       }
       .listStyle(.plain)
@@ -62,15 +76,15 @@ struct AssistantsScreen: View {
    
    // MARK: private
    
-   @State private var provider: AssistantConfigurationProvider
+   let service: OpenAIService
+   @State private var provider: SideMenuConfigurationProvider
    @Environment(\.presentationMode) private var presentationMode
    @State private var showAssistantConfigurationModal = false
-   private let service: OpenAIService
 
 }
 
 // MARK: Mock+Preview
 
-#Preview {
-   AssistantsScreen(service: OpenAIServiceFactory.service(apiKey: ""))
-}
+//#Preview {
+//   SideMenuScreen(service: OpenAIServiceFactory.service(apiKey: ""))
+//}
