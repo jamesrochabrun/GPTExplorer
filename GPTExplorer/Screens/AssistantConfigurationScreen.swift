@@ -36,8 +36,14 @@ enum AssistantFunctionCallDefinition: String, CaseIterable {
 
 struct AssistantConfigurationScreen: View {
    
-   init(service: OpenAIService) {
+   // MARK: Initialization
+   
+   init(
+      service: OpenAIService,
+      assistantID: String?)
+   {
       _provider = State(initialValue: AssistantsProvider(service: service))
+      self.assistantID = assistantID
    }
    
    var body: some View {
@@ -57,24 +63,73 @@ struct AssistantConfigurationScreen: View {
          if let avatarURL {
             self.parameters.metadata = [AssistantsProvider.avatarMetadataKey: avatarURL.absoluteString]
          }
+      }.onFirstAppear {
+         Task {
+            try await setInitialParametersForExistingAssistant()
+         }
       }
+      .onChange(of: provider.assistantsParameters) { _, newValue in
+         self.parameters = newValue!
+      }
+      .onChange(of: provider.errorMessage) { oldValue, newValue in
+         providerDidFail = oldValue != newValue
+      }
+      .alert(provider.errorMessage ?? "", isPresented: $providerDidFail) {
+      }
+      .onChange(of: provider.deletionStatus?.deleted) { _, newValue in
+         if newValue == true {
+            self.presentationMode.wrappedValue.dismiss()
+         }
+      }
+      .alert("Are you sure you want to delete this Assistant?", isPresented: $showDeleteAssistantAlert) {
+         Button("Yes", role: .destructive) {
+            Task {
+               if let assistantID {
+                  try await provider.deleteAssistant(id: assistantID)
+               }
+            }
+         }
+         Button("Nope", role: .cancel) {}
+      }
+   }
+   
+   private func setInitialParametersForExistingAssistant()
+      async throws
+   {
+      guard 
+         let assistantID,
+         let parameters = try await provider.retrieveAssistantParameters(id: assistantID, model: nil)
+      else { return }
+      if
+         let avatarURLString = parameters.metadata![AssistantsProvider.avatarMetadataKey],
+         let avatarURL = URL(string: avatarURLString)
+      {
+         provider.avatarURL = avatarURL
+      }
+      self.parameters = parameters
    }
    
    var footerActions: some View {
       HStack {
          ActionButton("Delete") {
-            // TODO...
-//            Task {
-//               for assistant in provider.assistants {
-//                  try await provider.deleteAssistant(id: assistant.id)
-//               }
-//            }
+            showDeleteAssistantAlert = true
          }
+         .disabled(assistantID == nil)
          ActionButton("Save") {
             Task {
-               try await provider.createAssistant(parameters: parameters)
+               if let assistantID {
+                  try await provider.modifyAssistant(id: assistantID, parameters: parameters)
+               } else {
+                  try await provider.createAssistant(parameters: parameters)
+               }
+               // If error message is not nil means that an alert is shown
+               // which in that case we don't dismiss the screen
+               if provider.errorMessage == nil {
+                  self.presentationMode.wrappedValue.dismiss()
+               }
             }
          }
+         .disabled(parameters.name == nil || parameters.name?.isEmpty == true)
       }
    }
    
@@ -105,28 +160,28 @@ struct AssistantConfigurationScreen: View {
             .overlay(Circle().stroke(Color.white, lineWidth: 1))
             .shadow(radius: 10)
       } else {
-         Circle()
-            .stroke(.gray, style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
-            .frame(width: 100, height: 100)
-            .overlay(
-               Menu.init(content: {
-                  Button {
-                     Task {
-                        isAvatarLoading = true
-                        defer { isAvatarLoading = false }  // ensure isLoading is set to false when the
-                        let prompt = parameters.description ?? "Some random image for an avatar"
-                        try await provider.createAvatar(prompt: prompt)
-                     }
-                  }  label: {
-                     Text("Use DALL·E")
-                  }
-               }, label: {
+         Menu.init(content: {
+            Button {
+               Task {
+                  isAvatarLoading = true
+                  defer { isAvatarLoading = false }  // ensure isLoading is set to false when the
+                  let prompt = parameters.name ?? "Some random image for an avatar" // TODO: improve prompt
+                  try await provider.createAvatar(prompt: prompt)
+               }
+            }  label: {
+               Text("Use DALL·E")
+            }
+         }, label: {
+            Circle()
+               .stroke(.gray, style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
+               .frame(width: 100, height: 100)
+               .overlay(
                   Image(systemName: "plus")
                      .resizable()
                      .frame(width: 20, height: 20)
                      .tint(.gray)
-               })
-            )
+               )
+         })
       }
    }
    
@@ -157,7 +212,6 @@ struct AssistantConfigurationScreen: View {
          VStack(spacing: Sizes.spacingExtraLarge) {
             CheckboxRow(title: "Code interpreter", isChecked: isCodeInterpreterOn)
             CheckboxRow(title: "DALL·E Image Generation", isChecked: isDalleToolOn)
-
          }
       }
       .inputViewStyle(.init(verticalPadding: Sizes.spacingExtraLarge))
@@ -168,6 +222,11 @@ struct AssistantConfigurationScreen: View {
    @State private var provider: AssistantsProvider
    @State private var parameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.rawValue))
    @State private var isAvatarLoading = false
+   @State private var providerDidFail = false
+   @Environment(\.presentationMode) private var presentationMode
+   @State private var showDeleteAssistantAlert = false
+
+   private let assistantID: String?
 
    private var isCodeInterpreterOn: Binding<Bool> {
        Binding(
@@ -214,5 +273,5 @@ extension Binding where Value == String? {
 }
 
 #Preview {
-   AssistantConfigurationScreen(service: OpenAIServiceFactory.service(apiKey: ""))
+   AssistantConfigurationScreen(service: OpenAIServiceFactory.service(apiKey: ""), assistantID: nil)
 }

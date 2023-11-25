@@ -30,10 +30,15 @@ enum SideMenuItem: Identifiable {
    
    // MARK: - Private Properties
    
+   enum Section: Int {
+      case assistants
+      case threads
+   }
+   
    var assistant: AssistantObject?
    private var assistantItems: [SideMenuItem] = []
    private var threadItems: [SideMenuItem] = []
-   private var mapItems: [Int: [SideMenuItem]] = [:]
+   private var mapItems: [Section: [SideMenuItem]] = [:]
       
    let threadProvider: ThreadProvider
    let assistantsProvider: AssistantsProvider
@@ -41,12 +46,10 @@ enum SideMenuItem: Identifiable {
    var errorMessage: String?
 
    var items: [[SideMenuItem]] {
-      let sortedKeys = mapItems.keys.sorted()
-      return sortedKeys.map { mapItems[$0] ?? [] }
+      let sortedKeys = mapItems.keys.map { $0.rawValue }.sorted()
+      return sortedKeys.map { mapItems[Section(rawValue: $0) ?? .assistants] ?? [] }
    }
    
-   static let assistantObjectSection = 0
-   static let threadObjectSection = 1
    // MARK: - Initializer
    
    init(service: OpenAIService)
@@ -57,59 +60,40 @@ enum SideMenuItem: Identifiable {
    
    // MARK: Assistants
    
+
    func listAssistants(
-      limit: Int? = nil,
-      order: String? = nil,
-      after: String? = nil,
-      before: String? = nil)
-      async throws
+       limit: Int? = nil,
+       order: String? = nil,
+       after: String? = nil,
+       before: String? = nil)
+       async throws -> [AssistantObject]
    {
-      do {
-         let assistants = try await assistantsProvider.listAssistants(limit: limit, order: order, after: after, before: before)
-         dump(assistants)
-         for assistant in assistants {
-            dump(assistant)
-         }
-         mapItems[Self.assistantObjectSection] = assistants.map { .assistant($0) }
-      } catch let error as APIError {
-         errorMessage = error.displayDescription
-      }
+       let assistants = try await assistantsProvider.listAssistants(limit: limit, order: order, after: after, before: before)
+       for assistant in assistants {
+           dump(assistant)
+       }
+       return assistants
    }
-   
-   func deleteAssistant(
-      id: String)
-      async throws
-   {
-      do {
-         let deletionStatus = try await assistantsProvider.deleteAssistant(id: id)
-         print("Deletion status \(deletionStatus)")
-      } catch let error as APIError  {
-         errorMessage = error.displayDescription
-      }
-   }
-   
-   func createAssistant(
-      parameters: AssistantParameters)
-      async throws
-   {
-      do {
-         let localAssistant = try await assistantsProvider.createAssistant(parameters: parameters)
-         dump(assistant)
-         assistant = localAssistant
-      } catch let error as APIError  {
-         errorMessage = error.displayDescription
-      }
-   }
-   
+    
    // MARK: Threads
+    
+   func listThreads() 
+      async throws -> [ThreadObject]
+   {
+      try await threadProvider.listThreads()
+   }
    
-   func listThreads()
+   func updateSideMenuContent() 
       async throws
    {
       do {
-         let threads = try await threadProvider.listThreads()
-         mapItems[Self.threadObjectSection] = threads.map { .thread($0) }
-      } catch let error as APIError  {
+         async let assistantsResult = try listAssistants()
+         async let threadsResult = try listThreads()
+         
+         let (assistants, threads) = try await (assistantsResult, threadsResult)
+         mapItems[.assistants] = assistants.map { .assistant($0) }
+         mapItems[.threads] = threads.map { .thread($0) }
+      } catch let error as APIError {
          errorMessage = error.displayDescription
       }
    }

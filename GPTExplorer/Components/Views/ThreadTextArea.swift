@@ -38,6 +38,7 @@ struct ThreadTextArea: View {
          RoundedRectangle(cornerRadius: Sizes.spacingExtraLarge)
             .stroke(.gray.opacity(0.5), lineWidth: 1)
       )
+      .background(.background)
       .padding(.horizontal)
    }
    

@@ -13,17 +13,14 @@ import SwiftOpenAI
 struct ThreadScreen: View {
    
    var item: SideMenuItem
-   @State private var threadProvider: ThreadProvider
-   @State private var messagesProvider: MessagesProvider
-   @State private var prompt: String = ""
-   @State private var threadProviderFailed = false
-   @State private var messagesProviderFailed = false
-   @State private var showDeleteThreadAlert = false
-   
+
+   // MARK: Initialization
+
    init(
       service: OpenAIService,
       item: SideMenuItem)
    {
+      self.service = service
       _threadProvider = State(initialValue: ThreadProvider(service: service))
       _messagesProvider = State(initialValue: MessagesProvider(service: service))
       self.item = item
@@ -40,13 +37,10 @@ struct ThreadScreen: View {
                list
             }
          case .thread(let thread):
-            // if this is reached we should:
-            // retrieve the assistant? no! we just need the assistantID which is in the metadata.
-            // get the messages
             list
             .task {
+               threadProvider.threadObject = thread
                Task {
-                  threadProvider.threadObject = thread
                   try await messagesProvider.listMessages(threadID: thread.id, metadata: thread.metadata)
                }
             }
@@ -77,12 +71,57 @@ struct ThreadScreen: View {
          Button("Yes", role: .destructive) {
             Task {
                try await threadProvider.deleteThread(id: threadProvider.threadObject!.id)
+               self.presentationMode.wrappedValue.dismiss()
             }
          }
          Button("Nope", role: .cancel) {}
       }
+      .toolbar {
+          ToolbarItem(placement: .principal) {
+             Menu.init(content: {
+                Button {
+                   showAssistantConfigurationModal = true
+                }  label: {
+                   Text("Edit assistant")
+                }
+             }, label: {
+                return ActionButton(assistantName(), actionIcon: Image(systemName: "chevron.right")) {}
+                   .actionButtonStyle(.plainTrailing)
+             })
+      }}
+      .sheet(isPresented: $showAssistantConfigurationModal) {
+         AssistantConfigurationScreen(service: service, assistantID: assistantID())
+         /// Think weel how we want to manage this so we dont pay too much money
+//            .onDisappear {
+//               Task {
+//                  try await assistantpro
+//               }
+//            }
+      }
    }
-
+   
+   func assistantName() -> String {
+      let assistantName: String?
+      switch item {
+      case .assistant(let assistantObject):
+         assistantName = assistantObject.name
+      case .thread(let threadObject):
+         assistantName = threadObject.metadata[ThreadProvider.assistantMetadataName]
+      }
+      return assistantName ?? "Assistant"
+   }
+   
+   func assistantID() -> String? {
+      let assistantID: String?
+      switch item {
+      case .assistant(let assistantObject):
+         assistantID = assistantObject.id
+      case .thread(let threadObject):
+         assistantID = threadObject.metadata[ThreadProvider.assistantMetadataID]
+      }
+      return assistantID
+   }
+   
    @ViewBuilder
    var assistantPlaceholder: some View {
       if case .assistant(let assistant) = item {
@@ -105,21 +144,48 @@ struct ThreadScreen: View {
          ChatMessageRow(message: message)
             .listRowSeparator(.hidden)
       }
+      .listStyle(.plain)
    }
    
    var bottomTextArea: some View {
       ThreadTextArea { prompt in
+       
          Task {
-            try await threadProvider.deleteThreads()
-
+            switch item {
+            case .assistant(let assistant):
+               // If the item is assistant, no thread has been created:
+               // - Create a new thread only for first time.
+               if threadProvider.threadObject == nil {
+                  try await startThreadFor(assistant)
+               }
+               // - Add the message to the thread.
+               if let threadID = threadProvider.threadObject?.id {
+                  let paramaters = MessageParameter(role: "user", content: prompt)
+                  
+                  // TODO: here we can modify the thread metadata with the prompt
+                  try await messagesProvider.addMessage(threadID: threadID, parameters: paramaters)
+                  try await service.createRun(threadID: threadID, parameters: RunParameter(assistantID: assistant.id))
+               }
+            case .thread(let thread):
+               threadProvider.threadObject = thread
+               let paramaters = MessageParameter(role: "user", content: prompt)
+               try await messagesProvider.addMessage(threadID: threadProvider.threadObject!.id, parameters: paramaters)
+               let assistantID = thread.metadata[ThreadProvider.assistantMetadataID]!
+               
+               // TODO: figure it out what we want to do here with the run
+               try await service.createRun(threadID: thread.id, parameters: RunParameter(assistantID: assistantID))
+            }
          }
+         
       } addMessageAction: { prompt in
          Task {
             switch item {
             case .assistant(let assistant):
                // If the item is assistant, no thread has been created:
-               // - Create a new thread
-               try await startThreadFor(assistant)
+               // - Create a new thread only for first time.
+               if threadProvider.threadObject == nil {
+                  try await startThreadFor(assistant)
+               }
                // - Add the message to the thread.
                if let threadID = threadProvider.threadObject?.id {
                   let paramaters = MessageParameter(role: "user", content: prompt)
@@ -147,6 +213,18 @@ struct ThreadScreen: View {
       ]
       try await threadProvider.createThread(parameters: CreateThreadParameters(metadata: threadMetadata))
    }
+   
+   // MARK: Private
+
+   private let service: OpenAIService
+   @State private var threadProvider: ThreadProvider
+   @State private var messagesProvider: MessagesProvider
+   @State private var prompt: String = ""
+   @State private var threadProviderFailed = false
+   @State private var messagesProviderFailed = false
+   @State private var showDeleteThreadAlert = false
+   @State private var showAssistantConfigurationModal = false
+   @Environment(\.presentationMode) private var presentationMode
 }
 
 // MARK: Mock+Preview

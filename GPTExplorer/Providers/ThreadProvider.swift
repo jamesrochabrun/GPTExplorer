@@ -17,7 +17,6 @@ import SwiftOpenAI
    static let assistantMetadataDescription = "assistant_description"
    static let assistantMessageSnippet = "assistant_message_snippet"
 
-
    var threadObject: ThreadObject?
    var errorMessage: String?
    var deletionStatus: ThreadObject.DeletionStatus?

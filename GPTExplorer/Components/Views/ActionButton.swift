@@ -29,21 +29,30 @@ struct ActionButton: View {
    var body: some View {
       Button(action: action) {
          HStack {
-            if let actionIcon {
-               actionIcon
+            switch style.horizontalIconAlignment {
+            case .leading:
+               if let actionIcon {
+                  actionIcon
+               }
+               Text(actionTitle)
+            case .trailing:
+               Text(actionTitle)
+               if let actionIcon {
+                  actionIcon
+               }
             }
-            Text(actionTitle)
          }
          .padding(.horizontal, style.horizontalPadding)
-         .fontWeight(.bold)
-         .foregroundColor(.white)
+         .fontWeight(style.fontWeight)
+         .foregroundColor(style.foregroundColor)
          .padding(.vertical, style.verticalPading)
-         .background(style.backgroundColor)
+         .background(isEnabled ? style.backgroundColor : style.backgroundColorDisabled)
          .cornerRadius(style.cornerRadius)
       }
    }
    
    @Environment(\.actionButtonStyle) private var style: ActionButtonStyle
+   @Environment(\.isEnabled) var isEnabled: Bool
 }
 
 // MARK: ActionButtonStyle
@@ -54,13 +63,35 @@ struct ActionButtonStyle {
    var verticalPading: CGFloat = 10
 
    var backgroundColor = ThemeColor.tintColor
+   var backgroundColorDisabled = ThemeColor.tintColorDisabled
+
    var cornerRadius: CGFloat = 40.0
+   var horizontalIconAlignment: HorizontalIconAlignment = .leading
+   var foregroundColor: Color = .white
+   var fontWeight: Font.Weight = .bold
+   
+   enum HorizontalIconAlignment {
+      case leading
+      case trailing
+   }
    
    static var plain: Self {
       var style = ActionButtonStyle()
       style.horizontalPadding = 10
       style.verticalPading = 8
       style.cornerRadius = 10
+      return style
+   }
+   
+   static var plainTrailing: Self {
+      var style = ActionButtonStyle()
+      style.horizontalPadding = 10
+      style.verticalPading = 8
+      style.cornerRadius = 10
+      style.horizontalIconAlignment = .trailing
+      style.backgroundColor = .clear
+      style.foregroundColor = .primary
+      style.fontWeight = .semibold
       return style
    }
 }
@@ -100,7 +131,12 @@ extension View {
          ActionButton("Add an run", actionIcon: Image(systemName: "play")) {}
       }
       .actionButtonStyle(.plain)
-   }
+      
+      VStack {
+         ActionButton("Save") {}
+         ActionButton("Add an run", actionIcon: Image(systemName: "play")) {}
+      }
+      .actionButtonStyle(.plainTrailing)
 
-   
+   }
 }

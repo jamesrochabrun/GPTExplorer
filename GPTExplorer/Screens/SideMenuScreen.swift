@@ -43,8 +43,7 @@ struct SideMenuScreen: View {
       }
       .onFirstAppear {
          Task {
-            try await provider.listAssistants()
-            try await provider.listThreads()
+            try await provider.updateSideMenuContent()
          }
       }
       .listStyle(.plain)
@@ -55,11 +54,16 @@ struct SideMenuScreen: View {
          Image(systemName: "plus")
             .tint(ThemeColor.tintColor)
       })
+      .onChange(of: provider.errorMessage) { oldValue, newValue in
+         providerDidFail = oldValue != newValue
+      }
+      .alert(provider.errorMessage ?? "", isPresented: $providerDidFail) {
+      }
       .sheet(isPresented: $showAssistantConfigurationModal) {
-         AssistantConfigurationScreen(service: service)
+         AssistantConfigurationScreen(service: service, assistantID: nil)
             .onDisappear {
                Task {
-                  try await provider.listAssistants()
+                  try await provider.updateSideMenuContent()
                }
             }
       }
@@ -71,6 +75,7 @@ struct SideMenuScreen: View {
    @State private var provider: SideMenuConfigurationProvider
    @Environment(\.presentationMode) private var presentationMode
    @State private var showAssistantConfigurationModal = false
+   @State private var providerDidFail = false
 
 }
 

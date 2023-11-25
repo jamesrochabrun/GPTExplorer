@@ -12,4 +12,6 @@ enum ThemeColor {}
 extension ThemeColor {
 
    static let tintColor: Color = .purple
+   static let tintColorDisabled: Color = .gray
+
 }

@@ -12,6 +12,9 @@ import SwiftOpenAI
    
    private let service: OpenAIService
    var avatarURL: URL?
+   var errorMessage: String?
+   var assistantsParameters: AssistantParameters?
+   var deletionStatus: AssistantObject.DeletionStatus?
       
    static let avatarMetadataKey = "assistant_avatar"
    
@@ -27,21 +30,46 @@ import SwiftOpenAI
       async throws
       -> [AssistantObject]
    {
-      try await service.listAssistants(limit: limit, order: order, after: after, before: before).data
-   }
+      do {
+         return try await service.listAssistants(limit: limit, order: order, after: after, before: before).data
+      } catch let error as APIError  {
+         errorMessage = error.displayDescription
+         return []
+      }
+    }
    
    func deleteAssistant(
       id: String)
-      async throws -> AssistantObject.DeletionStatus
+      async throws
    {
-      try await service.deleteAssistant(id: id)
+      do {
+         deletionStatus =  try await service.deleteAssistant(id: id)
+      } catch let error as APIError  {
+         errorMessage = error.displayDescription
+      }
    }
    
    func createAssistant(
       parameters: AssistantParameters)
-      async throws -> AssistantObject
+      async throws
    {
-      try await service.createAssistant(parameters: parameters)
+      do {
+         let _ = try await service.createAssistant(parameters: parameters)
+      } catch let error as APIError  {
+         errorMessage = error.displayDescription
+      }
+   }
+   
+   func modifyAssistant(
+      id: String,
+      parameters: AssistantParameters)
+      async throws
+   {
+      do {
+         let _ = try await service.modifyAssistant(id: id, parameters: parameters)
+      } catch let error as APIError  {
+         errorMessage = error.displayDescription
+      }
    }
    
    func createAvatar(
@@ -49,10 +77,24 @@ import SwiftOpenAI
       async throws
    {
       do {
-         let avatarURLs = try await service.createImages(parameters: .init(prompt: prompt, model: .dalle3(.largeSquare))).data.compactMap(\.url)
-         self.avatarURL = avatarURLs.first
-      } catch {
-         fatalError("\(error)")
+         let avatarURL = try await service.createImages(parameters: .init(prompt: prompt, model: .dalle3(.largeSquare))).data.compactMap(\.url).first
+         self.avatarURL = avatarURL
+      } catch let error as APIError  {
+         errorMessage = error.displayDescription
+      }
+   }
+   
+   // Edition asssistant Purposes
+   func retrieveAssistantParameters(
+      id: String, 
+      model: String?)
+      async throws -> AssistantParameters?
+   {
+      do {
+         return try await service.retrieveAssistant(id: id).assistantParameters(model)
+      } catch let error as APIError  {
+         errorMessage = error.displayDescription
+         return nil
       }
    }
 }
