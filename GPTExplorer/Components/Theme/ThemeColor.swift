@@ -11,7 +11,8 @@ enum ThemeColor {}
 
 extension ThemeColor {
 
-   static let tintColor: Color = .purple
-   static let tintColorDisabled: Color = .gray
+   static let brandColor: Color = Color(red: 55.0 / 255.0, green: 163.0 / 255.0, blue: 127.0 / 255.0)
+   static let brandColorSecondary = Color.gray.opacity(0.4)
+   static let colorDisabled: Color = .gray
 
 }

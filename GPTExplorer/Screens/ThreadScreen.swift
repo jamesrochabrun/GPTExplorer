@@ -23,6 +23,7 @@ struct ThreadScreen: View {
       self.service = service
       _threadProvider = State(initialValue: ThreadProvider(service: service))
       _messagesProvider = State(initialValue: MessagesProvider(service: service))
+      _runsProvider = State(initialValue: RunsProvider(service: service))
       self.item = item
    }
    
@@ -50,20 +51,31 @@ struct ThreadScreen: View {
          bottomTextArea
       }
       .onChange(of: threadProvider.errorMessage) { oldValue, newValue in
-         threadProviderFailed = oldValue != newValue
-      }
-      .onChange(of: messagesProvider.errorMessage) { oldValue, newValue in
-         messagesProviderFailed = oldValue != newValue
-      }
-      .alert(threadProvider.errorMessage ?? "", isPresented: $threadProviderFailed) {
-      }
-      .alert(messagesProvider.errorMessage ?? "", isPresented: $messagesProviderFailed) {
-      }
+           if let newValue = newValue, oldValue != newValue {
+               currentErrorMessage = newValue
+           }
+       }
+       .onChange(of: messagesProvider.errorMessage) { oldValue, newValue in
+           if let newValue = newValue, oldValue != newValue {
+               currentErrorMessage = newValue
+           }
+       }
+       .onChange(of: runsProvider.errorMessage) { oldValue, newValue in
+           if let newValue = newValue, oldValue != newValue {
+               currentErrorMessage = newValue
+           }
+       }
+       .alert(currentErrorMessage ?? "", isPresented: Binding<Bool>(
+           get: { currentErrorMessage != nil },
+           set: { if !$0 { currentErrorMessage = nil } }
+       )) {
+           // Alert configuration, if needed
+       }
       .navigationBarItems(trailing: Button(action: {
          showDeleteThreadAlert = true
       }) {
          Image(systemName: "trash")
-            .tint(ThemeColor.tintColor)
+            .tint(ThemeColor.brandColor)
       }
          .disabled(threadProvider.threadObject == nil)
       )
@@ -164,7 +176,7 @@ struct ThreadScreen: View {
                   
                   // TODO: here we can modify the thread metadata with the prompt
                   try await messagesProvider.addMessage(threadID: threadID, parameters: paramaters)
-                  try await service.createRun(threadID: threadID, parameters: RunParameter(assistantID: assistant.id))
+                  try await runsProvider.createRun(threadID: threadID, parameters: RunParameter(assistantID: assistant.id))
                }
             case .thread(let thread):
                threadProvider.threadObject = thread
@@ -173,7 +185,7 @@ struct ThreadScreen: View {
                let assistantID = thread.metadata[ThreadProvider.assistantMetadataID]!
                
                // TODO: figure it out what we want to do here with the run
-               try await service.createRun(threadID: thread.id, parameters: RunParameter(assistantID: assistantID))
+               try await runsProvider.createRun(threadID: thread.id, parameters: RunParameter(assistantID: assistantID))
             }
          }
          
@@ -217,11 +229,14 @@ struct ThreadScreen: View {
    // MARK: Private
 
    private let service: OpenAIService
+   @State private var currentErrorMessage: String? = nil
    @State private var threadProvider: ThreadProvider
    @State private var messagesProvider: MessagesProvider
+   @State private var runsProvider: RunsProvider
    @State private var prompt: String = ""
    @State private var threadProviderFailed = false
    @State private var messagesProviderFailed = false
+   @State private var runsProviderFailed = false
    @State private var showDeleteThreadAlert = false
    @State private var showAssistantConfigurationModal = false
    @Environment(\.presentationMode) private var presentationMode

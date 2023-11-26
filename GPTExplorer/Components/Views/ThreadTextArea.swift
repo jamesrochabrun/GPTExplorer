@@ -58,9 +58,10 @@ struct ThreadTextArea: View {
          ActionButton("Add") {
             addMessageAction(prompt)
          }
-         .actionButtonStyle(.plain)
+         .actionButtonStyle(.secondary)
          IconButton(iconName: "paperclip") {
          }
+         .iconButtonStyle(.secondary)
       }
    }
    

@@ -61,16 +61,20 @@ import SwiftOpenAI
       before: String? = nil)
       async throws
    {
-      let messagesData = try await service.listMessages(
-         threadID: threadID,
-         limit: limit,
-         order: order,
-         after: after,
-         before: before)
-      let assistantName = metadata[ThreadProvider.assistantMetadataName]
-      for message in messagesData.data {
-         let messageDisplayModel = createMessageDisplayModel(from: message, assistantName: assistantName)!
-         await addMessage(messageDisplayModel)
+      do {
+         let messagesData = try await service.listMessages(
+            threadID: threadID,
+            limit: limit,
+            order: order,
+            after: after,
+            before: before)
+         let assistantName = metadata[ThreadProvider.assistantMetadataName]
+         for message in messagesData.data.sorted(by: { $0.createdAt < $1.createdAt }) {
+            let messageDisplayModel = createMessageDisplayModel(from: message, assistantName: assistantName)!
+            await addMessage(messageDisplayModel)
+         }
+      } catch let error as APIError  {
+         errorMessage = error.displayDescription
       }
    }
    
@@ -135,3 +139,5 @@ import SwiftOpenAI
       chatDisplayMessages[chatDisplayMessages.count - 1] = message
    }
 }
+
+

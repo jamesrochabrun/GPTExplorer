@@ -45,6 +45,7 @@
 		7B1C76C22B0F170D008E161D /* AssistantsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C12B0F170D008E161D /* AssistantsProvider.swift */; };
 		7B1C76C52B0F3665008E161D /* PushedScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C42B0F3665008E161D /* PushedScreen.swift */; };
 		7B1C76C72B116200008E161D /* AssistantParameters+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */; };
+		7B1C76C92B11F188008E161D /* RunsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C82B11F188008E161D /* RunsProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,6 +107,7 @@
 		7B1C76C12B0F170D008E161D /* AssistantsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantsProvider.swift; sourceTree = "<group>"; };
 		7B1C76C42B0F3665008E161D /* PushedScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushedScreen.swift; sourceTree = "<group>"; };
 		7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssistantParameters+Extension.swift"; sourceTree = "<group>"; };
+		7B1C76C82B11F188008E161D /* RunsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunsProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -225,6 +227,7 @@
 				7B1C76A92B0CA647008E161D /* ThreadProvider.swift */,
 				7B1C76AB2B0D7090008E161D /* MessagesProvider.swift */,
 				7B1C76C12B0F170D008E161D /* AssistantsProvider.swift */,
+				7B1C76C82B11F188008E161D /* RunsProvider.swift */,
 			);
 			path = Providers;
 			sourceTree = "<group>";
@@ -459,6 +462,7 @@
 				7B1C769E2B0C8746008E161D /* CheckboxView.swift in Sources */,
 				7B1C76882B0C7BBA008E161D /* LoadingView.swift in Sources */,
 				7B1C76C52B0F3665008E161D /* PushedScreen.swift in Sources */,
+				7B1C76C92B11F188008E161D /* RunsProvider.swift in Sources */,
 				7B1C76BE2B0DDB0E008E161D /* ThreadTextArea.swift in Sources */,
 				7B1C76982B0C7FFA008E161D /* Padding.swift in Sources */,
 			);

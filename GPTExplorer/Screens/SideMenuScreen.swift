@@ -52,7 +52,7 @@ struct SideMenuScreen: View {
          self.showAssistantConfigurationModal = true
       }) {
          Image(systemName: "plus")
-            .tint(ThemeColor.tintColor)
+            .tint(ThemeColor.brandColor)
       })
       .onChange(of: provider.errorMessage) { oldValue, newValue in
          providerDidFail = oldValue != newValue

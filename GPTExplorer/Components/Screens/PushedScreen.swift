@@ -23,7 +23,7 @@ struct PushedScreen<Content: View>: View {
          }) {
             HStack {
                Image(systemName: "chevron.left")
-                  .tint(ThemeColor.tintColor)
+                  .tint(ThemeColor.brandColor)
             }
          })
    }

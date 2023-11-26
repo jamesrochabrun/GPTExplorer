@@ -17,9 +17,12 @@ struct IconButton: View {
    var body: some View {
       Button(action: action) {
          Image(systemName: iconName)
+            .foregroundColor(style.foregroundColor)
+            .padding(.horizontal, style.horizontalPadding)
+            .padding(.vertical, style.verticalPadding)
+            .background(style.backgroundColor)
+            .cornerRadius(style.cornerRadius)
       }
-      .tint(style.tintColor)
-      .buttonStyle(.bordered)
    }
    
    @Environment(\.iconButtonStyle) private var style: IconButtonStyle
@@ -28,18 +31,30 @@ struct IconButton: View {
 // MARK: IconButtonStyle
 
 struct IconButtonStyle {
-   let tintColor: Color = ThemeColor.tintColor
+   
+   var backgroundColor: Color = ThemeColor.brandColor
+   var foregroundColor = Color.white
+   var horizontalPadding: CGFloat = 10
+   var verticalPadding: CGFloat = 10
+   var cornerRadius: CGFloat = 10
+   
+   static var secondary: Self {
+      var style = IconButtonStyle()
+      style.foregroundColor = .primary
+      style.backgroundColor = ThemeColor.brandColorSecondary
+      return style
+   }
 }
 
 struct IconButtonStyleKey: EnvironmentKey {
-    static let defaultValue: IconButtonStyle = IconButtonStyle()
+   static let defaultValue: IconButtonStyle = IconButtonStyle()
 }
 
 extension EnvironmentValues {
-    var iconButtonStyle: IconButtonStyle {
-        get { self[IconButtonStyleKey.self] }
-        set { self[IconButtonStyleKey.self] = newValue }
-    }
+   var iconButtonStyle: IconButtonStyle {
+      get { self[IconButtonStyleKey.self] }
+      set { self[IconButtonStyleKey.self] = newValue }
+   }
 }
 
 extension View {
@@ -51,5 +66,10 @@ extension View {
 // MARK: Mock+Preview
 
 #Preview {
-   IconButton(iconName: "paperplane", action: {})
+   VStack {
+      IconButton(iconName: "paperplane", action: {})
+      IconButton(iconName: "paperplane", action: {})
+         .iconButtonStyle(.secondary)
+      
+   }
 }
