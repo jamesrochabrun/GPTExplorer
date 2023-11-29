@@ -27,9 +27,9 @@ import SwiftOpenAI
    func runTheThread(
       threadID: String,
       parameters: RunParameter)
-   async throws
-   -> RunObject?
+      async throws -> RunObject?
    {
+      service.createThreadAndRun(parameters: )
       do {
          return try await service.createRun(threadID: threadID, parameters: parameters)
       } catch let error as APIError  {
