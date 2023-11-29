@@ -46,6 +46,9 @@
 		7B1C76C52B0F3665008E161D /* PushedScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C42B0F3665008E161D /* PushedScreen.swift */; };
 		7B1C76C72B116200008E161D /* AssistantParameters+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */; };
 		7B1C76C92B11F188008E161D /* RunsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C82B11F188008E161D /* RunsProvider.swift */; };
+		7B1C76CB2B13395A008E161D /* ContentViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */; };
+		7B1C76CD2B133F0B008E161D /* ChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CC2B133F0B008E161D /* ChatScreen.swift */; };
+		7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,6 +111,9 @@
 		7B1C76C42B0F3665008E161D /* PushedScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushedScreen.swift; sourceTree = "<group>"; };
 		7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssistantParameters+Extension.swift"; sourceTree = "<group>"; };
 		7B1C76C82B11F188008E161D /* RunsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunsProvider.swift; sourceTree = "<group>"; };
+		7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewScreen.swift; sourceTree = "<group>"; };
+		7B1C76CC2B133F0B008E161D /* ChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScreen.swift; sourceTree = "<group>"; };
+		7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -228,6 +234,7 @@
 				7B1C76AB2B0D7090008E161D /* MessagesProvider.swift */,
 				7B1C76C12B0F170D008E161D /* AssistantsProvider.swift */,
 				7B1C76C82B11F188008E161D /* RunsProvider.swift */,
+				7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */,
 			);
 			path = Providers;
 			sourceTree = "<group>";
@@ -236,9 +243,11 @@
 			isa = PBXGroup;
 			children = (
 				7B1C768D2B0C7C24008E161D /* AuthenticationScreen.swift */,
+				7B1C76CC2B133F0B008E161D /* ChatScreen.swift */,
 				7B1C76902B0C7DCF008E161D /* SideMenuScreen.swift */,
 				7B1C769A2B0C8702008E161D /* AssistantConfigurationScreen.swift */,
 				7B1C76A52B0C8B85008E161D /* ThreadScreen.swift */,
+				7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -438,8 +447,10 @@
 				7B1C76912B0C7DCF008E161D /* SideMenuScreen.swift in Sources */,
 				7B1C768A2B0C7BC9008E161D /* URLImageView.swift in Sources */,
 				7B1C76842B0C7B98008E161D /* Sizes.swift in Sources */,
+				7B1C76CD2B133F0B008E161D /* ChatScreen.swift in Sources */,
 				7B1C76A82B0C948E008E161D /* ActionButton.swift in Sources */,
 				7B1C76C22B0F170D008E161D /* AssistantsProvider.swift in Sources */,
+				7B1C76CB2B13395A008E161D /* ContentViewScreen.swift in Sources */,
 				7B1C76A42B0C87D2008E161D /* InputHeaderView.swift in Sources */,
 				7B1C76962B0C7FBA008E161D /* ImageRow.swift in Sources */,
 				7B1C76B02B0D73B2008E161D /* IconButton.swift in Sources */,
@@ -448,6 +459,7 @@
 				7B1C76562B0C7B23008E161D /* Item.swift in Sources */,
 				7B1C769B2B0C8702008E161D /* AssistantConfigurationScreen.swift in Sources */,
 				7B1C76B92B0D7B76008E161D /* EmptyPlaceholderView.swift in Sources */,
+				7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */,
 				7B1C76A62B0C8B85008E161D /* ThreadScreen.swift in Sources */,
 				7B1C76BC2B0DCB4A008E161D /* UserDefaultsIDStorage.swift in Sources */,
 				7B1C76522B0C7B23008E161D /* GPTExplorerApp.swift in Sources */,

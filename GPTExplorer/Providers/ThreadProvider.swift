@@ -53,11 +53,12 @@ import SwiftOpenAI
    }
    
    func modifyThread(
-      id: String)
+      id: String,
+      parameters: ModifyThreadParameters)
       async throws
    {
       do {
-         threadObject = try await service.modifyThread(id: id)
+         threadObject = try await service.modifyThread(id: id, parameters: parameters)
       } catch let error as APIError  {
          errorMessage = error.displayDescription
       }

@@ -26,7 +26,7 @@ struct ImageRow: View {
          } else {
             Circle()
                .stroke(.gray, style: StrokeStyle(lineWidth: 4))
-               .frame(width: 60, height: 60)
+               .frame(width: 40, height: 40)
                .overlay(
                   Image(systemName: "lightbulb.led")
                )
@@ -39,7 +39,6 @@ struct ImageRow: View {
             }
          }
       }
-      .padding(Padding.row)
    }
 }
 
@@ -47,4 +46,5 @@ struct ImageRow: View {
 
 #Preview {
    ImageRow(url: urlImageViewMockURL.absoluteString, title: "Some Assistant", subtitle: "The math descrip")
+      .border(.black)
 }

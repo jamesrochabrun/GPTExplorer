@@ -15,45 +15,56 @@ struct SideMenuScreen: View {
    // MARK: Init
    
    init(
-      service: OpenAIService)
+      service: OpenAIService,
+      navigationProvider: NavigationProvider)
    {
       self.service = service
+      self._navigationProvider = State(initialValue: navigationProvider)
       _provider = State(initialValue: SideMenuConfigurationProvider(service: service))
    }
    
+   @State private var navigationProvider: NavigationProvider
+   
    var body: some View {
-      List(0..<provider.items.count, id: \.self) { sectionIndex in
-         Section(header: Text("Section \(sectionIndex + 1)")) {
-            ForEach(provider.items[sectionIndex], id: \.id) { item in
-               NavigationLink(destination: PushedScreen {
-                  ThreadScreen(service: service, item: item)
-               }) {
-                  switch item {
-                  case .assistant(let assistant):
-                     ImageRow(
-                        url: assistant.metadata[AssistantsProvider.avatarMetadataKey],
-                        title: assistant.name ?? "NO NAME",
-                        subtitle: assistant.description)
-                  case .thread(let thread):
-                     Text(thread.id)
+      ZStack(alignment: .topTrailing) {
+         List(0..<provider.items.count, id: \.self) { sectionIndex in
+            Section(header: Text("Section \(sectionIndex + 1)")) {
+               ForEach(provider.items[sectionIndex], id: \.id) { item in
+                  Group {
+                     switch item {
+                     case .assistant(let assistant):
+                        ImageRow(
+                           url: assistant.metadata[AssistantsProvider.avatarMetadataKey],
+                           title: assistant.name ?? "NO NAME",
+                           subtitle: assistant.description)
+                     case .thread(let thread):
+                        Text(thread.id)
+                     case .none:
+                        EmptyView()
+                     }
+                  }
+
+                  .listRowSeparator(.hidden)
+                  .listRowBackground(
+                     ThemeColor.backggroundColor
+                  )
+                  .onTapGesture {
+                     navigationProvider.selectedItem = item
                   }
                }
             }
          }
+         .listStyle(.plain)
+         IconButton(iconName: "plus") {
+            self.showAssistantConfigurationModal = true
+         }
+         .padding()
       }
       .onFirstAppear {
          Task {
             try await provider.updateSideMenuContent()
          }
       }
-      .listStyle(.plain)
-      .navigationBarTitle("Assistants", displayMode: .automatic)
-      .navigationBarItems(trailing: Button(action: {
-         self.showAssistantConfigurationModal = true
-      }) {
-         Image(systemName: "plus")
-            .tint(ThemeColor.brandColor)
-      })
       .onChange(of: provider.errorMessage) { oldValue, newValue in
          providerDidFail = oldValue != newValue
       }
@@ -81,6 +92,6 @@ struct SideMenuScreen: View {
 
 // MARK: Mock+Preview
 
-//#Preview {
-//   SideMenuScreen(service: OpenAIServiceFactory.service(apiKey: ""))
-//}
+#Preview {
+   SideMenuScreen(service: OpenAIServiceFactory.service(apiKey: ""), navigationProvider: .init())
+}

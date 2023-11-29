@@ -14,15 +14,18 @@ struct ActionButton: View {
    let actionTitle: String
    let actionIcon: Image?
    let action: () -> Void
-   
+   @Binding var isLoading: Bool?
+
    // Initializer
    init(
       _ title: String,
       actionIcon: Image? = nil,
+      isLoading: Binding<Bool?> = .constant(nil),
       action: @escaping () -> Void)
    {
       actionTitle = title
       self.actionIcon = actionIcon
+      _isLoading = isLoading
       self.action = action
    }
    
@@ -49,7 +52,12 @@ struct ActionButton: View {
    
    @ViewBuilder
    var icon: some View {
-      if let actionIcon {
+      if isLoading == true {
+         ProgressView()
+            .frame(width: 5, height: 5)
+            .padding(.horizontal, Sizes.spacingExtraSmall)
+         
+      } else if let actionIcon {
          actionIcon
             .resizable()
             .aspectRatio(contentMode: .fit)
@@ -137,7 +145,7 @@ extension View {
 #Preview {
    VStack {
       VStack {
-         ActionButton("Save") {}
+         ActionButton("Save", isLoading: .constant(true)) {}
          ActionButton("Add an run", actionIcon: Image(systemName: "play")) {}
       }
       HStack {
@@ -154,6 +162,5 @@ extension View {
          ActionButton("Add an run", actionIcon: Image(systemName: "chevron.right")) {}
       }
       .actionButtonStyle(.plainTrailing)
-
    }
 }

@@ -12,5 +12,6 @@ enum Padding {}
 extension Padding {
    
    static let row: EdgeInsets = .init(top: 24, leading: 24, bottom: 24, trailing: 24)
-   
+   static let rowVerticalExtraSmall: EdgeInsets = .init(top: 4, leading: 0, bottom: 4, trailing: 0)
+
 }

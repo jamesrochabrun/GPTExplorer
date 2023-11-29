@@ -13,14 +13,20 @@ struct ThreadTextArea: View {
       
    @State private var prompt: String = ""
    let addAndRunAction: (String) -> Void
+   @Binding var isAddAndRunActionLoading: Bool?
    let addMessageAction: (String) -> Void
+   @Binding var isAddMessageActionLoading: Bool?
    let fileIDS: [String]?
    
    init(
+      isAddAndRunActionLoading: Binding<Bool?>,
+      isAddMessageActionLoading: Binding<Bool?>,
       fileIDS: [String]? = nil,
       addAndRunAction: @escaping (String) -> Void,
       addMessageAction: @escaping (String) -> Void)
    {
+      _isAddAndRunActionLoading = isAddAndRunActionLoading
+      _isAddMessageActionLoading = isAddMessageActionLoading
       self.fileIDS = fileIDS
       self.addAndRunAction = addAndRunAction
       self.addMessageAction = addMessageAction
@@ -51,11 +57,11 @@ struct ThreadTextArea: View {
    
    var actions: some View {
       HStack {
-         ActionButton("Add an run", actionIcon: Image(systemName: "play")) {
+         ActionButton("Add an run", actionIcon: Image(systemName: "play"), isLoading: $isAddAndRunActionLoading) {
             addAndRunAction(prompt)
          }
          .actionButtonStyle(.plain)
-         ActionButton("Add") {
+         ActionButton("Add", isLoading: $isAddMessageActionLoading) {
             addMessageAction(prompt)
          }
          .actionButtonStyle(.secondary)
@@ -95,9 +101,13 @@ struct ThreadTextArea: View {
 #Preview {
    VStack {
       ThreadTextArea(
+         isAddAndRunActionLoading: .constant(true),
+         isAddMessageActionLoading: .constant(true),
          addAndRunAction: { _ in },
          addMessageAction: { _ in })
       ThreadTextArea(
+         isAddAndRunActionLoading: .constant(false),
+         isAddMessageActionLoading: .constant(true),
          fileIDS: ["Screenshot: 2023: 10-09 at 9:35.png"],
          addAndRunAction: { _ in },
          addMessageAction: { _ in })

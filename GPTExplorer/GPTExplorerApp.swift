@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import SwiftOpenAI
 
 @main
 struct GPTExplorerApp: App {
@@ -22,6 +23,10 @@ struct GPTExplorerApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+
+   @State private var apiKey = "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"
+   @State private var organizationIdentifier = ""
+   @State private var localOrganizationID: String? = nil
 
     var body: some Scene {
         WindowGroup {

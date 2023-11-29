@@ -9,8 +9,6 @@ import Foundation
 import SwiftOpenAI
 import SwiftUI
 
-extension AssistantObject: Identifiable {}
-
 enum SideMenuItem: Identifiable {
    
    var id: String {
@@ -19,11 +17,13 @@ enum SideMenuItem: Identifiable {
          return assistant.id
       case .thread(let thread):
          return thread.id
+      case .none: return "none"
       }
    }
    
    case assistant(AssistantObject)
    case thread(ThreadObject)
+   case none
 }
 
 @Observable class SideMenuConfigurationProvider {
@@ -59,7 +59,6 @@ enum SideMenuItem: Identifiable {
    }
    
    // MARK: Assistants
-   
 
    func listAssistants(
        limit: Int? = nil,

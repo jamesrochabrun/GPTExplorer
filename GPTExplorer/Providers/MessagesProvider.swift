@@ -21,55 +21,61 @@ import SwiftOpenAI
       self.service = service
    }
    
-   func addMessage(
+   func createMessage(
       threadID: String,
       parameters: MessageParameter)
-      async throws
+      async throws -> MessageObject?
    {
       do {
-         let message = try await service.createMessage(threadID: threadID, parameters: parameters)
-         let messageDisplayModel = createMessageDisplayModel(from: message)! // Intentionally force unwrapped
-         await addMessage(messageDisplayModel)
+         return try await service.createMessage(threadID: threadID, parameters: parameters)
       } catch let error as APIError  {
-         let chatDisplayMessage = ChatMessageDisplayModel(content: .error(error.displayDescription), origin: .received(.asssistant(.user)))
-         await addMessage(chatDisplayMessage)
+         errorMessage = error.displayDescription
+         return nil
       }
    }
-   
+
    func retrieveMessage(
       threadID: String,
       messageID: String)
-      async throws
+      async throws -> MessageObject?
    {
-      
+      do {
+         return try await service.retrieveMessage(threadID: threadID, messageID: messageID)
+      } catch let error as APIError  {
+         errorMessage = error.displayDescription
+         return nil
+      }
    }
    
    func modifyMessage(
       threadID: String,
-      messageID: String)
-      async throws
+      messageID: String,
+      parameters: ModifyMessageParameters)
+      async throws -> MessageObject?
    {
-      
+      do {
+         return try await service.modifyMessage(threadID: threadID, messageID: messageID, parameters: parameters)
+      } catch let error as APIError  {
+         errorMessage = error.displayDescription
+         return nil
+      }
    }
    
    func listMessages(
       threadID: String,
-      metadata: [String: String],
-      limit: Int? = nil,
-      order: String? = nil,
-      after: String? = nil,
-      before: String? = nil)
+      assistantName: String)
       async throws
    {
+     // let after = chatDisplayMessages.last?.id
+      chatDisplayMessages.removeAll()
       do {
          let messagesData = try await service.listMessages(
             threadID: threadID,
-            limit: limit,
-            order: order,
-            after: after,
-            before: before)
-         let assistantName = metadata[ThreadProvider.assistantMetadataName]
-         for message in messagesData.data.sorted(by: { $0.createdAt < $1.createdAt }) {
+            limit: nil,
+            order: "asc",
+            after: nil,
+            before: nil)
+         for message in messagesData.data {
             let messageDisplayModel = createMessageDisplayModel(from: message, assistantName: assistantName)!
             await addMessage(messageDisplayModel)
          }
@@ -94,6 +100,8 @@ import SwiftOpenAI
       }) {
          switch firstTextContent {
          case .text(let content):
+            print("jamesrochabrun \(content.text.value), id: \(message.id)")
+
             return ChatMessageDisplayModel(
                id: message.id,
                content: .content(.init(text: content.text.value)),
@@ -129,7 +137,7 @@ import SwiftOpenAI
    // MARK: UI
    
    @MainActor
-   private func addMessage(_ message: ChatMessageDisplayModel) {
+   func addMessage(_ message: ChatMessageDisplayModel) {
       withAnimation {
          chatDisplayMessages.append(message)
       }

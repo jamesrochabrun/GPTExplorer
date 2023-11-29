@@ -63,7 +63,7 @@ extension URLImageViewStyle {
    
    static var assistantRow: Self {
       var style = URLImageViewStyle()
-      style.size = 60
+      style.size = 40
       return style
    }
 }

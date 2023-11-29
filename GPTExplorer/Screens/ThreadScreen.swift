@@ -12,23 +12,25 @@ import SwiftOpenAI
 
 struct ThreadScreen: View {
    
-   var item: SideMenuItem
-
+   @Binding var item: SideMenuItem
+   
    // MARK: Initialization
-
+   
    init(
       service: OpenAIService,
-      item: SideMenuItem)
+      item: Binding<SideMenuItem>)
    {
       self.service = service
       _threadProvider = State(initialValue: ThreadProvider(service: service))
       _messagesProvider = State(initialValue: MessagesProvider(service: service))
       _runsProvider = State(initialValue: RunsProvider(service: service))
-      self.item = item
+      self._item = item
    }
    
-   var body: some View {
-      Group {
+   @ViewBuilder
+   var mainContent: some View {
+      VStack(spacing: 0) {
+         headerView
          switch item {
          case .assistant:
             // if this is reached means there are no messages, no thread created, we create one
@@ -39,77 +41,89 @@ struct ThreadScreen: View {
             }
          case .thread(let thread):
             list
-            .task {
-               threadProvider.threadObject = thread
-               Task {
-                  try await messagesProvider.listMessages(threadID: thread.id, metadata: thread.metadata)
+               .task {
+                  threadProvider.threadObject = thread
+                  Task {
+                     try await messagesProvider.listMessages(threadID: thread.id, assistantName: assistantName())
+                  }
+               }
+         case .none:
+            Text("TODO (chat)")
+         }
+      }
+      .safeAreaInset(edge: .top) {
+         Color.clear
+            .frame(height: 40)
+      }
+   }
+   
+   var headerView: some View {
+      HStack(spacing: 0) {
+         IconButton(iconName: "list.bullet") {}
+            .opacity(0)
+            .accessibilityHidden(true)
+         Spacer()
+         ActionButton(assistantName(), actionIcon: Image(systemName: "chevron.right")) {
+            showAssistantConfigurationModal = true
+         }
+         .frame(maxWidth: .infinity)
+         .actionButtonStyle(.plainTrailing)
+         Spacer()
+         IconButton(iconName: "trash") {
+            showDeleteThreadAlert = true
+         }
+         .iconButtonStyle(.plain)
+         .disabled(threadProvider.threadObject == nil)
+      }
+      .padding(.horizontal)
+   }
+   
+   var body: some View {
+      mainContent
+         .safeAreaInset(edge: .bottom) {
+            bottomTextArea
+               .padding(.bottom, 20)
+         }
+         .onChange(of: threadProvider.errorMessage) { oldValue, newValue in
+            if let newValue = newValue, oldValue != newValue {
+               currentErrorMessage = newValue
+            }
+         }
+         .onChange(of: messagesProvider.errorMessage) { oldValue, newValue in
+            if let newValue = newValue, oldValue != newValue {
+               currentErrorMessage = newValue
+            }
+         }
+         .onChange(of: runsProvider.errorMessage) { oldValue, newValue in
+            if let newValue = newValue, oldValue != newValue {
+               currentErrorMessage = newValue
+            }
+         }
+         .alert(currentErrorMessage ?? "", isPresented: Binding<Bool>(
+            get: { currentErrorMessage != nil },
+            set: {
+               if !$0 {
+                  currentErrorMessage = nil
+                  threadProvider.errorMessage = nil
+                  messagesProvider.errorMessage = nil
+                  runsProvider.errorMessage = nil
                }
             }
+         )) {
+            // Alert configuration, if needed
          }
-      }
-      .safeAreaInset(edge: .bottom) {
-         bottomTextArea
-      }
-      .onChange(of: threadProvider.errorMessage) { oldValue, newValue in
-           if let newValue = newValue, oldValue != newValue {
-               currentErrorMessage = newValue
-           }
-       }
-       .onChange(of: messagesProvider.errorMessage) { oldValue, newValue in
-           if let newValue = newValue, oldValue != newValue {
-               currentErrorMessage = newValue
-           }
-       }
-       .onChange(of: runsProvider.errorMessage) { oldValue, newValue in
-           if let newValue = newValue, oldValue != newValue {
-               currentErrorMessage = newValue
-           }
-       }
-       .alert(currentErrorMessage ?? "", isPresented: Binding<Bool>(
-           get: { currentErrorMessage != nil },
-           set: { if !$0 { currentErrorMessage = nil } }
-       )) {
-           // Alert configuration, if needed
-       }
-      .navigationBarItems(trailing: Button(action: {
-         showDeleteThreadAlert = true
-      }) {
-         Image(systemName: "trash")
-            .tint(ThemeColor.brandColor)
-      }
-         .disabled(threadProvider.threadObject == nil)
-      )
-      .alert("Are you sure you want to delete this thread?", isPresented: $showDeleteThreadAlert) {
-         Button("Yes", role: .destructive) {
-            Task {
-               try await threadProvider.deleteThread(id: threadProvider.threadObject!.id)
-               self.presentationMode.wrappedValue.dismiss()
+         .alert("Are you sure you want to delete this thread?", isPresented: $showDeleteThreadAlert) {
+            Button("Yes", role: .destructive) {
+               Task {
+                  try await threadProvider.deleteThread(id: threadProvider.threadObject!.id)
+                  self.presentationMode.wrappedValue.dismiss()
+               }
             }
+            Button("Nope", role: .cancel) {}
          }
-         Button("Nope", role: .cancel) {}
-      }
-      .toolbar {
-          ToolbarItem(placement: .principal) {
-             Menu.init(content: {
-                Button {
-                   showAssistantConfigurationModal = true
-                }  label: {
-                   Text("Edit assistant")
-                }
-             }, label: {
-                return ActionButton(assistantName(), actionIcon: Image(systemName: "chevron.right")) {}
-                   .actionButtonStyle(.plainTrailing)
-             })
-      }}
-      .sheet(isPresented: $showAssistantConfigurationModal) {
-         AssistantConfigurationScreen(service: service, assistantID: assistantID())
-         /// Think weel how we want to manage this so we dont pay too much money
-//            .onDisappear {
-//               Task {
-//                  try await assistantpro
-//               }
-//            }
-      }
+         .sheet(isPresented: $showAssistantConfigurationModal) {
+            AssistantConfigurationScreen(service: service, assistantID: assistantID())
+         }
    }
    
    func assistantName() -> String {
@@ -119,6 +133,8 @@ struct ThreadScreen: View {
          assistantName = assistantObject.name
       case .thread(let threadObject):
          assistantName = threadObject.metadata[ThreadProvider.assistantMetadataName]
+      case .none:
+         assistantName = nil
       }
       return assistantName ?? "Assistant"
    }
@@ -130,6 +146,8 @@ struct ThreadScreen: View {
          assistantID = assistantObject.id
       case .thread(let threadObject):
          assistantID = threadObject.metadata[ThreadProvider.assistantMetadataID]
+      case .none:
+         assistantID = ""
       }
       return assistantID
    }
@@ -160,8 +178,10 @@ struct ThreadScreen: View {
    }
    
    var bottomTextArea: some View {
-      ThreadTextArea { prompt in
-       
+      ThreadTextArea(
+         isAddAndRunActionLoading: $isAddAndRunActionLoading,
+         isAddMessageActionLoading: $isAddMessageActionLoading)
+      { prompt in
          Task {
             switch item {
             case .assistant(let assistant):
@@ -172,23 +192,21 @@ struct ThreadScreen: View {
                }
                // - Add the message to the thread.
                if let threadID = threadProvider.threadObject?.id {
-                  let paramaters = MessageParameter(role: "user", content: prompt)
-                  
-                  // TODO: here we can modify the thread metadata with the prompt
-                  try await messagesProvider.addMessage(threadID: threadID, parameters: paramaters)
-                  try await runsProvider.createRun(threadID: threadID, parameters: RunParameter(assistantID: assistant.id))
+                  isAddAndRunActionLoading = true
+                  try await addAndRun(threadID: threadID, assistantID: assistant.id, prompt: prompt)
+                  isAddAndRunActionLoading = false
                }
             case .thread(let thread):
                threadProvider.threadObject = thread
-               let paramaters = MessageParameter(role: "user", content: prompt)
-               try await messagesProvider.addMessage(threadID: threadProvider.threadObject!.id, parameters: paramaters)
+               let threadID = threadProvider.threadObject!.id
                let assistantID = thread.metadata[ThreadProvider.assistantMetadataID]!
-               
-               // TODO: figure it out what we want to do here with the run
-               try await runsProvider.createRun(threadID: thread.id, parameters: RunParameter(assistantID: assistantID))
+               isAddAndRunActionLoading = true
+               try await addAndRun(threadID: threadID, assistantID: assistantID, prompt: prompt)
+               isAddAndRunActionLoading = false
+            case .none:
+               break
             }
          }
-         
       } addMessageAction: { prompt in
          Task {
             switch item {
@@ -200,20 +218,25 @@ struct ThreadScreen: View {
                }
                // - Add the message to the thread.
                if let threadID = threadProvider.threadObject?.id {
-                  let paramaters = MessageParameter(role: "user", content: prompt)
-                  
-                  // TODO: here we can modify the thread metadata with the prompt
-                  try await messagesProvider.addMessage(threadID: threadID, parameters: paramaters)
+                  isAddMessageActionLoading = true
+                  try await addMessage(threadID: threadID, prompt: prompt)
+                  isAddMessageActionLoading = false
                }
             case .thread(let thread):
                threadProvider.threadObject = thread
-               let paramaters = MessageParameter(role: "user", content: prompt)
-               try await messagesProvider.addMessage(threadID: threadProvider.threadObject!.id, parameters: paramaters)
+               let threadID = threadProvider.threadObject!.id
+               isAddMessageActionLoading = true
+               try await addMessage(threadID: threadID, prompt: prompt)
+               isAddMessageActionLoading = false
+            case .none:
+               break
             }
          }
       }
    }
    
+   // MARK: Private
+
    private func startThreadFor(
       _ assistant: AssistantObject)
       async throws
@@ -226,8 +249,46 @@ struct ThreadScreen: View {
       try await threadProvider.createThread(parameters: CreateThreadParameters(metadata: threadMetadata))
    }
    
-   // MARK: Private
+   private func addMessage(
+      threadID: String,
+      prompt: String)
+      async throws
+   {
+      let paramaters = MessageParameter(role: .user, content: prompt)
+      // TODO: here we can modify the thread metadata with the prompt
+      
+      guard let message = try await messagesProvider.createMessage(threadID: threadID, parameters: paramaters) else { return }
+      guard let messageDisplayModel = messagesProvider.createMessageDisplayModel(from: message) else { return }
+      await messagesProvider.addMessage(messageDisplayModel)
+   }
+   
+   private func addAndRun(
+      threadID: String,
+      assistantID: String,
+      prompt: String)
+      async throws
+   {
+      let paramaters = MessageParameter(role: .user, content: prompt)
+      
+      // TODO: here we can modify the thread metadata with the prompt
+      guard let userMessage = try await messagesProvider.createMessage(threadID: threadID, parameters: paramaters) else { return }
+      guard let userMessageDisplayModel = messagesProvider.createMessageDisplayModel(from: userMessage) else { return }
+      await messagesProvider.addMessage(userMessageDisplayModel)
 
+      guard let run = try await runsProvider.runTheThread(threadID: threadID, parameters: RunParameter(assistantID: assistantID)) 
+      else { return }
+      
+      guard let lastRunStep = try await runsProvider.getRunSteps(threadID: threadID, runID: run.id)
+      else { return }
+      
+      // TODO remove force unwrapp after testing
+      let assistantMessage = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: lastRunStep.stepDetails.messageCreation.messageID)!
+      let assistantMessageDisplayModel = messagesProvider.createMessageDisplayModel(from: assistantMessage, assistantName: assistantName())!
+      
+      await messagesProvider.addMessage(assistantMessageDisplayModel)
+
+   }
+   
    private let service: OpenAIService
    @State private var currentErrorMessage: String? = nil
    @State private var threadProvider: ThreadProvider
@@ -239,6 +300,8 @@ struct ThreadScreen: View {
    @State private var runsProviderFailed = false
    @State private var showDeleteThreadAlert = false
    @State private var showAssistantConfigurationModal = false
+   @State private var isAddAndRunActionLoading: Bool? = false
+   @State private var isAddMessageActionLoading: Bool? = false
    @Environment(\.presentationMode) private var presentationMode
 }
 

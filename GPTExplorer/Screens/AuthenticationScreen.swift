@@ -8,13 +8,36 @@
 import SwiftUI
 import SwiftOpenAI
 
+extension Color {
+   static func random() -> Color {
+      return Color(
+         red: Double.random(in: 0...1),
+         green: Double.random(in: 0...1),
+         blue: Double.random(in: 0...1),
+         opacity: 1.0
+      )
+   }
+}
+
 // MARK: AuthenticationScreen
 
 struct AuthenticationScreen: View {
    
-   @State private var apiKey = ""
+   @State private var apiKey = "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"
    @State private var organizationIdentifier = ""
    @State private var localOrganizationID: String? = nil
+   @State private var navigationProvider: NavigationProvider = .init()
+   
+   @ViewBuilder
+   var destination: some View {
+      let service = OpenAIServiceFactory.service(
+         apiKey: apiKey,
+         organizationID:
+            localOrganizationID)
+      ContentViewScreen(service: service, navigationProvider: navigationProvider) {
+         SideMenuScreen(service: service, navigationProvider: navigationProvider)
+      }
+   }
    
    var body: some View {
       NavigationStack {
@@ -31,12 +54,7 @@ struct AuthenticationScreen: View {
             }
             .padding()
             .textFieldStyle(.roundedBorder)
-            NavigationLink(destination: PushedScreen {
-               SideMenuScreen(
-                     service: OpenAIServiceFactory.service(
-                        apiKey: apiKey,
-                        organizationID: localOrganizationID))
-            })
+            NavigationLink(destination: destination)
             {
                Text("Continue")
                   .padding()
@@ -64,3 +82,4 @@ struct AuthenticationScreen: View {
 #Preview {
    AuthenticationScreen()
 }
+

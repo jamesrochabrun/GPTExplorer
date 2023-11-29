@@ -17,15 +17,16 @@ struct IconButton: View {
    var body: some View {
       Button(action: action) {
          Image(systemName: iconName)
-            .foregroundColor(style.foregroundColor)
+            .foregroundColor(isEnabled ? style.foregroundColor : style.foregroundColorDisabled)
             .padding(.horizontal, style.horizontalPadding)
             .padding(.vertical, style.verticalPadding)
-            .background(style.backgroundColor)
+            .background(isEnabled ? style.backgroundColor : style.backgroundColorDisabled)
             .cornerRadius(style.cornerRadius)
       }
    }
    
    @Environment(\.iconButtonStyle) private var style: IconButtonStyle
+   @Environment(\.isEnabled) var isEnabled: Bool
 }
 
 // MARK: IconButtonStyle
@@ -33,6 +34,8 @@ struct IconButton: View {
 struct IconButtonStyle {
    
    var backgroundColor: Color = ThemeColor.brandColor
+   var backgroundColorDisabled = ThemeColor.colorDisabled
+   var foregroundColorDisabled = ThemeColor.colorDisabled
    var foregroundColor = Color.white
    var horizontalPadding: CGFloat = 10
    var verticalPadding: CGFloat = 10
@@ -42,6 +45,21 @@ struct IconButtonStyle {
       var style = IconButtonStyle()
       style.foregroundColor = .primary
       style.backgroundColor = ThemeColor.brandColorSecondary
+      return style
+   }
+   
+   static var plain: Self {
+      var style = IconButtonStyle()
+      style.backgroundColor = .clear
+      style.backgroundColorDisabled = .clear
+      style.foregroundColor = ThemeColor.brandColor
+      return style
+   }
+   
+   static var plainReversed: Self {
+      var style = IconButtonStyle()
+      style.backgroundColorDisabled = .clear
+      style.backgroundColor = .clear
       return style
    }
 }
