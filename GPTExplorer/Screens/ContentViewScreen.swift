@@ -64,6 +64,8 @@ struct ContentViewScreen<LeadingContent: View>: View {
          .offset(y: navigationProvider.isOpen ? 20 : 0)
       }
       .navigationBarBackButtonHidden(true)
+      .sensoryFeedback(.success, trigger: navigationProvider.isOpen)
+
    }
    
    @ViewBuilder

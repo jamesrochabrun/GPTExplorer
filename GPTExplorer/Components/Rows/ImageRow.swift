@@ -25,7 +25,8 @@ struct ImageRow: View {
                .urlImageViewStyle(.assistantRow)
          } else {
             Image(systemName: "circle.bottomrighthalf.checkered")
-               .tint(.primary)
+               .resizable()
+               .frame(width: 24, height: 24)
          }
          VStack(alignment: .leading) {
             Text(title)

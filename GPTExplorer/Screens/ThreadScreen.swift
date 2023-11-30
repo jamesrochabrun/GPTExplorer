@@ -198,7 +198,11 @@ struct ThreadScreen: View {
    @ViewBuilder
    var list: some View {
       if isLoadingListItems {
-         ProgressView()
+         VStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+         }
       } else {
          List(messagesProvider.chatDisplayMessages) { message in
             ChatMessageRow(message: message)

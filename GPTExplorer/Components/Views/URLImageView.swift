@@ -67,6 +67,12 @@ extension URLImageViewStyle {
       style.size = 24
       return style
    }
+   
+   static var assistantEmptyView: Self {
+      var style = assistantRow
+      style.size = 60
+      return style
+   }
 }
 
 // MARK: Environment

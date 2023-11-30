@@ -43,7 +43,7 @@ struct ActionButton: View {
          }
          .padding(.horizontal, style.horizontalPadding)
          .fontWeight(style.fontWeight)
-         .foregroundColor(style.foregroundColor)
+         .foregroundColor(isEnabled ? style.foregroundColor : style.foregroundColorDisabled)
          .padding(.vertical, style.verticalPading)
          .background(isEnabled ? style.backgroundColor : style.backgroundColorDisabled)
          .cornerRadius(style.cornerRadius)
@@ -76,10 +76,11 @@ struct ActionButtonStyle {
    var horizontalPadding: CGFloat = 30
    var verticalPading: CGFloat = 10
    var backgroundColor = ThemeColor.brandColor
-   var backgroundColorDisabled = ThemeColor.colorDisabled
+   var backgroundColorDisabled = ThemeColor.actionBackgroundDisabled
    var cornerRadius: CGFloat = 40.0
    var horizontalIconAlignment: HorizontalIconAlignment = .leading
    var foregroundColor: Color = .white
+   var foregroundColorDisabled: Color = ThemeColor.actionForegroundDisabled
    var fontWeight: Font.Weight = .bold
    var iconHeight: CGFloat = 14.0
    
@@ -104,6 +105,7 @@ struct ActionButtonStyle {
       style.cornerRadius = 10
       style.horizontalIconAlignment = .trailing
       style.backgroundColor = .clear
+      style.backgroundColorDisabled = .clear
       style.foregroundColor = .primary
       style.fontWeight = .semibold
       style.iconHeight = 10.0
@@ -112,8 +114,8 @@ struct ActionButtonStyle {
    
    static var secondary: Self {
       var style = Self.plain
-      style.backgroundColor = ThemeColor.brandColorSecondary
-      style.foregroundColor = .primary
+      style.backgroundColor = ThemeColor.actionBackground
+      style.foregroundColor = ThemeColor.actionForeground
       return style
    }
 }
@@ -158,9 +160,29 @@ extension View {
       .actionButtonStyle(.plain)
       
       VStack {
+         Text("Disabled")
+         HStack {
+            ActionButton("Add an run", actionIcon: Image(systemName: "play")) {}
+            ActionButton("Add") {}
+               .actionButtonStyle(.secondary)
+            IconButton(iconName: "paperclip", action: {})
+               .iconButtonStyle(.secondary)
+         }
+         .actionButtonStyle(.plain)
+      }
+      .disabled(true)
+      
+      VStack {
          ActionButton("Save") {}
          ActionButton("Add an run", actionIcon: Image(systemName: "chevron.right")) {}
       }
       .actionButtonStyle(.plainTrailing)
+      
+      VStack {
+         ActionButton("Save") {}
+         ActionButton("Add an run", actionIcon: Image(systemName: "chevron.right")) {}
+      }
+      .actionButtonStyle(.plainTrailing)
+      .disabled(true)
    }
 }

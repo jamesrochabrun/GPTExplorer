@@ -62,7 +62,7 @@ struct AuthenticationScreen: View {
                   .foregroundColor(.white)
                   .background(
                      Capsule()
-                        .foregroundColor(apiKey.isEmpty ? ThemeColor.colorDisabled : ThemeColor.brandColor))
+                        .foregroundColor(apiKey.isEmpty ? ThemeColor.actionBackgroundDisabled : ThemeColor.brandColor))
             }
             .disabled(apiKey.isEmpty)
             Spacer()

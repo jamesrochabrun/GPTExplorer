@@ -117,6 +117,14 @@ struct ThreadTextArea: View {
          fileIDS: ["Screenshot: 2023: 10-09 at 9:35.png"],
          addAndRunAction: { },
          addMessageAction: { })
-
+      
+      ThreadTextArea(
+         prompt: .constant("Some input"),
+         isAddAndRunActionLoading: .constant(false),
+         isAddMessageActionLoading: .constant(true),
+         fileIDS: ["Screenshot: 2023: 10-09 at 9:35.png"],
+         addAndRunAction: { },
+         addMessageAction: { })
+      .disabled(true)
    }
 }

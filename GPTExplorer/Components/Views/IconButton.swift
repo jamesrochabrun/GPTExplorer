@@ -34,8 +34,8 @@ struct IconButton: View {
 struct IconButtonStyle {
    
    var backgroundColor: Color = ThemeColor.brandColor
-   var backgroundColorDisabled = ThemeColor.colorDisabled
-   var foregroundColorDisabled = ThemeColor.colorDisabled
+   var backgroundColorDisabled = ThemeColor.actionBackgroundDisabled
+   var foregroundColorDisabled = ThemeColor.actionForegroundDisabled
    var foregroundColor = Color.white
    var horizontalPadding: CGFloat = 10
    var verticalPadding: CGFloat = 10
@@ -43,8 +43,8 @@ struct IconButtonStyle {
    
    static var secondary: Self {
       var style = IconButtonStyle()
-      style.foregroundColor = .primary
-      style.backgroundColor = ThemeColor.brandColorSecondary
+      style.foregroundColor = ThemeColor.actionForeground
+      style.backgroundColor = ThemeColor.actionBackground
       return style
    }
    
@@ -87,6 +87,23 @@ extension View {
       IconButton(iconName: "paperplane", action: {})
       IconButton(iconName: "paperplane", action: {})
          .iconButtonStyle(.secondary)
-      
+      IconButton(iconName: "paperplane", action: {})
+         .iconButtonStyle(.plain)
+      IconButton(iconName: "paperplane", action: {})
+         .iconButtonStyle(.plainReversed)
    }
 }
+
+#Preview {
+   VStack {
+      IconButton(iconName: "paperplane", action: {})
+      IconButton(iconName: "paperplane", action: {})
+         .iconButtonStyle(.secondary)
+      IconButton(iconName: "paperplane", action: {})
+         .iconButtonStyle(.plain)
+      IconButton(iconName: "paperplane", action: {})
+         .iconButtonStyle(.plainReversed)
+   }
+   .disabled(true)
+}
+

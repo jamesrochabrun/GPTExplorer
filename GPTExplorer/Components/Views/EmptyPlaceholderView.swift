@@ -24,7 +24,7 @@ struct EmptyPlaceholderView: View {
                .clipShape(Circle())
                .overlay(Circle().stroke(Color.white, lineWidth: 1))
                .shadow(radius: 10)
-               .urlImageViewStyle(.assistantRow)
+               .urlImageViewStyle(.assistantEmptyView)
          } else {
             Circle()
                .stroke(.primary, style: StrokeStyle(lineWidth: 2))
@@ -45,6 +45,24 @@ struct EmptyPlaceholderView: View {
 
 // MARK: Mock+Preview
 
-#Preview {
-   EmptyPlaceholderView(imageURL: urlImageViewMockURL.absoluteString + "ll", placeholder: nil, title: "Some Assistant", subtitle: "The math assistant description")
+#Preview("All") {
+   VStack {
+      EmptyPlaceholderView(imageURL: urlImageViewMockURL.absoluteString + "ll", placeholder: nil, title: "Some Assistant", subtitle: "The math assistant description")
+      EmptyPlaceholderView(imageURL: nil, placeholder: Image(systemName: "oval.bottomhalf.filled"), title: "Some Assistant", subtitle: "The math assistant description")
+      EmptyPlaceholderView(imageURL: urlImageViewMockURL.absoluteString, placeholder: Image(systemName: "oval.bottomhalf.filled"), title: "Some Assistant", subtitle: "The math assistant description")
+   }
+}
+
+#Preview("Error") {
+   VStack {
+      EmptyPlaceholderView(imageURL: urlImageViewMockURL.absoluteString + "ll", placeholder: nil, title: "Some Assistant", subtitle: "The math assistant description")
+   }
+}
+
+#Preview("Empty url")  {
+   EmptyPlaceholderView(imageURL: nil, placeholder: Image(systemName: "oval.bottomhalf.filled"), title: "Some Assistant", subtitle: "The math assistant description")
+}
+
+#Preview("Valid url")  {
+   EmptyPlaceholderView(imageURL: urlImageViewMockURL.absoluteString, placeholder: Image(systemName: "oval.bottomhalf.filled"), title: "Some Assistant", subtitle: "The math assistant description")
 }
