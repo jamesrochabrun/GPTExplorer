@@ -24,27 +24,51 @@ struct ImageRow: View {
                .shadow(radius: 10)
                .urlImageViewStyle(.assistantRow)
          } else {
-            Circle()
-               .stroke(.gray, style: StrokeStyle(lineWidth: 4))
-               .frame(width: 40, height: 40)
-               .overlay(
-                  Image(systemName: "lightbulb.led")
-               )
+            Image(systemName: "circle.bottomrighthalf.checkered")
+               .tint(.primary)
          }
          VStack(alignment: .leading) {
             Text(title)
-               .font(.title2)
-            if let subtitle {
+               .font(.body)
+               .frame(maxWidth: .infinity, alignment: .leading)
+            if let subtitle, !subtitle.isEmpty {
                Text(subtitle)
+                  .font(.caption)
+                  .lineLimit(2)
             }
          }
       }
+   }
+   
+   init(
+      url: String?,
+      title: String,
+      subtitle: String? = nil)
+   {
+      self.url = url
+      self.title = title
+      self.subtitle = subtitle
    }
 }
 
 // MARK: Mock+Preview
 
 #Preview {
-   ImageRow(url: urlImageViewMockURL.absoluteString, title: "Some Assistant", subtitle: "The math descrip")
-      .border(.black)
+
+   ZStack {
+      ThemeColor.backgroundColor
+      VStack {
+         ImageRow(url: urlImageViewMockURL.absoluteString, title: "Some Assistant", subtitle: "The math description long line")
+            .border(.black)
+         ImageRow(url: urlImageViewMockURL.absoluteString, title: "Some Assistant", subtitle: nil)
+            .border(.black)
+         
+         ImageRow(url: "", title: "Olivia")
+            .border(.black)
+         ImageRow(url: "", title: "Sasha")
+            .border(.black)
+      }
+      .urlImageViewStyle(.assistantRow)
+   }
+   .foregroundColor(.white)
 }

@@ -30,25 +30,15 @@ enum SideMenuItem: Identifiable {
    
    // MARK: - Private Properties
    
-   enum Section: Int {
+   enum Section: String, CaseIterable, Identifiable {
+      
       case assistants
       case threads
-   }
-   
-   var assistant: AssistantObject?
-   private var assistantItems: [SideMenuItem] = []
-   private var threadItems: [SideMenuItem] = []
-   private var mapItems: [Section: [SideMenuItem]] = [:]
       
-   let threadProvider: ThreadProvider
-   let assistantsProvider: AssistantsProvider
+      var id: String { rawValue.capitalized }
+   }
    
    var errorMessage: String?
-
-   var items: [[SideMenuItem]] {
-      let sortedKeys = mapItems.keys.map { $0.rawValue }.sorted()
-      return sortedKeys.map { mapItems[Section(rawValue: $0) ?? .assistants] ?? [] }
-   }
    
    // MARK: - Initializer
    
@@ -60,23 +50,19 @@ enum SideMenuItem: Identifiable {
    
    // MARK: Assistants
 
-   func listAssistants(
+   private func listAssistants(
        limit: Int? = nil,
        order: String? = nil,
        after: String? = nil,
        before: String? = nil)
        async throws -> [AssistantObject]
    {
-       let assistants = try await assistantsProvider.listAssistants(limit: limit, order: order, after: after, before: before)
-       for assistant in assistants {
-           dump(assistant)
-       }
-       return assistants
+      try await assistantsProvider.listAssistants(limit: limit, order: order, after: after, before: before)
    }
     
    // MARK: Threads
     
-   func listThreads() 
+   private func listThreads()
       async throws -> [ThreadObject]
    {
       try await threadProvider.listThreads()
@@ -96,4 +82,11 @@ enum SideMenuItem: Identifiable {
          errorMessage = error.displayDescription
       }
    }
+   
+   // MARK: Private
+   private let threadProvider: ThreadProvider
+   private var threadItems: [SideMenuItem] = []
+   private let assistantsProvider: AssistantsProvider
+   private var assistantItems: [SideMenuItem] = []
+   var mapItems: [Section: [SideMenuItem]] = [:]
 }

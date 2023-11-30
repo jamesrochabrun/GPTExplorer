@@ -57,9 +57,8 @@ struct IconButtonStyle {
    }
    
    static var plainReversed: Self {
-      var style = IconButtonStyle()
-      style.backgroundColorDisabled = .clear
-      style.backgroundColor = .clear
+      var style = plain
+      style.foregroundColor = .white
       return style
    }
 }

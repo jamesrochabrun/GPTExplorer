@@ -27,7 +27,8 @@ struct URLImageView: View {
                .frame(width: style.size, height: style.size)
                .transition(.opacity)
          case .failure:
-            Image(systemName: "wifi.slash")
+            Image(systemName: "exclamationmark.circle")
+               .symbolEffect(.bounce.down.byLayer, value: true)
          @unknown default:
             EmptyView()
          }
@@ -63,7 +64,7 @@ extension URLImageViewStyle {
    
    static var assistantRow: Self {
       var style = URLImageViewStyle()
-      style.size = 40
+      style.size = 24
       return style
    }
 }

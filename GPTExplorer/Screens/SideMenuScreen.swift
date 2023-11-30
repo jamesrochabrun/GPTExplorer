@@ -26,40 +26,37 @@ struct SideMenuScreen: View {
    @State private var navigationProvider: NavigationProvider
    
    var body: some View {
-      ZStack(alignment: .topTrailing) {
-         List(0..<provider.items.count, id: \.self) { sectionIndex in
-            Section(header: Text("Section \(sectionIndex + 1)")) {
-               ForEach(provider.items[sectionIndex], id: \.id) { item in
-                  Group {
-                     switch item {
-                     case .assistant(let assistant):
-                        ImageRow(
-                           url: assistant.metadata[AssistantsProvider.avatarMetadataKey],
-                           title: assistant.name ?? "NO NAME",
-                           subtitle: assistant.description)
-                     case .thread(let thread):
-                        Text(thread.id)
-                     case .none:
-                        EmptyView()
-                     }
+      List(SideMenuConfigurationProvider.Section.allCases) { section in
+         Section(header: Text(section.rawValue)) {
+            ForEach(provider.mapItems[section] ?? [], id: \.id) { item in
+               Group {
+                  switch item {
+                  case .assistant(let assistant):
+                     ImageRow(
+                        url: assistant.metadata[AssistantsProvider.avatarMetadataKey],
+                        title: assistant.name ?? "NO NAME",
+                        subtitle: assistant.description)
+                  case .thread(let thread):
+                     Text(thread.displayTitle ?? thread.id)
+                  case .none:
+                     EmptyView()
                   }
-
-                  .listRowSeparator(.hidden)
-                  .listRowBackground(
-                     ThemeColor.backggroundColor
-                  )
-                  .onTapGesture {
-                     navigationProvider.selectedItem = item
+               }
+               .listRowSeparator(.hidden)
+               .listRowBackground(
+                  ThemeColor.backgroundColor
+               )
+               .onTapGesture {
+                  navigationProvider.selectedItem = item
+                  withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                     navigationProvider.isOpen = false
                   }
                }
             }
          }
-         .listStyle(.plain)
-         IconButton(iconName: "plus") {
-            self.showAssistantConfigurationModal = true
-         }
-         .padding()
       }
+      .foregroundColor(.white)
+      .listStyle(.plain)
       .onFirstAppear {
          Task {
             try await provider.updateSideMenuContent()
@@ -82,7 +79,7 @@ struct SideMenuScreen: View {
    
    // MARK: private
    
-   let service: OpenAIService
+   private let service: OpenAIService
    @State private var provider: SideMenuConfigurationProvider
    @Environment(\.presentationMode) private var presentationMode
    @State private var showAssistantConfigurationModal = false

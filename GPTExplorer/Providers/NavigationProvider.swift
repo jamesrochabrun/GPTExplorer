@@ -10,4 +10,5 @@ import SwiftUI
 @Observable class NavigationProvider {
    
    var selectedItem: SideMenuItem = .none
+   var isOpen: Bool = false
 }

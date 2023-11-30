@@ -27,7 +27,7 @@ struct EmptyPlaceholderView: View {
                .urlImageViewStyle(.assistantRow)
          } else {
             Circle()
-               .stroke(.gray, style: StrokeStyle(lineWidth: 4))
+               .stroke(.primary, style: StrokeStyle(lineWidth: 2))
                .frame(width: 60, height: 60)
                .overlay(
                   placeholder
@@ -46,5 +46,5 @@ struct EmptyPlaceholderView: View {
 // MARK: Mock+Preview
 
 #Preview {
-   EmptyPlaceholderView(imageURL: urlImageViewMockURL.absoluteString, placeholder: nil, title: "Some Assistant", subtitle: "The math assistant description")
+   EmptyPlaceholderView(imageURL: urlImageViewMockURL.absoluteString + "ll", placeholder: nil, title: "Some Assistant", subtitle: "The math assistant description")
 }
