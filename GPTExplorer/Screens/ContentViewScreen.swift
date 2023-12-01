@@ -8,20 +8,21 @@
 import SwiftUI
 import SwiftOpenAI
 
-struct ContentViewScreen<LeadingContent: View>: View {
+struct ContentViewScreen: View {
    
-   let leadingContent: LeadingContent
    let service: OpenAIService
+   @State private var sideMenuConfigurationProvider: SideMenuConfigurationProvider
    @State private var navigationProvider: NavigationProvider
+   @State private var threadProvider: ThreadProvider
    
    init(
       service: OpenAIService,
-      navigationProvider: NavigationProvider,
-      @ViewBuilder leadingContent: () -> LeadingContent)
+      sideMenuConfigurationProvider: SideMenuConfigurationProvider)
    {
       self.service = service
-      self.leadingContent = leadingContent()
-      self._navigationProvider = State(initialValue: navigationProvider)
+      self._navigationProvider = State(initialValue: sideMenuConfigurationProvider.navigationProvider)
+      self._sideMenuConfigurationProvider = State(initialValue: sideMenuConfigurationProvider)
+      self._threadProvider = State(initialValue: sideMenuConfigurationProvider.threadProvider)
    }
    
    var body: some View {
@@ -29,7 +30,8 @@ struct ContentViewScreen<LeadingContent: View>: View {
          
          ThemeColor.backgroundColor
             .ignoresSafeArea()
-         leadingContent
+         
+         SideMenuScreen(service: service, sideMenuConfigurationProvider: sideMenuConfigurationProvider)
             .foregroundColor(.primary)
             .background(Color.clear)
             .frame(maxWidth: 288, maxHeight: .infinity)
@@ -65,16 +67,14 @@ struct ContentViewScreen<LeadingContent: View>: View {
       switch navigationProvider.selectedItem {
       case .thread, .assistant:
          ThreadScreen(
-            service: service,
-            item: $navigationProvider.selectedItem, 
+            service: service, 
+            threadProvider: threadProvider,
+            navigationProvider: navigationProvider,
+            item: $navigationProvider.selectedItem,
             didCreateThread: { thread in
                navigationProvider.selectedItem  = .thread(thread)
                navigationProvider.createdThread = thread
-            },
-            didDeleteThread: { deletedID in
-            navigationProvider.deletedThreadID = deletedID
-            navigationProvider.selectedItem = .none
-         })
+            })
             .id(navigationProvider.selectedItem.id)// Replace with actual view
       case .none:
          Text("CHAT COMING SOON 🤖")

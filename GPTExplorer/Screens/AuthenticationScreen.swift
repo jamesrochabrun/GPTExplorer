@@ -27,16 +27,16 @@ struct AuthenticationScreen: View {
    @State private var organizationIdentifier = ""
    @State private var localOrganizationID: String? = nil
    @State private var navigationProvider: NavigationProvider = .init()
-   
+
    @ViewBuilder
    var destination: some View {
       let service = OpenAIServiceFactory.service(
          apiKey: apiKey,
          organizationID:
             localOrganizationID)
-      ContentViewScreen(service: service, navigationProvider: navigationProvider) {
-         SideMenuScreen(service: service, navigationProvider: navigationProvider)
-      }
+      ContentViewScreen(
+         service: service,
+         sideMenuConfigurationProvider: SideMenuConfigurationProvider(service: service))
    }
    
    var body: some View {

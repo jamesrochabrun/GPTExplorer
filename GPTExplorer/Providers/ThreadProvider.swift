@@ -48,7 +48,6 @@ extension ThreadObject: Equatable {
    private let service: OpenAIService
    let threadsIDStorage = UserDefaultsIDStorage<String>(key: "threadsIDStorage")
 
-   var threadObject: ThreadObject?
    var errorMessage: String?
    var successMessage: String?
    var deletionStatus: ThreadObject.DeletionStatus?
@@ -61,27 +60,18 @@ extension ThreadObject: Equatable {
    
    func createThread(
       parameters: CreateThreadParameters)
-      async throws
+      async throws -> ThreadObject?
    {
       do {
          let newThread = try await service.createThread(parameters: parameters)
          threadsIDStorage.add(id: newThread.id)
-         threadObject = newThread
+         return newThread
       } catch let error as APIError  {
          errorMessage = error.displayDescription
+         return nil
       }
    }
    
-   func retrieveThread(
-      id: String)
-      async throws
-   {
-      do {
-         threadObject = try await service.retrieveThread(id: id)
-      } catch let error as APIError  {
-         errorMessage = error.displayDescription
-      }
-   }
    
    func modifyThread(
       id: String,
@@ -89,7 +79,7 @@ extension ThreadObject: Equatable {
       async throws
    {
       do {
-         threadObject = try await service.modifyThread(id: id, parameters: parameters)
+         let _ = try await service.modifyThread(id: id, parameters: parameters)
       } catch let error as APIError  {
          errorMessage = error.displayDescription
       }
@@ -170,12 +160,13 @@ extension ThreadObject: Equatable {
    // MARK: Prompting
    
    func defineThreadSnippetForMetadata(
+      thread: ThreadObject?,
       prompt: String)
       async throws
    {
       guard
-         let threadObject,
-         threadObject.metadata[ThreadMetadataKeys.assistantMessageSnippet] == nil
+         let thread,
+         thread.metadata[ThreadMetadataKeys.assistantMessageSnippet] == nil
       else {
          return
       }
@@ -187,10 +178,10 @@ extension ThreadObject: Equatable {
          messages.append(ChatCompletionParameters.Message(role: .user, content: .text(modifiedUsersPrompt)))
          let response = try await service.startChat(parameters: .init(messages: messages, model: .gpt4))
          let content = (response.choices.first?.message.content ?? "").replacingOccurrences(of: "\"", with: "")
-         var threadMetadata = threadObject.metadata
+         var threadMetadata = thread.metadata
          threadMetadata[ThreadMetadataKeys.assistantMessageSnippet] = content
          
-         try await modifyThread(id: threadObject.id, parameters: .init(metadata: threadMetadata))
+         try await modifyThread(id: thread.id, parameters: .init(metadata: threadMetadata))
       } catch let error as APIError  {
          errorMessage = error.displayDescription
       }

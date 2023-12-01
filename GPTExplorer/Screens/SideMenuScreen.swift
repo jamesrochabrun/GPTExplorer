@@ -16,11 +16,11 @@ struct SideMenuScreen: View {
    
    init(
       service: OpenAIService,
-      navigationProvider: NavigationProvider)
+      sideMenuConfigurationProvider: SideMenuConfigurationProvider)
    {
       self.service = service
-      self._navigationProvider = State(initialValue: navigationProvider)
-      _provider = State(initialValue: SideMenuConfigurationProvider(service: service))
+      self._navigationProvider = State(initialValue: sideMenuConfigurationProvider.navigationProvider)
+      self._provider = State(initialValue: sideMenuConfigurationProvider)
    }
    
    @State private var navigationProvider: NavigationProvider
@@ -113,10 +113,4 @@ struct SideMenuScreen: View {
    @State private var showAssistantConfigurationModal = false
    @State private var providerDidFail = false
 
-}
-
-// MARK: Mock+Preview
-
-#Preview {
-   SideMenuScreen(service: OpenAIServiceFactory.service(apiKey: ""), navigationProvider: .init())
 }

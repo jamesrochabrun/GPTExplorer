@@ -39,6 +39,10 @@ enum SideMenuItem: Identifiable {
    }
    
    var errorMessage: String?
+   let threadProvider: ThreadProvider
+   let assistantsProvider: AssistantsProvider
+   let navigationProvider: NavigationProvider
+   var mapItems: [Section: [SideMenuItem]] = [:]
    
    // MARK: - Initializer
    
@@ -46,6 +50,7 @@ enum SideMenuItem: Identifiable {
    {
       self.assistantsProvider = AssistantsProvider(service: service)
       self.threadProvider = ThreadProvider(service: service)
+      self.navigationProvider = .init()
    }
    
    // MARK: Assistants
@@ -104,9 +109,6 @@ enum SideMenuItem: Identifiable {
    }
 //   
    // MARK: Private
-   private let threadProvider: ThreadProvider
    private var threadItems: [SideMenuItem] = []
-   private let assistantsProvider: AssistantsProvider
    private var assistantItems: [SideMenuItem] = []
-   var mapItems: [Section: [SideMenuItem]] = [:]
 }

@@ -14,22 +14,22 @@ struct ThreadScreen: View {
       
    // MARK: Initialization
    
-   var didDeleteThread: (String) -> Void
    var didCreateThread: (ThreadObject) -> Void
    
    init(
       service: OpenAIService,
+      threadProvider: ThreadProvider,
+      navigationProvider: NavigationProvider,
       item: Binding<SideMenuItem>,
-      didCreateThread: @escaping (ThreadObject) -> Void,
-      didDeleteThread: @escaping (String) -> Void)
+      didCreateThread: @escaping (ThreadObject) -> Void)
    {
       self.service = service
-      _threadProvider = State(initialValue: ThreadProvider(service: service))
+      _navigationProvider = State(initialValue: navigationProvider)
+      _threadProvider = State(initialValue: threadProvider)
       _messagesProvider = State(initialValue: MessagesProvider(service: service))
       _runsProvider = State(initialValue: RunsProvider(service: service))
       self._item = item
       self.didCreateThread = didCreateThread
-      self.didDeleteThread = didDeleteThread
    }
    
    var body: some View {
@@ -80,15 +80,17 @@ struct ThreadScreen: View {
       )) {
          // Alert configuration, if needed
          Button("Ok", role: .cancel) {
-            if let threadID = threadProvider.threadObject?.id {
-               didDeleteThread(threadID)
+            if let threadID = currentThreadObject?.id {
+               navigationProvider.deletedThreadID = threadID
+               navigationProvider.selectedItem = .none
+               currentThreadObject = nil
             }
          }
       }
       .alert("Are you sure you want to delete this thread?", isPresented: $showDeleteThreadAlert) {
          Button("Yes", role: .destructive) {
             Task {
-               if let threadID = threadProvider.threadObject?.id {
+               if let threadID = currentThreadObject?.id {
                   try await threadProvider.deleteThread(id: threadID)
                }
             }
@@ -114,7 +116,7 @@ struct ThreadScreen: View {
          case .thread(let thread):
             list
                .task {
-                  threadProvider.threadObject = thread
+                  currentThreadObject = thread
                   Task {
                      isLoadingListItems = true
                      try await messagesProvider.listMessages(threadID: thread.id, assistantName: assistantName())
@@ -143,7 +145,7 @@ struct ThreadScreen: View {
             showDeleteThreadAlert = true
          }
          .iconButtonStyle(.plain)
-         .disabled(threadProvider.threadObject == nil)
+         .disabled(currentThreadObject == nil)
       }
       .padding(.horizontal)
    }
@@ -228,19 +230,19 @@ struct ThreadScreen: View {
                isAddAndRunActionLoading = true
                // If the item is assistant, no thread has been created:
                // - Create a new thread only for first time.
-               if threadProvider.threadObject == nil {
-                  try await startThreadFor(assistant)
+               if currentThreadObject == nil {
+                  currentThreadObject = try await startThreadFor(assistant)
                }
                // - Add the message to the thread.
-               if let threadID = threadProvider.threadObject?.id {
+               if let threadID = currentThreadObject?.id {
                   prompt = ""
                   try await addAndRun(threadID: threadID, assistantID: assistant.id, prompt: input)
-                  didCreateThread(threadProvider.threadObject!)
+                 // didCreateThread(threadProvider.threadObject!)
                }
                isAddAndRunActionLoading = false
             case .thread(let thread):
-               threadProvider.threadObject = thread
-               let threadID = threadProvider.threadObject!.id
+               currentThreadObject = thread
+               let threadID = thread.id
                let assistantID = thread.assistantID!
                isAddAndRunActionLoading = true
                let input = prompt
@@ -250,7 +252,7 @@ struct ThreadScreen: View {
             case .none:
                break
             }
-            try await threadProvider.defineThreadSnippetForMetadata(prompt: input)
+            try await threadProvider.defineThreadSnippetForMetadata(thread: currentThreadObject, prompt: input)
          }
       } addMessageAction: {
          Task {
@@ -260,19 +262,19 @@ struct ThreadScreen: View {
                isAddMessageActionLoading = true
                // If the item is assistant, no thread has been created:
                // - Create a new thread only for first time.
-               if threadProvider.threadObject == nil {
-                  try await startThreadFor(assistant)
+               if currentThreadObject == nil {
+                  currentThreadObject = try await startThreadFor(assistant)
                }
                // - Add the message to the thread.
-               if let threadID = threadProvider.threadObject?.id {
+               if let threadID = currentThreadObject?.id {
                   prompt = ""
                   try await addMessage(threadID: threadID, prompt: input)
-                  didCreateThread(threadProvider.threadObject!)
+                //  didCreateThread(threadProvider.threadObject!)
                }
                isAddMessageActionLoading = false
             case .thread(let thread):
-               threadProvider.threadObject = thread
-               let threadID = threadProvider.threadObject!.id
+               currentThreadObject = thread
+               let threadID = thread.id
                isAddMessageActionLoading = true
                prompt = ""
                try await addMessage(threadID: threadID, prompt: input)
@@ -280,7 +282,7 @@ struct ThreadScreen: View {
             case .none:
                break
             }
-            try await threadProvider.defineThreadSnippetForMetadata(prompt: input)
+            try await threadProvider.defineThreadSnippetForMetadata(thread: currentThreadObject, prompt: input)
            // didCreateThread(threadProvider.threadObject!)
          }
       }
@@ -290,14 +292,14 @@ struct ThreadScreen: View {
    
    private func startThreadFor(
       _ assistant: AssistantObject)
-      async throws
+      async throws -> ThreadObject?
    {
       let threadMetadata = [
          ThreadMetadataKeys.assistantMetadataID: assistant.id,
          ThreadMetadataKeys.assistantMetadataName: assistant.name ?? "",
          ThreadMetadataKeys.assistantMetadataDescription: assistant.description ?? "",
       ]
-      try await threadProvider.createThread(parameters: CreateThreadParameters(metadata: threadMetadata))
+      return try await threadProvider.createThread(parameters: CreateThreadParameters(metadata: threadMetadata))
    }
    
    private func addMessage(
@@ -345,6 +347,7 @@ struct ThreadScreen: View {
    @State private var prompt = ""
    @State private var currentErrorMessage: String? = nil
    @State private var currentSuccessMessage: String? = nil
+   @State private var navigationProvider: NavigationProvider
    @State private var threadProvider: ThreadProvider
    @State private var messagesProvider: MessagesProvider
    @State private var runsProvider: RunsProvider
@@ -355,16 +358,17 @@ struct ThreadScreen: View {
    @State private var showAssistantConfigurationModal = false
    @State private var isAddAndRunActionLoading: Bool? = false
    @State private var isAddMessageActionLoading: Bool? = false
+   @State private var currentThreadObject: ThreadObject?
    @Environment(\.presentationMode) private var presentationMode
 }
 
 // MARK: Mock+Preview
 
-#Preview {
-   ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.assistant(.init(id: UUID().uuidString, object: "", createdAt: 0, name: "Robocop", description: "", model: "", instructions: "", tools: [], fileIDS: [], metadata: [:]))), didCreateThread: { _ in }, didDeleteThread: { _ in })
-}
-
-#Preview {
-   ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.thread(.init(id: "", object: "", createdAt: 0, metadata: [:]))), didCreateThread: { _ in }, didDeleteThread: { _ in })
-      .disabled(true)
-}
+//#Preview {
+//   ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.assistant(.init(id: UUID().uuidString, object: "", createdAt: 0, name: "Robocop", description: "", model: "", instructions: "", tools: [], fileIDS: [], metadata: [:]))), didCreateThread: { _ in }, didDeleteThread: { _ in })
+//}
+//
+//#Preview {
+//   ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.thread(.init(id: "", object: "", createdAt: 0, metadata: [:]))), didCreateThread: { _ in }, didDeleteThread: { _ in })
+//      .disabled(true)
+//}
