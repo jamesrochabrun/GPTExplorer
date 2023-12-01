@@ -18,7 +18,11 @@ enum ThreadMetadataKeys {
    static let assistantMessageSnippet = "assistant_message_snippet"
 }
 
-extension ThreadObject {
+extension ThreadObject: Equatable {
+   
+   public static func == (lhs: ThreadObject, rhs: ThreadObject) -> Bool {
+      lhs.id == rhs.id
+   }
 
    var assistantID: String? {
       metadata[ThreadMetadataKeys.assistantMetadataID]
@@ -178,9 +182,8 @@ extension ThreadObject {
       do {
          var messages: [ChatCompletionParameters.Message] = []
          messages.append(ChatCompletionParameters.Message(role: .assistant, content: .text(Self.instructionsForThreadTitle)))
-         let modifiedUsersPrompt = "Resume Snippet: `\(prompt)`"
+         let modifiedUsersPrompt = "Summarize this in no more than 5 words: `\(prompt)`"
          
-         print("RAMAH \(modifiedUsersPrompt)")
          messages.append(ChatCompletionParameters.Message(role: .user, content: .text(modifiedUsersPrompt)))
          let response = try await service.startChat(parameters: .init(messages: messages, model: .gpt4))
          let content = (response.choices.first?.message.content ?? "").replacingOccurrences(of: "\"", with: "")

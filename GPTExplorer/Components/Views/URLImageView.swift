@@ -34,8 +34,9 @@ struct URLImageView: View {
          }
       }
       .frame(width: style.size, height: style.size)
-      .background(Color.gray)
-      .clipShape(RoundedRectangle(cornerRadius: 10))
+      .background(Color.clear)
+      .clipShape(Circle())
+      .overlay(Circle().stroke(.primary, lineWidth: 1))
    }
    
    @Environment(\.urlImageViewStyle) private var style

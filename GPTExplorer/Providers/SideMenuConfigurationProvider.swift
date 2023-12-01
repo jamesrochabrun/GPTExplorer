@@ -73,6 +73,18 @@ enum SideMenuItem: Identifiable {
      }
    }
    
+   func deleteThreadFromMapStorageWith(threadID: String) {
+      var threads = mapItems[.threads]
+      threads?.removeAll(where: { item in
+         item.id == threadID
+      })
+      mapItems[.threads] = threads
+   }
+   
+   func addThreadToMapStorage(_ thread: ThreadObject) {
+      mapItems[.threads]?.append(.thread(thread))
+   }
+   
    func updateSideMenu(sections: Set<Section>) async throws {
        do {
            // Conditionally start the asynchronous tasks

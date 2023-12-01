@@ -156,9 +156,6 @@ struct AssistantConfigurationScreen: View {
       }
       else if let avatarURL = provider.avatarURL {
          URLImageView(url: avatarURL)
-            .clipShape(Circle())
-            .overlay(Circle().stroke(Color.white, lineWidth: 1))
-            .shadow(radius: 10)
       } else {
          Menu.init(content: {
             Button {

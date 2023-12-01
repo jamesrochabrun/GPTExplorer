@@ -21,9 +21,7 @@ struct EmptyPlaceholderView: View {
       VStack(spacing: Sizes.spacingExtraLarge) {
          if let imageURL, let urlDisplay = URL(string: imageURL) {
             URLImageView(url: urlDisplay)
-               .clipShape(Circle())
-               .overlay(Circle().stroke(Color.white, lineWidth: 1))
-               .shadow(radius: 10)
+ 
                .urlImageViewStyle(.assistantEmptyView)
          } else {
             Circle()

@@ -14,18 +14,21 @@ struct ThreadScreen: View {
       
    // MARK: Initialization
    
-   var didDeleteThread: () -> Void
+   var didDeleteThread: (String) -> Void
+   var didCreateThread: (ThreadObject) -> Void
    
    init(
       service: OpenAIService,
       item: Binding<SideMenuItem>,
-      didDeleteThread: @escaping () -> Void)
+      didCreateThread: @escaping (ThreadObject) -> Void,
+      didDeleteThread: @escaping (String) -> Void)
    {
       self.service = service
       _threadProvider = State(initialValue: ThreadProvider(service: service))
       _messagesProvider = State(initialValue: MessagesProvider(service: service))
       _runsProvider = State(initialValue: RunsProvider(service: service))
       self._item = item
+      self.didCreateThread = didCreateThread
       self.didDeleteThread = didDeleteThread
    }
    
@@ -77,17 +80,17 @@ struct ThreadScreen: View {
       )) {
          // Alert configuration, if needed
          Button("Ok", role: .cancel) {
-            didDeleteThread()
-            
-            // TODO: open the menu
-            // update the thread side menu provide
-            // In short you should send a completion that this is deleted.
+            if let threadID = threadProvider.threadObject?.id {
+               didDeleteThread(threadID)
+            }
          }
       }
       .alert("Are you sure you want to delete this thread?", isPresented: $showDeleteThreadAlert) {
          Button("Yes", role: .destructive) {
             Task {
-               try await threadProvider.deleteThread(id: threadProvider.threadObject!.id)
+               if let threadID = threadProvider.threadObject?.id {
+                  try await threadProvider.deleteThread(id: threadID)
+               }
             }
          }
       }
@@ -210,7 +213,6 @@ struct ThreadScreen: View {
          }
          .listStyle(.plain)
       }
-
    }
    
    var bottomTextArea: some View {
@@ -233,6 +235,7 @@ struct ThreadScreen: View {
                if let threadID = threadProvider.threadObject?.id {
                   prompt = ""
                   try await addAndRun(threadID: threadID, assistantID: assistant.id, prompt: input)
+                  didCreateThread(threadProvider.threadObject!)
                }
                isAddAndRunActionLoading = false
             case .thread(let thread):
@@ -264,6 +267,7 @@ struct ThreadScreen: View {
                if let threadID = threadProvider.threadObject?.id {
                   prompt = ""
                   try await addMessage(threadID: threadID, prompt: input)
+                  didCreateThread(threadProvider.threadObject!)
                }
                isAddMessageActionLoading = false
             case .thread(let thread):
@@ -277,6 +281,7 @@ struct ThreadScreen: View {
                break
             }
             try await threadProvider.defineThreadSnippetForMetadata(prompt: input)
+           // didCreateThread(threadProvider.threadObject!)
          }
       }
    }
@@ -356,10 +361,10 @@ struct ThreadScreen: View {
 // MARK: Mock+Preview
 
 #Preview {
-   ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.assistant(.init(id: UUID().uuidString, object: "", createdAt: 0, name: "Robocop", description: "", model: "", instructions: "", tools: [], fileIDS: [], metadata: [:]))), didDeleteThread: {})
+   ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.assistant(.init(id: UUID().uuidString, object: "", createdAt: 0, name: "Robocop", description: "", model: "", instructions: "", tools: [], fileIDS: [], metadata: [:]))), didCreateThread: { _ in }, didDeleteThread: { _ in })
 }
 
 #Preview {
-   ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.thread(.init(id: "", object: "", createdAt: 0, metadata: [:]))), didDeleteThread: {})
+   ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.thread(.init(id: "", object: "", createdAt: 0, metadata: [:]))), didCreateThread: { _ in }, didDeleteThread: { _ in })
       .disabled(true)
 }

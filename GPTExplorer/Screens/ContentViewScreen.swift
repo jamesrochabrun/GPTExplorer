@@ -58,7 +58,6 @@ struct ContentViewScreen<LeadingContent: View>: View {
       }
       .navigationBarBackButtonHidden(true)
       .sensoryFeedback(.success, trigger: navigationProvider.isOpen)
-
    }
    
    @ViewBuilder
@@ -67,8 +66,13 @@ struct ContentViewScreen<LeadingContent: View>: View {
       case .thread, .assistant:
          ThreadScreen(
             service: service,
-            item: $navigationProvider.selectedItem,
-            didDeleteThread: { 
+            item: $navigationProvider.selectedItem, 
+            didCreateThread: { thread in
+               navigationProvider.selectedItem  = .thread(thread)
+               navigationProvider.createdThread = thread
+            },
+            didDeleteThread: { deletedID in
+            navigationProvider.deletedThreadID = deletedID
             navigationProvider.selectedItem = .none
          })
             .id(navigationProvider.selectedItem.id)// Replace with actual view

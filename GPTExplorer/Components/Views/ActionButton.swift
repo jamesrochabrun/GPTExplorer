@@ -148,10 +148,10 @@ extension View {
    VStack {
       VStack {
          ActionButton("Save", isLoading: .constant(true)) {}
-         ActionButton("Add an run", actionIcon: Image(systemName: "play")) {}
+         ActionButton("Add and run", actionIcon: Image(systemName: "play")) {}
       }
       HStack {
-         ActionButton("Add an run", actionIcon: Image(systemName: "play")) {}
+         ActionButton("Add and run", actionIcon: Image(systemName: "play")) {}
          ActionButton("Add") {}
             .actionButtonStyle(.secondary)
          IconButton(iconName: "paperclip", action: {})
@@ -162,7 +162,7 @@ extension View {
       VStack {
          Text("Disabled")
          HStack {
-            ActionButton("Add an run", actionIcon: Image(systemName: "play")) {}
+            ActionButton("Add and run", actionIcon: Image(systemName: "play")) {}
             ActionButton("Add") {}
                .actionButtonStyle(.secondary)
             IconButton(iconName: "paperclip", action: {})
@@ -174,13 +174,13 @@ extension View {
       
       VStack {
          ActionButton("Save") {}
-         ActionButton("Add an run", actionIcon: Image(systemName: "chevron.right")) {}
+         ActionButton("Add and run", actionIcon: Image(systemName: "chevron.right")) {}
       }
       .actionButtonStyle(.plainTrailing)
       
       VStack {
          ActionButton("Save") {}
-         ActionButton("Add an run", actionIcon: Image(systemName: "chevron.right")) {}
+         ActionButton("Add and run", actionIcon: Image(systemName: "chevron.right")) {}
       }
       .actionButtonStyle(.plainTrailing)
       .disabled(true)

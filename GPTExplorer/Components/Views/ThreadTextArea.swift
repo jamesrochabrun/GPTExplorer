@@ -59,7 +59,7 @@ struct ThreadTextArea: View {
    
    var actions: some View {
       HStack {
-         ActionButton("Add an run", actionIcon: Image(systemName: "play"), isLoading: $isAddAndRunActionLoading) {
+         ActionButton("Add and run", actionIcon: Image(systemName: "play"), isLoading: $isAddAndRunActionLoading) {
             addAndRunAction()
          }
          .disabled(prompt.isEmpty)

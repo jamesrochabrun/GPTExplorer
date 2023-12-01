@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import SwiftOpenAI
 
 @Observable class NavigationProvider {
    
    var selectedItem: SideMenuItem = .none
    var isOpen: Bool = false
+   var deletedThreadID: String?
+   var createdThread: ThreadObject?
 }
