@@ -107,35 +107,33 @@ extension ThreadObject {
    }
    
    func listThreads()
-      async throws -> [ThreadObject]
+   async throws -> [ThreadObject]
    {
-      do {
-         // Get all the thread ids
-         let ids = threadsIDStorage.retrieve()
-         
-         // Array to hold tasks
-         var tasks: [Task<ThreadObject, Error>] = []
-         
-         // Start a new task for each thread retrieval
-         for id in ids {
-            let task = Task { try await service.retrieveThread(id: id) }
-            tasks.append(task)
-         }
-         
-         // Array to hold the results
-         var threads: [ThreadObject] = []
-         
-         // Await for each task to complete and gather results
-         for task in tasks {
-            let threadObject = try await task.value
-            threads.append(threadObject)
-         }
-         
-         return threads
-      } catch let error as APIError  {
-         errorMessage = error.displayDescription
-         return []
+      // Get all the thread ids
+      let ids = threadsIDStorage.retrieve()
+      
+      // Array to hold tasks
+      var tasks: [Task<ThreadObject, Error>] = []
+      
+      // Start a new task for each thread retrieval
+      for id in ids {
+         let task = Task { try await service.retrieveThread(id: id) }
+         tasks.append(task)
       }
+      
+      // Array to hold the results
+      var threads: [ThreadObject] = []
+      
+      // Await for each task to complete and gather results
+      for task in tasks.enumerated() {
+         do {
+            let threadObject = try await task.element.value
+            threads.append(threadObject)
+         } catch {
+            print("UNABLE TO RETRIEVE THREAD WITH ID \(ids[task.offset]) PERHAPS IT DOES NOT EXIST")
+         }
+      }
+      return threads
    }
    
    func deleteThreads()
@@ -180,7 +178,9 @@ extension ThreadObject {
       do {
          var messages: [ChatCompletionParameters.Message] = []
          messages.append(ChatCompletionParameters.Message(role: .assistant, content: .text(Self.instructionsForThreadTitle)))
-         let modifiedUsersPrompt = "Resume Snippet: Be Concise, Avoid Verbosity, do not exceed 7 words: \(prompt)"
+         let modifiedUsersPrompt = "Resume Snippet: `\(prompt)`"
+         
+         print("RAMAH \(modifiedUsersPrompt)")
          messages.append(ChatCompletionParameters.Message(role: .user, content: .text(modifiedUsersPrompt)))
          let response = try await service.startChat(parameters: .init(messages: messages, model: .gpt4))
          let content = (response.choices.first?.message.content ?? "").replacingOccurrences(of: "\"", with: "")

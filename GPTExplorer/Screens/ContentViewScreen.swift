@@ -38,14 +38,7 @@ struct ContentViewScreen<LeadingContent: View>: View {
             .opacity(navigationProvider.isOpen ? 1 : 0)
             .offset(x: navigationProvider.isOpen ? 0 : -300)
             .rotation3DEffect(.degrees(navigationProvider.isOpen ? 0 : 30), axis: (x: 0.0, y: 1.0, z: 0.0))
-//         TabView(selection: $navigationProvider.selectedItem) {
-//            ThreadScreen(service: service, item: $navigationProvider.selectedItem)
-//               .id(navigationProvider.selectedItem.id)
-//         }
-         
          mainContent
-            .foregroundColor(.primary)
-            .background(.white)
 //            .shadow(color: .gray, radius: 10, x: 5, y: 5)
             .mask(RoundedRectangle(cornerRadius: navigationProvider.isOpen ? 30 : 0, style: .continuous))
             .rotation3DEffect(.degrees(navigationProvider.isOpen ? 30 : 0), axis: (x: 0.0, y: -1.0, z: 0.0))

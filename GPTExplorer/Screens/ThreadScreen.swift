@@ -361,4 +361,5 @@ struct ThreadScreen: View {
 
 #Preview {
    ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.thread(.init(id: "", object: "", createdAt: 0, metadata: [:]))), didDeleteThread: {})
+      .disabled(true)
 }

@@ -65,24 +65,32 @@ enum SideMenuItem: Identifiable {
    private func listThreads()
       async throws -> [ThreadObject]
    {
-      try await threadProvider.listThreads()
-   }
-   
-   func updateSideMenuContent() 
-      async throws
-   {
       do {
-         async let assistantsResult = try listAssistants()
-         async let threadsResult = try listThreads()
-         
-         let (assistants, threads) = try await (assistantsResult, threadsResult)
-         mapItems[.assistants] = assistants.map { .assistant($0) }
-         mapItems[.threads] = threads.map { .thread($0) }
+         return try await threadProvider.listThreads()
       } catch let error as APIError {
          errorMessage = error.displayDescription
-      }
+         return []
+     }
    }
    
+   func updateSideMenu(sections: Set<Section>) async throws {
+       do {
+           // Conditionally start the asynchronous tasks
+           async let assistantsResult = sections.contains(.assistants) ? try listAssistants() : nil
+           async let threadsResult = sections.contains(.threads) ? try listThreads() : nil
+           
+           // Await the results and update mapItems if the section was requested
+           if sections.contains(.assistants), let assistants = try await assistantsResult {
+               mapItems[.assistants] = assistants.map { .assistant($0) }
+           }
+           if sections.contains(.threads), let threads = try await threadsResult {
+               mapItems[.threads] = threads.map { .thread($0) }
+           }
+       } catch let error as APIError {
+           errorMessage = error.displayDescription
+       }
+   }
+//   
    // MARK: Private
    private let threadProvider: ThreadProvider
    private var threadItems: [SideMenuItem] = []

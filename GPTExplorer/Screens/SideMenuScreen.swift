@@ -59,7 +59,7 @@ struct SideMenuScreen: View {
       .listStyle(.plain)
       .onFirstAppear {
          Task {
-            try await provider.updateSideMenuContent()
+            try await provider.updateSideMenu(sections: Set(SideMenuConfigurationProvider.Section.allCases))
          }
       }
       .onChange(of: provider.errorMessage) { oldValue, newValue in
@@ -71,7 +71,7 @@ struct SideMenuScreen: View {
          AssistantConfigurationScreen(service: service, assistantID: nil)
             .onDisappear {
                Task {
-                  try await provider.updateSideMenuContent()
+                  try await provider.updateSideMenu(sections: [.assistants])
                }
             }
       }
