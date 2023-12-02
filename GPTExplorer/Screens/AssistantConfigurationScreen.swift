@@ -39,13 +39,15 @@ struct AssistantConfigurationScreen: View {
    // MARK: Initialization
    
    init(
-      service: OpenAIService,
-      assistantID: String?)
+      currentAssistant: Binding<AssistantObject?>,
+      provider: SideMenuConfigurationProvider)
    {
-      _provider = State(initialValue: AssistantsProvider(service: service))
-      self.assistantID = assistantID
+      _provider = State(initialValue: provider)
+      _currentAssistant = currentAssistant
    }
    
+   @Binding var currentAssistant: AssistantObject?
+
    var body: some View {
       ScrollView {
          VStack(spacing: Sizes.spacingExtraLarge) {
@@ -59,53 +61,81 @@ struct AssistantConfigurationScreen: View {
       .safeAreaInset(edge: .bottom) {
          footerActions
       }
-      .onChange(of: provider.avatarURL) { _, avatarURL in
-         if let avatarURL {
-            self.parameters.metadata = [AssistantsProvider.avatarMetadataKey: avatarURL.absoluteString]
+      .onChange(of: avatarURL) { oldValue, newValue in
+         if let newValue = newValue, oldValue != newValue {
+            self.parameters.metadata = [AssistantMetadataKeys.avatarMetadataKey: newValue.absoluteString]
          }
       }.onFirstAppear {
          Task {
             try await setInitialParametersForExistingAssistant()
          }
       }
-      .onChange(of: provider.assistantsParameters) { _, newValue in
-         self.parameters = newValue!
-      }
-      .onChange(of: provider.errorMessage) { oldValue, newValue in
-         providerDidFail = oldValue != newValue
-      }
-      .alert(provider.errorMessage ?? "", isPresented: $providerDidFail) {
-      }
-      .onChange(of: provider.deletionStatus?.deleted) { _, newValue in
-         if newValue == true {
-            self.presentationMode.wrappedValue.dismiss()
+      .alert(currentProviderState?.message ?? "", isPresented: Binding<Bool>(
+         get: { currentProviderState != nil },
+         set: {
+            if !$0 {
+               currentProviderState = nil
+            }
+         }
+      )) {
+         switch currentProviderState {
+         case .assistantAvatarCreatedError(let prompt, _):
+            Button("Retry", role: .cancel) {
+               Task {
+                  try await setAvatarURL(prompt: prompt)
+               }
+            }
+         case .assistantUpdatedError(let id, message: _):
+            Button("Retry", role: .cancel) {
+               Task {
+                  try await modifyAssistantWith(id: id)
+               }
+            }
+         case .assistantCreatedSuccess, .assistantUpdatedSuccess(_, message: _):
+            Button("Ok", role: .cancel) {
+               dismissScreen()
+            }
+         case .asssitantRetrievedError(_, _,  _):
+            Button("Retry", role: .cancel) {
+               Task {
+                  try await setInitialParametersForExistingAssistant()
+               }
+            }
+         case .assistantDeletedError(let id, _):
+            Button("Retry", role: .cancel) {
+               Task {
+                  try await deleteAssistantWith(id: id)
+               }
+            }
+         default:
+            EmptyView()
          }
       }
       .alert("Are you sure you want to delete this Assistant?", isPresented: $showDeleteAssistantAlert) {
          Button("Yes", role: .destructive) {
             Task {
-               if let assistantID {
-                  try await provider.deleteAssistant(id: assistantID)
+               if let assistantID = currentAssistant?.id {
+                  try await deleteAssistantWith(id: assistantID)
                }
             }
          }
          Button("Nope", role: .cancel) {}
       }
    }
-   
    private func setInitialParametersForExistingAssistant()
       async throws
    {
-      guard 
-         let assistantID,
-         let parameters = try await provider.retrieveAssistantParameters(id: assistantID, model: nil)
-      else { return }
+      guard let assistantID = currentAssistant?.id else { return }
+      let parametersResponse = try await provider.retrieveAssistantParameters(id: assistantID, model: currentModel.rawValue)
+      
       if
-         let avatarURLString = parameters.metadata![AssistantsProvider.avatarMetadataKey],
+         let parameters = parametersResponse.item,
+         let avatarURLString = parameters.metadata![AssistantMetadataKeys.avatarMetadataKey],
          let avatarURL = URL(string: avatarURLString)
       {
-         provider.avatarURL = avatarURL
+         self.avatarURL = avatarURL
       }
+      currentProviderState = parametersResponse.state
       self.parameters = parameters
    }
    
@@ -114,18 +144,13 @@ struct AssistantConfigurationScreen: View {
          ActionButton("Delete") {
             showDeleteAssistantAlert = true
          }
-         .disabled(assistantID == nil)
+         .disabled(currentAssistant == nil)
          ActionButton("Save") {
             Task {
-               if let assistantID {
-                  try await provider.modifyAssistant(id: assistantID, parameters: parameters)
+               if let assistantID = currentAssistant?.id {
+                 try await modifyAssistantWith(id: assistantID)
                } else {
-                  try await provider.createAssistant(parameters: parameters)
-               }
-               // If error message is not nil means that an alert is shown
-               // which in that case we don't dismiss the screen
-               if provider.errorMessage == nil {
-                  self.presentationMode.wrappedValue.dismiss()
+                  try await createAssistant()
                }
             }
          }
@@ -154,8 +179,21 @@ struct AssistantConfigurationScreen: View {
                   .symbolEffect(.variableColor.iterative.dimInactiveLayers)
             )
       }
-      else if let avatarURL = provider.avatarURL {
-         URLImageView(url: avatarURL)
+      else if let avatarURL = avatarURL {
+         Menu.init(content: {
+            Button {
+               Task {
+                  isAvatarLoading = true
+                  defer { isAvatarLoading = false }  // ensure isLoading is set to false when the
+                  let prompt = parameters.name ?? "Some random image for an avatar" // TODO: improve prompt
+                  try await setAvatarURL(prompt: prompt)
+               }
+            }  label: {
+               Text("Use DALL·E")
+            }
+         }, label: {
+            URLImageView(url: avatarURL)
+         })
       } else {
          Menu.init(content: {
             Button {
@@ -163,7 +201,7 @@ struct AssistantConfigurationScreen: View {
                   isAvatarLoading = true
                   defer { isAvatarLoading = false }  // ensure isLoading is set to false when the
                   let prompt = parameters.name ?? "Some random image for an avatar" // TODO: improve prompt
-                  try await provider.createAvatar(prompt: prompt)
+                  try await setAvatarURL(prompt: prompt)
                }
             }  label: {
                Text("Use DALL·E")
@@ -180,6 +218,36 @@ struct AssistantConfigurationScreen: View {
                )
          })
       }
+   }
+   
+   private func setAvatarURL(prompt: String) async throws {
+      let avatarURLResponse = try await provider.createAvatar(prompt: prompt)
+      self.avatarURL = avatarURLResponse.item
+      self.currentProviderState = avatarURLResponse.state
+   }
+   
+   private func createAssistant() async throws {
+      let assistantResponse = try await provider.createAssistant(parameters: parameters)
+      currentAssistant = assistantResponse.item
+      currentProviderState = assistantResponse.state
+   }
+   
+   private func modifyAssistantWith(id: String) async throws  {
+      let updatedAssistantResponse = try await provider.modifyAssistant(id: id, parameters: parameters)
+      currentAssistant = updatedAssistantResponse.item
+      currentProviderState = updatedAssistantResponse.state
+   }
+   
+   private func deleteAssistantWith(id: String) async throws {
+      let deletionResponse = try await provider.deleteAssistant(id: id)
+      if deletionResponse.item?.deleted == true {
+         currentAssistant = nil
+      }
+      currentProviderState = deletionResponse.state
+   }
+   
+   private func dismissScreen() {
+      presentationMode.wrappedValue.dismiss()
    }
    
    var inputViews: some View {
@@ -216,14 +284,18 @@ struct AssistantConfigurationScreen: View {
    
    // MARK: Private
    
-   @State private var provider: AssistantsProvider
+   @State private var provider: SideMenuConfigurationProvider
    @State private var parameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.rawValue))
+   @State private var currentModel = Model.gpt41106Preview
    @State private var isAvatarLoading = false
    @State private var providerDidFail = false
+   @State private var currentSuccessMessage: String? = nil
    @Environment(\.presentationMode) private var presentationMode
    @State private var showDeleteAssistantAlert = false
-
-   private let assistantID: String?
+   
+   
+   @State private var currentProviderState: ProviderState?
+   @State private var avatarURL: URL?
 
    private var isCodeInterpreterOn: Binding<Bool> {
        Binding(
@@ -268,7 +340,7 @@ extension Binding where Value == String? {
         )
     }
 }
-
-#Preview {
-   AssistantConfigurationScreen(service: OpenAIServiceFactory.service(apiKey: ""), assistantID: nil)
-}
+//
+//#Preview {
+//   AssistantConfigurationScreen(provider: SideMenuConfigurationProvider(service: OpenAIServiceFactory.service(apiKey: "")), assistantID: nil)
+//}

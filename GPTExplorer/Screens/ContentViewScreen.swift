@@ -13,7 +13,7 @@ struct ContentViewScreen: View {
    let service: OpenAIService
    @State private var sideMenuConfigurationProvider: SideMenuConfigurationProvider
    @State private var navigationProvider: NavigationProvider
-   @State private var threadProvider: ThreadProvider
+//   @State private var threadProvider: ThreadProvider
    
    init(
       service: OpenAIService,
@@ -22,13 +22,18 @@ struct ContentViewScreen: View {
       self.service = service
       self._navigationProvider = State(initialValue: sideMenuConfigurationProvider.navigationProvider)
       self._sideMenuConfigurationProvider = State(initialValue: sideMenuConfigurationProvider)
-      self._threadProvider = State(initialValue: sideMenuConfigurationProvider.threadProvider)
+     // self._threadProvider = State(initialValue: sideMenuConfigurationProvider.threadProvider)
+   }
+   
+   var mainBackground: some View {
+      ThemeColor.backgroundColor
+      //navigationProvider.isOpen ? ThemeColor.backgroundColor : Color(.systemBackground)
    }
    
    var body: some View {
       ZStack(alignment: .topLeading) {
          
-         ThemeColor.backgroundColor
+         mainBackground
             .ignoresSafeArea()
          
          SideMenuScreen(service: service, sideMenuConfigurationProvider: sideMenuConfigurationProvider)
@@ -58,28 +63,36 @@ struct ContentViewScreen: View {
          .offset(x: navigationProvider.isOpen ? 228 : 0)
          .offset(y: navigationProvider.isOpen ? 20 : 0)
       }
+    //  .animation(.easeIn(duration: 0.3), value: navigationProvider.changeToSelectedItem.selectedItem)
       .navigationBarBackButtonHidden(true)
-      .sensoryFeedback(.success, trigger: navigationProvider.isOpen)
+      .sensoryFeedback(.impact(weight: .medium, intensity: navigationProvider.isOpen ? 1.0 : 0.7), trigger: navigationProvider.isOpen)
    }
    
    @ViewBuilder
    var mainContent: some View {
-      switch navigationProvider.selectedItem {
+      switch navigationProvider.changeToSelectedItem.selectedItem {
       case .thread, .assistant:
-         ThreadScreen(
-            service: service, 
-            threadProvider: threadProvider,
-            navigationProvider: navigationProvider,
-            item: $navigationProvider.selectedItem,
-            didCreateThread: { thread in
-               navigationProvider.selectedItem  = .thread(thread)
-               navigationProvider.createdThread = thread
-            })
-            .id(navigationProvider.selectedItem.id)// Replace with actual view
+         let threadScreen = ThreadScreen(
+            service: service,
+            provider: sideMenuConfigurationProvider,
+            item: $navigationProvider.changeToSelectedItem.selectedItem )
+         .id(navigationProvider.changeToSelectedItem.selectedItem.id)
+         if navigationProvider.changeToSelectedItem.animated {
+            threadScreen.transition(.opacity) // Example transition
+         } else {
+            threadScreen
+         }
       case .none:
-         Text("CHAT COMING SOON 🤖")
+         let chatScreen = Text("CHAT COMING SOON 🤖")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(.systemBackground))
+            .transition(.opacity) // Example transition
+            .id(navigationProvider.changeToSelectedItem.selectedItem.id)
+         if navigationProvider.changeToSelectedItem.animated {
+            chatScreen.transition(.opacity) // Example transition
+         } else {
+            chatScreen
+         }
       }
    }
 }

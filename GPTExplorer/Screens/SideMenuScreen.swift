@@ -28,7 +28,7 @@ struct SideMenuScreen: View {
    func selectedBackground(item: SideMenuItem) -> some View {
       Rectangle()
          .fill(.blue)
-         .frame(maxWidth: navigationProvider.selectedItem.id == item.id ? .infinity : 0)
+         .frame(maxWidth: navigationProvider.changeToSelectedItem.selectedItem.id == item.id ? .infinity : 0)
          .frame(maxWidth: .infinity, alignment: .leading)
    }
    
@@ -40,7 +40,7 @@ struct SideMenuScreen: View {
                   switch item {
                   case .assistant(let assistant):
                      ImageRow(
-                        url: assistant.metadata[AssistantsProvider.avatarMetadataKey],
+                        url: assistant.metadata[AssistantMetadataKeys.avatarMetadataKey],
                         title: assistant.name ?? "NO NAME",
                         subtitle: assistant.description)
                   case .thread(let thread):
@@ -63,23 +63,11 @@ struct SideMenuScreen: View {
                   Color.clear // This helps with the tap area
                )
                .onTapGesture {
-                  navigationProvider.selectedItem = item
+                  navigationProvider.changeToSelectedItem = (selectedItem: item, animated: false)
                   withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                      navigationProvider.isOpen = false
                   }
                }
-               .onChange(of: navigationProvider.deletedThreadID) { oldValue, newValue in
-                  if let newValue, oldValue != newValue {
-                     provider.deleteThreadFromMapStorageWith(threadID: newValue)
-                     navigationProvider.deletedThreadID = nil
-                  }
-               }
-//               .onChange(of: navigationProvider.createdThread) { oldValue, newValue in
-//                  if let newValue, oldValue != newValue {
-//                     provider.addThreadToMapStorage(newValue)
-//                     navigationProvider.createdThread = nil
-//                  }
-//               }
             }
          }
       }
@@ -87,21 +75,35 @@ struct SideMenuScreen: View {
       .listStyle(.plain)
       .onFirstAppear {
          Task {
-            try await provider.updateSideMenu(sections: Set(SideMenuConfigurationProvider.Section.allCases))
+            try await updateSideMenu(sections: Set(SideMenuConfigurationProvider.Section.allCases))
          }
       }
-      .onChange(of: provider.errorMessage) { oldValue, newValue in
-         providerDidFail = oldValue != newValue
-      }
-      .alert(provider.errorMessage ?? "", isPresented: $providerDidFail) {
-      }
-      .sheet(isPresented: $showAssistantConfigurationModal) {
-         AssistantConfigurationScreen(service: service, assistantID: nil)
-            .onDisappear {
+      .alert(currentProviderState?.message ?? "", isPresented: Binding<Bool>(
+         get: { currentProviderState != nil },
+         set: {
+            if !$0 {
+               currentProviderState = nil
+            }
+         }
+      )) {
+         switch currentProviderState {
+         case .udpateSideMenuError(let sections, _):
+            Button("Retry", role: .cancel) {
                Task {
-                  try await provider.updateSideMenu(sections: [.assistants])
+                  try await updateSideMenu(sections: sections)
                }
             }
+         default:
+            EmptyView()
+         }
+      }
+      .sheet(isPresented: $showAssistantConfigurationModal) {
+         AssistantConfigurationScreen(currentAssistant: .constant(nil), provider: provider)
+//            .onDisappear {
+//               Task {
+//                  try await provider.updateSideMenu(sections: [.assistants])
+//               }
+//            }
       }
    }
    
@@ -111,6 +113,15 @@ struct SideMenuScreen: View {
    @State private var provider: SideMenuConfigurationProvider
    @Environment(\.presentationMode) private var presentationMode
    @State private var showAssistantConfigurationModal = false
-   @State private var providerDidFail = false
+   @State private var currentProviderState: ProviderState?
+   
+   
+   private func updateSideMenu(
+      sections: Set<SideMenuConfigurationProvider.Section>)
+      async throws
+   {
+      let updateSideMenuResponse = try await provider.updateSideMenu(sections: sections)
+      currentProviderState = updateSideMenuResponse.state
+   }
 
 }

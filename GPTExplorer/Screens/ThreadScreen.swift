@@ -13,25 +13,28 @@ import SwiftOpenAI
 struct ThreadScreen: View {
       
    // MARK: Initialization
-   
-   var didCreateThread: (ThreadObject) -> Void
-   
+      
    init(
       service: OpenAIService,
-      threadProvider: ThreadProvider,
-      navigationProvider: NavigationProvider,
-      item: Binding<SideMenuItem>,
-      didCreateThread: @escaping (ThreadObject) -> Void)
+      provider: SideMenuConfigurationProvider,
+      item: Binding<SideMenuItem>)
    {
       self.service = service
-      _navigationProvider = State(initialValue: navigationProvider)
-      _threadProvider = State(initialValue: threadProvider)
+      _provider =  State(initialValue: provider)
+      _navigationProvider = State(initialValue: provider.navigationProvider)
       _messagesProvider = State(initialValue: MessagesProvider(service: service))
       _runsProvider = State(initialValue: RunsProvider(service: service))
       self._item = item
-      self.didCreateThread = didCreateThread
+      switch item.wrappedValue {
+      case .assistant(let assistantObject):
+         _currentAssistant = State(initialValue: assistantObject)
+      case .thread(let thread):
+         _currentThread = State(initialValue: thread)
+      case .none:
+         fatalError("This is programming error")
+      }
    }
-   
+      
    var body: some View {
       NavigationView {
          mainContent
@@ -40,9 +43,34 @@ struct ThreadScreen: View {
          bottomTextArea
             .padding(.bottom, 34)
       }
-      .onChange(of: threadProvider.errorMessage) { oldValue, newValue in
-         if let newValue = newValue, oldValue != newValue {
-            currentErrorMessage = newValue
+      .alert(currentProviderState?.message ?? "", isPresented: Binding<Bool>(
+         get: { currentProviderState != nil },
+         set: {
+            if !$0 {
+               currentProviderState = nil
+            }
+         }
+      )) {
+         /// TODO: handle retries as needed
+         switch currentProviderState {
+         case .threadDeletedSuccess(_, _):
+            Button("Ok", role: .cancel) {
+               dismissScreen()
+            }
+         case .threadDeletedError(let id, _):
+            Button("Retry", role: .cancel) {
+               Task {
+                  try await deleteThreadWith(id: id)
+               }
+            }
+         case .threadCreatedError(let metadata, _):
+            Button("Retry", role: .cancel) {
+               Task {
+                  try await createThreadWith(metadata: metadata)
+               }
+            }
+         default:
+            EmptyView()
          }
       }
       .onChange(of: messagesProvider.errorMessage) { oldValue, newValue in
@@ -55,11 +83,6 @@ struct ThreadScreen: View {
             currentErrorMessage = newValue
          }
       }
-      .onChange(of: threadProvider.successMessage) { oldValue, newValue in
-         if let newValue = newValue, oldValue != newValue {
-            currentSuccessMessage = newValue
-         }
-      }
       .alert(currentErrorMessage ?? "", isPresented: Binding<Bool>(
          get: { currentErrorMessage != nil },
          set: {
@@ -70,34 +93,17 @@ struct ThreadScreen: View {
       )) {
          // Alert configuration, if needed
       }
-      .alert(currentSuccessMessage ?? "", isPresented: Binding<Bool>(
-         get: { currentSuccessMessage != nil },
-         set: {
-            if !$0 {
-               currentSuccessMessage = nil
-            }
-         }
-      )) {
-         // Alert configuration, if needed
-         Button("Ok", role: .cancel) {
-            if let threadID = currentThreadObject?.id {
-               navigationProvider.deletedThreadID = threadID
-               navigationProvider.selectedItem = .none
-               currentThreadObject = nil
-            }
-         }
-      }
       .alert("Are you sure you want to delete this thread?", isPresented: $showDeleteThreadAlert) {
          Button("Yes", role: .destructive) {
             Task {
-               if let threadID = currentThreadObject?.id {
-                  try await threadProvider.deleteThread(id: threadID)
+               if let threadID = currentThread?.id {
+                  try await deleteThreadWith(id: threadID)
                }
             }
          }
       }
       .sheet(isPresented: $showAssistantConfigurationModal) {
-         AssistantConfigurationScreen(service: service, assistantID: assistantID())
+         AssistantConfigurationScreen(currentAssistant: $currentAssistant, provider: provider)
       }
    }
    
@@ -116,7 +122,6 @@ struct ThreadScreen: View {
          case .thread(let thread):
             list
                .task {
-                  currentThreadObject = thread
                   Task {
                      isLoadingListItems = true
                      try await messagesProvider.listMessages(threadID: thread.id, assistantName: assistantName())
@@ -145,7 +150,7 @@ struct ThreadScreen: View {
             showDeleteThreadAlert = true
          }
          .iconButtonStyle(.plain)
-         .disabled(currentThreadObject == nil)
+         .disabled(currentThread == nil)
       }
       .padding(.horizontal)
    }
@@ -153,8 +158,8 @@ struct ThreadScreen: View {
    func assistantName() -> String {
       let assistantName: String?
       switch item {
-      case .assistant(let assistantObject):
-         assistantName = assistantObject.name
+      case .assistant:
+         assistantName = currentAssistant?.name
       case .thread(let threadObject):
          assistantName = threadObject.assistantName
       case .none:
@@ -163,36 +168,22 @@ struct ThreadScreen: View {
       return assistantName ?? "Assistant"
    }
    
-   func assistantID() -> String? {
-      let assistantID: String?
-      switch item {
-      case .assistant(let assistantObject):
-         assistantID = assistantObject.id
-      case .thread(let threadObject):
-         assistantID = threadObject.assistantID
-      case .none:
-         assistantID = ""
-      }
-      return assistantID
-   }
-   
    func clearErrorMessages() {
       currentErrorMessage = nil
-      threadProvider.errorMessage = nil
       messagesProvider.errorMessage = nil
       runsProvider.errorMessage = nil
    }
    
    @ViewBuilder
    var assistantPlaceholder: some View {
-      if case .assistant(let assistant) = item {
+      if let currentAssistant {
          VStack {
             Spacer()
             EmptyPlaceholderView(
-               imageURL: assistant.metadata[AssistantsProvider.avatarMetadataKey],
+               imageURL: currentAssistant.metadata[AssistantMetadataKeys.avatarMetadataKey],
                placeholder: Image(systemName: "oval.bottomhalf.filled"),
-               title: assistant.name ?? "NO NAME",
-               subtitle: assistant.description)
+               title: currentAssistant.name ?? "NO NAME",
+               subtitle: currentAssistant.description)
             Spacer()
          }
       } else {
@@ -230,18 +221,17 @@ struct ThreadScreen: View {
                isAddAndRunActionLoading = true
                // If the item is assistant, no thread has been created:
                // - Create a new thread only for first time.
-               if currentThreadObject == nil {
-                  currentThreadObject = try await startThreadFor(assistant)
+               if currentThread == nil {
+                  try await createThreadWith(assistant: assistant)
                }
                // - Add the message to the thread.
-               if let threadID = currentThreadObject?.id {
+               if let threadID = currentThread?.id {
                   prompt = ""
                   try await addAndRun(threadID: threadID, assistantID: assistant.id, prompt: input)
-                 // didCreateThread(threadProvider.threadObject!)
+                  startThread()
                }
                isAddAndRunActionLoading = false
             case .thread(let thread):
-               currentThreadObject = thread
                let threadID = thread.id
                let assistantID = thread.assistantID!
                isAddAndRunActionLoading = true
@@ -252,7 +242,7 @@ struct ThreadScreen: View {
             case .none:
                break
             }
-            try await threadProvider.defineThreadSnippetForMetadata(thread: currentThreadObject, prompt: input)
+            try await provider.defineThreadSnippetForMetadata(thread: currentThread, prompt: input)
          }
       } addMessageAction: {
          Task {
@@ -262,18 +252,17 @@ struct ThreadScreen: View {
                isAddMessageActionLoading = true
                // If the item is assistant, no thread has been created:
                // - Create a new thread only for first time.
-               if currentThreadObject == nil {
-                  currentThreadObject = try await startThreadFor(assistant)
+               if currentThread == nil {
+                  try await createThreadWith(assistant: assistant)
                }
                // - Add the message to the thread.
-               if let threadID = currentThreadObject?.id {
+               if let threadID = currentThread?.id {
                   prompt = ""
                   try await addMessage(threadID: threadID, prompt: input)
-                //  didCreateThread(threadProvider.threadObject!)
+                  startThread()
                }
                isAddMessageActionLoading = false
             case .thread(let thread):
-               currentThreadObject = thread
                let threadID = thread.id
                isAddMessageActionLoading = true
                prompt = ""
@@ -282,24 +271,52 @@ struct ThreadScreen: View {
             case .none:
                break
             }
-            try await threadProvider.defineThreadSnippetForMetadata(thread: currentThreadObject, prompt: input)
-           // didCreateThread(threadProvider.threadObject!)
+            try await provider.defineThreadSnippetForMetadata(thread: currentThread, prompt: input)
          }
       }
    }
    
    // MARK: Private
    
-   private func startThreadFor(
-      _ assistant: AssistantObject)
-      async throws -> ThreadObject?
+   private func createThreadWith(
+      assistant: AssistantObject)
+      async throws
    {
       let threadMetadata = [
          ThreadMetadataKeys.assistantMetadataID: assistant.id,
          ThreadMetadataKeys.assistantMetadataName: assistant.name ?? "",
          ThreadMetadataKeys.assistantMetadataDescription: assistant.description ?? "",
       ]
-      return try await threadProvider.createThread(parameters: CreateThreadParameters(metadata: threadMetadata))
+      try await createThreadWith(metadata: threadMetadata)
+   }
+   
+   private func createThreadWith(
+      metadata: [String: String])
+      async throws
+   {
+      let threadResponse = try await provider.createThread(metadata: metadata)
+      currentThread = threadResponse.item
+      currentProviderState = threadResponse.state
+   }
+   
+   private func deleteThreadWith(id: String) async throws {
+      let deletionResponse = try await provider.deleteThread(id: id)
+      if deletionResponse.item?.deleted == true {
+         currentThread = nil
+      }
+      currentProviderState = deletionResponse.state
+   }
+   
+   private func dismissScreen() {
+      navigationProvider.changeToSelectedItem = (selectedItem: .none, animated: true)
+      currentThread = nil
+   }
+   
+   private func startThread() {
+      guard let currentThread else {
+         fatalError("currentThread should not be nil")
+      }
+      navigationProvider.changeToSelectedItem = (selectedItem: .thread(currentThread), animated: true)
    }
    
    private func addMessage(
@@ -343,23 +360,25 @@ struct ThreadScreen: View {
    
    private let service: OpenAIService
    @Binding private var item: SideMenuItem
-   @State private var isLoadingListItems = false
-   @State private var prompt = ""
-   @State private var currentErrorMessage: String? = nil
-   @State private var currentSuccessMessage: String? = nil
    @State private var navigationProvider: NavigationProvider
-   @State private var threadProvider: ThreadProvider
    @State private var messagesProvider: MessagesProvider
    @State private var runsProvider: RunsProvider
-   @State private var threadProviderFailed = false
-   @State private var messagesProviderFailed = false
-   @State private var runsProviderFailed = false
+   @State private var provider: SideMenuConfigurationProvider
+   @State private var isLoadingListItems = false
+   @State private var currentAssistant: AssistantObject?
+   @State private var currentThread: ThreadObject?
+   @State private var prompt = ""
+   @State private var currentProviderState: ProviderState?
    @State private var showDeleteThreadAlert = false
    @State private var showAssistantConfigurationModal = false
    @State private var isAddAndRunActionLoading: Bool? = false
    @State private var isAddMessageActionLoading: Bool? = false
-   @State private var currentThreadObject: ThreadObject?
    @Environment(\.presentationMode) private var presentationMode
+   
+   /// USED FOR NOW ONLY FOR RUNS AND MESSAGES
+   @State private var currentErrorMessage: String? = nil
+   
+
 }
 
 // MARK: Mock+Preview

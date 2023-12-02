@@ -10,8 +10,6 @@ import SwiftOpenAI
 
 @Observable class NavigationProvider {
    
-   var selectedItem: SideMenuItem = .none
+   var changeToSelectedItem: (selectedItem: SideMenuItem, animated: Bool) = (selectedItem: .none, animated: false)
    var isOpen: Bool = false
-   var deletedThreadID: String?
-   var createdThread: ThreadObject?
 }
