@@ -82,6 +82,11 @@ struct ContentViewScreen: View {
          } else {
             threadScreen
          }
+      case .action(let action):
+         switch action {
+         case .createAssistant:
+            AssistantConfigurationScreen(currentAssistant: .constant(nil), provider: sideMenuConfigurationProvider)
+         }
       case .none:
          let chatScreen = Text("CHAT COMING SOON 🤖")
             .frame(maxWidth: .infinity, maxHeight: .infinity)

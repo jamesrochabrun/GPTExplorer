@@ -67,7 +67,7 @@ struct ChatMessageRow: View {
    {
       if let text = text {
          if text.isEmpty {
-            LoadingView()
+            LoadingDotsView(prefix: nil)
          } else {
             Text(text)
                .font(.body)

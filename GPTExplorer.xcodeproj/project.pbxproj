@@ -18,7 +18,6 @@
 		7B1C76802B0C7B49008E161D /* SwiftOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 7B1C767F2B0C7B49008E161D /* SwiftOpenAI */; };
 		7B1C76842B0C7B98008E161D /* Sizes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76832B0C7B98008E161D /* Sizes.swift */; };
 		7B1C76862B0C7BA5008E161D /* ThemeColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76852B0C7BA5008E161D /* ThemeColor.swift */; };
-		7B1C76882B0C7BBA008E161D /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76872B0C7BBA008E161D /* LoadingView.swift */; };
 		7B1C768A2B0C7BC9008E161D /* URLImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76892B0C7BC9008E161D /* URLImageView.swift */; };
 		7B1C768E2B0C7C24008E161D /* AuthenticationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C768D2B0C7C24008E161D /* AuthenticationScreen.swift */; };
 		7B1C76912B0C7DCF008E161D /* SideMenuScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76902B0C7DCF008E161D /* SideMenuScreen.swift */; };
@@ -47,6 +46,7 @@
 		7B1C76CB2B13395A008E161D /* ContentViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */; };
 		7B1C76CD2B133F0B008E161D /* ChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CC2B133F0B008E161D /* ChatScreen.swift */; };
 		7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */; };
+		7BC197842B1B22600083ACB3 /* LoadingDotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC197832B1B22600083ACB3 /* LoadingDotsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,7 +81,6 @@
 		7B1C76712B0C7B25008E161D /* GPTExplorerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTExplorerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		7B1C76832B0C7B98008E161D /* Sizes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sizes.swift; sourceTree = "<group>"; };
 		7B1C76852B0C7BA5008E161D /* ThemeColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeColor.swift; sourceTree = "<group>"; };
-		7B1C76872B0C7BBA008E161D /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		7B1C76892B0C7BC9008E161D /* URLImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLImageView.swift; sourceTree = "<group>"; };
 		7B1C768D2B0C7C24008E161D /* AuthenticationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationScreen.swift; sourceTree = "<group>"; };
 		7B1C76902B0C7DCF008E161D /* SideMenuScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuScreen.swift; sourceTree = "<group>"; };
@@ -110,6 +109,7 @@
 		7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewScreen.swift; sourceTree = "<group>"; };
 		7B1C76CC2B133F0B008E161D /* ChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScreen.swift; sourceTree = "<group>"; };
 		7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationProvider.swift; sourceTree = "<group>"; };
+		7BC197832B1B22600083ACB3 /* LoadingDotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingDotsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -249,7 +249,6 @@
 		7B1C769F2B0C8764008E161D /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				7B1C76872B0C7BBA008E161D /* LoadingView.swift */,
 				7B1C769D2B0C8746008E161D /* CheckboxView.swift */,
 				7B1C76892B0C7BC9008E161D /* URLImageView.swift */,
 				7B1C76A32B0C87D2008E161D /* InputHeaderView.swift */,
@@ -259,6 +258,7 @@
 				7B1C76B12B0D74A3008E161D /* ChatTextArea.swift */,
 				7B1C76BD2B0DDB0E008E161D /* ThreadTextArea.swift */,
 				7B1C76B82B0D7B76008E161D /* EmptyPlaceholderView.swift */,
+				7BC197832B1B22600083ACB3 /* LoadingDotsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -463,8 +463,8 @@
 				7B1C76862B0C7BA5008E161D /* ThemeColor.swift in Sources */,
 				7B1C76AC2B0D7090008E161D /* MessagesProvider.swift in Sources */,
 				7B1C76B52B0D77E2008E161D /* ChatMessageDisplayModel.swift in Sources */,
+				7BC197842B1B22600083ACB3 /* LoadingDotsView.swift in Sources */,
 				7B1C769E2B0C8746008E161D /* CheckboxView.swift in Sources */,
-				7B1C76882B0C7BBA008E161D /* LoadingView.swift in Sources */,
 				7B1C76C52B0F3665008E161D /* PushedScreen.swift in Sources */,
 				7B1C76C92B11F188008E161D /* RunsProvider.swift in Sources */,
 				7B1C76BE2B0DDB0E008E161D /* ThreadTextArea.swift in Sources */,

@@ -30,7 +30,7 @@ struct ThreadScreen: View {
          _currentAssistant = State(initialValue: assistantObject)
       case .thread(let thread):
          _currentThread = State(initialValue: thread)
-      case .none:
+      case .none, .action:
          fatalError("This is programming error")
       }
    }
@@ -128,7 +128,7 @@ struct ThreadScreen: View {
                      isLoadingListItems = false
                   }
                }
-         case .none:
+         case .none, .action:
             Text("TODO (chat)")
          }
       }
@@ -162,7 +162,7 @@ struct ThreadScreen: View {
          assistantName = currentAssistant?.name
       case .thread(let threadObject):
          assistantName = threadObject.assistantName
-      case .none:
+      case .none, .action:
          assistantName = nil
       }
       return assistantName ?? "Assistant"
@@ -239,7 +239,7 @@ struct ThreadScreen: View {
                prompt = ""
                try await addAndRun(threadID: threadID, assistantID: assistantID, prompt: input)
                isAddAndRunActionLoading = false
-            case .none:
+            case .none, .action:
                break
             }
             try await provider.defineThreadSnippetForMetadata(thread: currentThread, prompt: input)
@@ -268,7 +268,7 @@ struct ThreadScreen: View {
                prompt = ""
                try await addMessage(threadID: threadID, prompt: input)
                isAddMessageActionLoading = false
-            case .none:
+            case .none, .action:
                break
             }
             try await provider.defineThreadSnippetForMetadata(thread: currentThread, prompt: input)

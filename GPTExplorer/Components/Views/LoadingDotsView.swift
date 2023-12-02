@@ -1,13 +1,15 @@
 //
-//  LoadingView.swift
+//  LoadingDotsView.swift
 //  GPTExplorer
 //
-//  Created by James Rochabrun on 11/20/23.
+//  Created by James Rochabrun on 12/2/23.
 //
 
 import SwiftUI
 
-struct LoadingView: View {
+struct LoadingDotsView: View {
+   
+   let prefix: String?
    
    @State private var dotsCount = 0
    
@@ -15,15 +17,15 @@ struct LoadingView: View {
    
    var body: some View {
       HStack {
-         Text("\(getDots())")
-            .font(.title)
+         Text("\(prefix ?? "")\(getDots())")
+            .font(.body)
             .onReceive(timer) { _ in
                withAnimation {
                   self.dotsCount = (self.dotsCount + 1) % 4
                }
             }
       }
-      .frame(minHeight: 40)
+      .frame(minHeight: 30)
    }
    
    func getDots() -> String {

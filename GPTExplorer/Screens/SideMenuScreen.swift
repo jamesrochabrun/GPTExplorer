@@ -44,8 +44,18 @@ struct SideMenuScreen: View {
                         title: assistant.name ?? "NO NAME",
                         subtitle: assistant.description)
                   case .thread(let thread):
-                     Text(thread.displayTitle ?? "New chat...")
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                     if let displayTitle = thread.displayTitle {
+                        Text(displayTitle)
+                           .frame(maxWidth: .infinity, alignment: .leading)
+                     } else {
+                        LoadingDotsView(prefix: "New chat")
+                           .frame(maxWidth: .infinity, alignment: .leading)
+                     }
+                  case .action(let action):
+                     switch action {
+                     case .createAssistant:
+                        Text("Create Asssitant")
+                     }
                   case .none:
                      EmptyView()
                   }

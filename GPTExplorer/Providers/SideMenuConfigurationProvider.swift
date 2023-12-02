@@ -115,11 +115,17 @@ enum SideMenuItem: Identifiable, Equatable {
       case .thread(let thread):
          return thread.id
       case .none: return "none"
+      case .action(let action): return action.rawValue
       }
+   }
+   
+   enum Action: String {
+      case createAssistant
    }
    
    case assistant(AssistantObject)
    case thread(ThreadObject)
+   case action(Action)
    case none
 }
 
@@ -129,15 +135,17 @@ enum SideMenuItem: Identifiable, Equatable {
    
    enum Section: String, CaseIterable, Identifiable {
       
-      case assistants
-      case threads
+      case actions = "Actions"
+      case assistants = "Assistants"
+      case threads = "Threads"
+      
       var id: String { rawValue.capitalized }
    }
    
    let threadsIDStorage: UserDefaultsIDStorage<String> = UserDefaultsIDStorage<String>(key: "threadsIDStorage")
    let service: OpenAIService
    let navigationProvider: NavigationProvider
-   var mapItems: [Section: [SideMenuItem]] = [:]
+   var mapItems: [Section: [SideMenuItem]] = [Section.actions: [.action(.createAssistant)]]
    
    // MARK: - Initializer
    
