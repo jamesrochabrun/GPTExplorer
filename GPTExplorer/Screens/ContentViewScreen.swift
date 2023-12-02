@@ -85,7 +85,7 @@ struct ContentViewScreen: View {
       case .action(let action):
          switch action {
          case .createAssistant:
-            AssistantConfigurationScreen(currentAssistant: .constant(nil), provider: sideMenuConfigurationProvider)
+            AssistantConfigurationScreen(currentAssistant: .constant(nil), assistantID: nil, provider: sideMenuConfigurationProvider)
          }
       case .none:
          let chatScreen = Text("CHAT COMING SOON 🤖")

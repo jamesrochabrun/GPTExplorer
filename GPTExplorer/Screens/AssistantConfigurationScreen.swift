@@ -40,13 +40,16 @@ struct AssistantConfigurationScreen: View {
    
    init(
       currentAssistant: Binding<AssistantObject?>,
+      assistantID: String?,
       provider: SideMenuConfigurationProvider)
    {
       _provider = State(initialValue: provider)
       _currentAssistant = currentAssistant
+      self.assistantID = assistantID
    }
    
    @Binding var currentAssistant: AssistantObject?
+   let assistantID: String?
 
    var body: some View {
       ScrollView {
@@ -67,7 +70,13 @@ struct AssistantConfigurationScreen: View {
          }
       }.onFirstAppear {
          Task {
-            try await setInitialParametersForExistingAssistant()
+            if let currentAssistant {
+               try await setInitialParametersForAssistantWith(id: currentAssistant.id)
+            } else {
+               if let assistantID {
+                  try await setInitialParametersForAssistantWith(id: assistantID)
+               }
+            }
          }
       }
       .alert(currentProviderState?.message ?? "", isPresented: Binding<Bool>(
@@ -95,10 +104,10 @@ struct AssistantConfigurationScreen: View {
             Button("Ok", role: .cancel) {
                dismissScreen()
             }
-         case .asssitantRetrievedError(_, _,  _):
+         case .asssitantRetrievedError(let id,  _):
             Button("Retry", role: .cancel) {
                Task {
-                  try await setInitialParametersForExistingAssistant()
+                  try await setInitialParametersForAssistantWith(id: id)
                }
             }
          case .assistantDeletedError(let id, _):
@@ -122,21 +131,20 @@ struct AssistantConfigurationScreen: View {
          Button("Nope", role: .cancel) {}
       }
    }
-   private func setInitialParametersForExistingAssistant()
+   private func setInitialParametersForAssistantWith(id: String)
       async throws
    {
-      guard let assistantID = currentAssistant?.id else { return }
-      let parametersResponse = try await provider.retrieveAssistantParameters(id: assistantID, model: currentModel.rawValue)
-      
+      let assistantResponse = try await provider.retrieveAssistant(id: id)
+      currentAssistant = assistantResponse.item
       if
-         let parameters = parametersResponse.item,
+         let parameters = assistantResponse.item?.assistantParameters(currentModel.rawValue),
          let avatarURLString = parameters.metadata![AssistantMetadataKeys.avatarMetadataKey],
          let avatarURL = URL(string: avatarURLString)
       {
          self.avatarURL = avatarURL
+         self.parameters = parameters
       }
-      currentProviderState = parametersResponse.state
-      self.parameters = parameters
+      currentProviderState = assistantResponse.state
    }
    
    var footerActions: some View {
@@ -292,8 +300,6 @@ struct AssistantConfigurationScreen: View {
    @State private var currentSuccessMessage: String? = nil
    @Environment(\.presentationMode) private var presentationMode
    @State private var showDeleteAssistantAlert = false
-   
-   
    @State private var currentProviderState: ProviderState?
    @State private var avatarURL: URL?
 

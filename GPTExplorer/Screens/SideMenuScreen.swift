@@ -108,7 +108,8 @@ struct SideMenuScreen: View {
          }
       }
       .sheet(isPresented: $showAssistantConfigurationModal) {
-         AssistantConfigurationScreen(currentAssistant: .constant(nil), provider: provider)
+         /// TODO: Do we want to present this as a modal instead? currently shown as an action 
+         AssistantConfigurationScreen(currentAssistant: .constant(nil), assistantID: nil, provider: provider)
 //            .onDisappear {
 //               Task {
 //                  try await provider.updateSideMenu(sections: [.assistants])

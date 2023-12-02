@@ -39,6 +39,15 @@ struct ThreadScreen: View {
       NavigationView {
          mainContent
       }
+      .onFirstAppear {
+         Task {
+            // We need to request the current assistatnt associated to this thread at the moment we display this
+            // screen for the first time.
+            if let assistantID = currentThread?.assistantID {
+               currentAssistant = try await provider.retrieveAssistant(id: assistantID).item
+            }
+         }
+      }
       .safeAreaInset(edge: .bottom) {
          bottomTextArea
             .padding(.bottom, 34)
@@ -103,7 +112,7 @@ struct ThreadScreen: View {
          }
       }
       .sheet(isPresented: $showAssistantConfigurationModal) {
-         AssistantConfigurationScreen(currentAssistant: $currentAssistant, provider: provider)
+         AssistantConfigurationScreen(currentAssistant: $currentAssistant, assistantID: currentThread?.assistantID, provider: provider)
       }
    }
    
@@ -124,7 +133,7 @@ struct ThreadScreen: View {
                .task {
                   Task {
                      isLoadingListItems = true
-                     try await messagesProvider.listMessages(threadID: thread.id, assistantName: assistantName())
+                     try await messagesProvider.listMessages(threadID: thread.id, assistantName: assistantName)
                      isLoadingListItems = false
                   }
                }
@@ -140,7 +149,7 @@ struct ThreadScreen: View {
             .opacity(0)
             .accessibilityHidden(true)
          Spacer()
-         ActionButton(assistantName(), actionIcon: Image(systemName: "chevron.right")) {
+         ActionButton(assistantName, actionIcon: Image(systemName: "chevron.right")) {
             showAssistantConfigurationModal = true
          }
          .frame(maxWidth: .infinity)
@@ -155,17 +164,8 @@ struct ThreadScreen: View {
       .padding(.horizontal)
    }
    
-   func assistantName() -> String {
-      let assistantName: String?
-      switch item {
-      case .assistant:
-         assistantName = currentAssistant?.name
-      case .thread(let threadObject):
-         assistantName = threadObject.assistantName
-      case .none, .action:
-         assistantName = nil
-      }
-      return assistantName ?? "Assistant"
+   private var assistantName: String {
+      currentAssistant?.name ?? currentThread?.assistantName ?? "Assistant"
    }
    
    func clearErrorMessages() {

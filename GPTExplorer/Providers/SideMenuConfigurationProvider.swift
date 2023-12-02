@@ -34,7 +34,7 @@ enum ProviderState: Equatable {
    case assistantCreatedSuccess(message: String)
    case assistantCreatedError(parameters: AssistantParameters, message: String)
    case assistantAvatarCreatedError(prompt: String, message: String)
-   case asssitantRetrievedError(id: String, model: String?, message: String)
+   case asssitantRetrievedError(id: String, message: String)
    case listAssistantsError(message: String)
    
    case udpateSideMenuError(sections: Set<SideMenuConfigurationProvider.Section>, message: String)
@@ -55,7 +55,7 @@ enum ProviderState: Equatable {
       case .assistantUpdatedError(_, let message): return message
       case .assistantCreatedError(_, let message): return message
       case .assistantAvatarCreatedError(_, let message): return message
-      case .asssitantRetrievedError(_, _, let message): return message
+      case .asssitantRetrievedError(_, let message): return message
       case .listAssistantsError(let message): return message
       case .udpateSideMenuError(_, let message): return message
       case .assistantCreatedSuccess(message: let message): return message
@@ -267,9 +267,22 @@ enum SideMenuItem: Identifiable, Equatable {
          let assistantParameters = try await service.retrieveAssistant(id: id).assistantParameters(model)
          return .init(item: assistantParameters, state: nil)
       } catch let error as APIError  {
-         return .init(item: nil, state: .asssitantRetrievedError(id: id, model: model, message: error.displayDescription))
+         return .init(item: nil, state: .asssitantRetrievedError(id: id, message: error.displayDescription))
       }
    }
+   
+   func retrieveAssistant(
+      id: String)
+      async throws -> ResultItem<AssistantObject>
+   {
+      do {
+         let assistant = try await service.retrieveAssistant(id: id)
+         return .init(item: assistant, state: nil)
+      } catch let error as APIError  {
+         return .init(item: nil, state: .asssitantRetrievedError(id: id, message: error.displayDescription))
+      }
+   }
+    
     
    // MARK: Threads
     
