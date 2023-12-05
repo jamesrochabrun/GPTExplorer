@@ -10,6 +10,6 @@ import SwiftOpenAI
 
 @Observable class NavigationProvider {
    
-   var changeToSelectedItem: (selectedItem: SideMenuItem, animated: Bool) = (selectedItem: .none, animated: false)
+   var changeToSelectedItem: (selectedItem: SideMenuItem, animated: Bool) = (selectedItem: .chat, animated: false)
    var isOpen: Bool = false
 }

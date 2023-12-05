@@ -30,7 +30,7 @@ struct ThreadScreen: View {
          _currentAssistant = State(initialValue: assistantObject)
       case .thread(let thread):
          _currentThread = State(initialValue: thread)
-      case .none, .action:
+      default:
          fatalError("This is programming error")
       }
    }
@@ -138,8 +138,8 @@ struct ThreadScreen: View {
                      isLoadingListItems = false
                   }
                }
-         case .none, .action:
-            Text("TODO (chat)")
+         default:
+            fatalError("This is programming error item can not be \(item), Only assistant and thread are allowed here.")
          }
       }
    }
@@ -240,7 +240,7 @@ struct ThreadScreen: View {
                prompt = ""
                try await addAndRun(threadID: threadID, assistantID: assistantID, prompt: input)
                isAddAndRunActionLoading = false
-            case .none, .action:
+            default:
                break
             }
             try await provider.defineThreadSnippetForMetadata(thread: currentThread, prompt: input)
@@ -269,7 +269,7 @@ struct ThreadScreen: View {
                prompt = ""
                try await addMessage(threadID: threadID, prompt: input)
                isAddMessageActionLoading = false
-            case .none, .action:
+            default:
                break
             }
             try await provider.defineThreadSnippetForMetadata(thread: currentThread, prompt: input)
@@ -309,7 +309,7 @@ struct ThreadScreen: View {
    }
    
    private func dismissScreen() {
-      navigationProvider.changeToSelectedItem = (selectedItem: .none, animated: true)
+      navigationProvider.changeToSelectedItem = (selectedItem: .chat, animated: true)
       currentThread = nil
    }
    

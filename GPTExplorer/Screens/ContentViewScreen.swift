@@ -88,7 +88,7 @@ struct ContentViewScreen: View {
             AssistantConfigurationScreen(currentAssistant: .constant(nil), assistantID: nil, provider: sideMenuConfigurationProvider)
                .padding(.vertical)
          }
-      case .none:
+      case .chat:
          let chatScreen = Text("CHAT COMING SOON 🤖")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(.systemBackground))

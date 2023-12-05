@@ -8,6 +8,11 @@
 import SwiftOpenAI
 import SwiftUI
 
+// TODO: Use the assistants API
+/// https://platform.openai.com/docs/api-reference/assistants/getAssistantFile
+/// List assistant filesBeta instead of object fileIDS?
+/// fix the error: the issue is that the assistat has a file passed in to the parameter, so first ty to get the assistant files and see if if matches the filids!
+
 final class FilesProvider {
    
    private let service: OpenAIService
@@ -42,9 +47,9 @@ final class FilesProvider {
    
    func retrieveFileWith(
       id: String)
-      async throws
+      async throws -> FileObject?
    {
-      retrievedFile = try await service.retrieveFileWith(id: id)
+      try await service.retrieveFileWith(id: id)
    }
    
    func retrieveContentForFileWith(

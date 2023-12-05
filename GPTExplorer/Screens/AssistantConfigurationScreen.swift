@@ -50,6 +50,7 @@ struct AssistantConfigurationScreen: View {
    
    @Binding var currentAssistant: AssistantObject?
    let assistantID: String?
+   @State private var isLoading = false
    
    var body: some View {
       ScrollView {
@@ -62,6 +63,16 @@ struct AssistantConfigurationScreen: View {
          }
          .padding()
       }
+      .disabled(isLoading)
+      .overlay(
+         Group {
+            if isLoading {
+               ProgressView()
+            } else {
+               EmptyView()
+            }
+         }
+      )
       .safeAreaInset(edge: .bottom) {
          footerActions
       }
@@ -108,7 +119,7 @@ struct AssistantConfigurationScreen: View {
                   try await modifyAssistantWith(id: id)
                }
             }
-         case .assistantCreatedSuccess, .assistantUpdatedSuccess(_, message: _):
+         case .assistantCreatedSuccess, .assistantUpdatedSuccess, .assistantDeletedSuccess:
             Button("Ok", role: .cancel) {
                dismissScreen()
             }
@@ -134,6 +145,8 @@ struct AssistantConfigurationScreen: View {
       .alert("Are you sure you want to delete this Assistant?", isPresented: $showDeleteAssistantAlert) {
          Button("Yes", role: .destructive) {
             Task {
+               isLoading = true
+               defer { isLoading = false }
                if let assistantID = currentAssistant?.id {
                   try await deleteAssistantWith(id: assistantID)
                }
@@ -151,6 +164,10 @@ struct AssistantConfigurationScreen: View {
       
       if let parameters = assistantResponse.item?.assistantParameters(currentModel.rawValue) {
          self.parameters = parameters
+         if let fileIDS = parameters.fileIDS {
+            filePickerInitialActions = fileIDS.map { .retrieveAndDisplay(id: $0) }
+            self.fileIDS = fileIDS
+         }
       }
       if
          let avatarURLString = parameters.metadata?[AssistantMetadataKeys.avatarMetadataKey],
@@ -169,8 +186,9 @@ struct AssistantConfigurationScreen: View {
          .disabled(currentAssistant == nil)
          ActionButton("Save") {
             Task {
+               isLoading = true
+               defer { isLoading = false }
                if let assistantID = currentAssistant?.id {
-                  dump(parameters)
                   try await modifyAssistantWith(id: assistantID)
                } else {
                   try await createAssistant()
@@ -260,7 +278,7 @@ struct AssistantConfigurationScreen: View {
       async throws
    {
       let updatedAssistantResponse = try await provider.modifyAssistant(id: id, parameters: parameters)
-      currentAssistant = updatedAssistantResponse.item
+      currentAssistant = updatedAssistantResponse.item ?? currentAssistant
       currentProviderState = updatedAssistantResponse.state
    }
    
@@ -301,7 +319,12 @@ struct AssistantConfigurationScreen: View {
    @State private var presentImporter = false
    
    var knowledge: some View {
-      FilesPicker(service: provider.service, fileIDS: $fileIDS)
+      FilesPicker(
+         service: provider.service,
+         sectionTitle: "Knowledge",
+         actionTitle: "Upload files",
+         fileIDS: $fileIDS,
+         actions: $filePickerInitialActions)
    }
    
    var capabilities: some View {
@@ -327,8 +350,12 @@ struct AssistantConfigurationScreen: View {
    @State private var showDeleteAssistantAlert = false
    @State private var currentProviderState: ProviderState?
    @State private var avatarURL: URL?
-   @State private var fileParameters: [FileParameters] = []
+   
+   /// Files management
+   ///  Updated by files picker. This value will be later added to parameters.fileID's on save button.
    @State private var fileIDS: [String] = []
+   /// Used mostly to display already uploaded files if any.
+   @State private var filePickerInitialActions: [FilePickerAction] = [.retrieveAndDisplay(id: "s"), .retrieveAndDisplay(id: "s"), .retrieveAndDisplay(id: "s"), .retrieveAndDisplay(id: "s")]
 
    private var isCodeInterpreterOn: Binding<Bool> {
       Binding(

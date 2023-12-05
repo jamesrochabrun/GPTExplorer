@@ -56,8 +56,8 @@ struct SideMenuScreen: View {
                      case .createAssistant:
                         Text("Create Asssitant")
                      }
-                  case .none:
-                     EmptyView()
+                  case .chat:
+                     Text("GPT 4...")
                   }
                }
                .listRowSeparator(.hidden)

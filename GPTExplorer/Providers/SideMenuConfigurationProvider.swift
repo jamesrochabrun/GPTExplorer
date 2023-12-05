@@ -140,7 +140,7 @@ enum SideMenuItem: Identifiable, Equatable {
          return assistant.id
       case .thread(let thread):
          return thread.id
-      case .none: return "none"
+      case .chat: return "chat"
       case .action(let action): return action.rawValue
       }
    }
@@ -152,7 +152,7 @@ enum SideMenuItem: Identifiable, Equatable {
    case assistant(AssistantObject)
    case thread(ThreadObject)
    case action(Action)
-   case none
+   case chat
 }
 
 @Observable class SideMenuConfigurationProvider {
@@ -162,6 +162,7 @@ enum SideMenuItem: Identifiable, Equatable {
    enum Section: String, CaseIterable, Identifiable {
       
       case actions = "Actions"
+      case chat = "Chat"
       case assistants = "Assistants"
       case threads = "Threads"
       
@@ -172,7 +173,10 @@ enum SideMenuItem: Identifiable, Equatable {
    let service: OpenAIService
    let filesProvider: FilesProvider
    let navigationProvider: NavigationProvider
-   var mapItems: [Section: [SideMenuItem]] = [Section.actions: [.action(.createAssistant)]]
+   var mapItems: [Section: [SideMenuItem]] = [
+      Section.actions: [.action(.createAssistant)],
+      Section.chat: [.chat]
+   ]
    
    // MARK: - Initializer
    
@@ -182,34 +186,6 @@ enum SideMenuItem: Identifiable, Equatable {
       self.navigationProvider = .init()
       filesProvider = FilesProvider(service: service)
    }
-   
-   // MARK: Files
-   
-//   func uploadFiles(
-//      parameters: [FileParameters])
-//      async throws
-//      -> ResultItem<[FileObject]>
-//   {
-//      do {
-//         var tasks: [Task<FileObject?, Error>] = []
-//         
-//         for fileParameter in parameters {
-//            let task = Task { try await filesProvider.uploadFile(parameters: fileParameter) }
-//            tasks.append(task)
-//         }
-//         
-//         var files: [FileObject] = []
-//         
-//         for task in tasks.enumerated() {
-//            let file = try await task.element.value
-//            if let file {
-//               files.append(file)
-//            }
-//         }
-////      } catch let error as APIError {
-////         
-////      }
-//   }
    
    // MARK: Assistants
   
