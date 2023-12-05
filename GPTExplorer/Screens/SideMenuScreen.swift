@@ -85,7 +85,7 @@ struct SideMenuScreen: View {
       .listStyle(.plain)
       .onFirstAppear {
          Task {
-            try await updateSideMenu(sections: Set(SideMenuConfigurationProvider.Section.allCases))
+             try await updateSideMenu(sections: Set(SideMenuConfigurationProvider.Section.allCases))
          }
       }
       .alert(currentProviderState?.message ?? "", isPresented: Binding<Bool>(

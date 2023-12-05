@@ -60,20 +60,21 @@ struct ThreadScreen: View {
             }
          }
       )) {
-         /// TODO: handle retries as needed
          switch currentProviderState {
          case .threadDeletedSuccess(_, _):
             Button("Ok", role: .cancel) {
                dismissScreen()
             }
          case .threadDeletedError(let id, _):
-            Button("Retry", role: .cancel) {
+            ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
+            ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
                Task {
                   try await deleteThreadWith(id: id)
                }
             }
          case .threadCreatedError(let metadata, _):
-            Button("Retry", role: .cancel) {
+            ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
+            ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
                Task {
                   try await createThreadWith(metadata: metadata)
                }
@@ -353,7 +354,7 @@ struct ThreadScreen: View {
       
       // TODO remove force unwrapp after testing
       let assistantMessage = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: lastRunStep.stepDetails.messageCreation.messageID)!
-      let assistantMessageDisplayModel = messagesProvider.createMessageDisplayModel(from: assistantMessage, assistantName: assistantName())!
+      let assistantMessageDisplayModel = messagesProvider.createMessageDisplayModel(from: assistantMessage, assistantName: assistantName)!
       
       await messagesProvider.addMessage(assistantMessageDisplayModel)
    }

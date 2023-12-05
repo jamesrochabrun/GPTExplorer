@@ -14,7 +14,7 @@ import SwiftOpenAI
 enum AssistantFunctionCallDefinition: String, CaseIterable {
    
    case createImage = "create_image"
-
+   
    var functionTool: AssistantObject.Tool {
       switch self {
       case .createImage:
@@ -50,23 +50,29 @@ struct AssistantConfigurationScreen: View {
    
    @Binding var currentAssistant: AssistantObject?
    let assistantID: String?
-
+   
    var body: some View {
       ScrollView {
          VStack(spacing: Sizes.spacingExtraLarge) {
-               titleHeader
-               avatarView
-               inputViews
-               capabilities
+            titleHeader
+            avatarView
+            inputViews
+            knowledge
+            capabilities
          }
          .padding()
       }
       .safeAreaInset(edge: .bottom) {
          footerActions
       }
+      .onChange(of: fileIDS) { oldValue, newValue in
+         if oldValue != newValue {
+            parameters.fileIDS = newValue
+         }
+      }
       .onChange(of: avatarURL) { oldValue, newValue in
          if let newValue = newValue, oldValue != newValue {
-            self.parameters.metadata = [AssistantMetadataKeys.avatarMetadataKey: newValue.absoluteString]
+            parameters.metadata = [AssistantMetadataKeys.avatarMetadataKey: newValue.absoluteString]
          }
       }.onFirstAppear {
          Task {
@@ -89,13 +95,15 @@ struct AssistantConfigurationScreen: View {
       )) {
          switch currentProviderState {
          case .assistantAvatarCreatedError(let prompt, _):
-            Button("Retry", role: .cancel) {
+            ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
+            ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
                Task {
                   try await setAvatarURL(prompt: prompt)
                }
             }
          case .assistantUpdatedError(let id, message: _):
-            Button("Retry", role: .cancel) {
+            ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
+            ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
                Task {
                   try await modifyAssistantWith(id: id)
                }
@@ -105,13 +113,16 @@ struct AssistantConfigurationScreen: View {
                dismissScreen()
             }
          case .asssitantRetrievedError(let id,  _):
-            Button("Retry", role: .cancel) {
+            ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {
+            }
+            ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
                Task {
                   try await setInitialParametersForAssistantWith(id: id)
                }
             }
          case .assistantDeletedError(let id, _):
-            Button("Retry", role: .cancel) {
+            ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
+            ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
                Task {
                   try await deleteAssistantWith(id: id)
                }
@@ -131,18 +142,21 @@ struct AssistantConfigurationScreen: View {
          Button("Nope", role: .cancel) {}
       }
    }
+   
    private func setInitialParametersForAssistantWith(id: String)
       async throws
    {
       let assistantResponse = try await provider.retrieveAssistant(id: id)
       currentAssistant = assistantResponse.item
+      
+      if let parameters = assistantResponse.item?.assistantParameters(currentModel.rawValue) {
+         self.parameters = parameters
+      }
       if
-         let parameters = assistantResponse.item?.assistantParameters(currentModel.rawValue),
-         let avatarURLString = parameters.metadata![AssistantMetadataKeys.avatarMetadataKey],
+         let avatarURLString = parameters.metadata?[AssistantMetadataKeys.avatarMetadataKey],
          let avatarURL = URL(string: avatarURLString)
       {
          self.avatarURL = avatarURL
-         self.parameters = parameters
       }
       currentProviderState = assistantResponse.state
    }
@@ -156,7 +170,8 @@ struct AssistantConfigurationScreen: View {
          ActionButton("Save") {
             Task {
                if let assistantID = currentAssistant?.id {
-                 try await modifyAssistantWith(id: assistantID)
+                  dump(parameters)
+                  try await modifyAssistantWith(id: assistantID)
                } else {
                   try await createAssistant()
                }
@@ -240,7 +255,10 @@ struct AssistantConfigurationScreen: View {
       currentProviderState = assistantResponse.state
    }
    
-   private func modifyAssistantWith(id: String) async throws  {
+   private func modifyAssistantWith(
+      id: String)
+      async throws
+   {
       let updatedAssistantResponse = try await provider.modifyAssistant(id: id, parameters: parameters)
       currentAssistant = updatedAssistantResponse.item
       currentProviderState = updatedAssistantResponse.state
@@ -280,16 +298,23 @@ struct AssistantConfigurationScreen: View {
       .textFieldStyle(.roundedBorder)
    }
    
+   @State private var presentImporter = false
+   
+   var knowledge: some View {
+      FilesPicker(service: provider.service, fileIDS: $fileIDS)
+   }
+   
    var capabilities: some View {
       InputHeaderView(title: "Capabilities") {
          VStack(spacing: Sizes.spacingExtraLarge) {
             CheckboxRow(title: "Code interpreter", isChecked: isCodeInterpreterOn)
+            CheckboxRow(title: "Retrieval", isChecked: isRetrievalOn)
             CheckboxRow(title: "DALL·E Image Generation", isChecked: isDalleToolOn)
          }
       }
       .inputViewStyle(.init(verticalPadding: Sizes.spacingExtraLarge))
    }
-   
+      
    // MARK: Private
    
    @State private var provider: SideMenuConfigurationProvider
@@ -302,51 +327,79 @@ struct AssistantConfigurationScreen: View {
    @State private var showDeleteAssistantAlert = false
    @State private var currentProviderState: ProviderState?
    @State private var avatarURL: URL?
+   @State private var fileParameters: [FileParameters] = []
+   @State private var fileIDS: [String] = []
 
    private var isCodeInterpreterOn: Binding<Bool> {
-       Binding(
-           get: {
-              let contains =
-               self.parameters.tools.contains { $0.displayToolType == .codeInterpreter } == true
-              return contains
-           },
-           set: { newValue in
-               if newValue {
-                  self.parameters.tools.append(AssistantObject.Tool(type: .codeInterpreter))
-               } else {
-                  self.parameters.tools.removeAll { $0.displayToolType == .codeInterpreter }
-               }
-           }
-       )
+      Binding(
+         get: {
+            let contains =
+            self.parameters.tools.contains { $0.displayToolType == .codeInterpreter } == true
+            return contains
+         },
+         set: { newValue in
+            if newValue {
+               self.parameters.tools.append(AssistantObject.Tool(type: .codeInterpreter))
+            } else {
+               self.parameters.tools.removeAll { $0.displayToolType == .codeInterpreter }
+            }
+         }
+      )
    }
    
    private var isDalleToolOn: Binding<Bool> {
-       Binding(
-           get: {
-              let contains =
-              self.parameters.tools.contains { $0.displayToolType == .function } == true
-              return contains
-           },
-           set: { newValue in
-               if newValue {
-                  self.parameters.tools.append(AssistantFunctionCallDefinition.createImage.functionTool)
-               } else {
-                  self.parameters.tools.removeAll { $0.displayToolType == .function }
-               }
-           }
-       )
+      Binding(
+         get: {
+            let contains =
+            self.parameters.tools.contains { $0.displayToolType == .function } == true
+            return contains
+         },
+         set: { newValue in
+            if newValue {
+               self.parameters.tools.append(AssistantFunctionCallDefinition.createImage.functionTool)
+            } else {
+               self.parameters.tools.removeAll { $0.displayToolType == .function }
+            }
+         }
+      )
+   }
+   
+   private var isRetrievalOn: Binding<Bool> {
+      Binding(
+         get: {
+            let contains =
+            self.parameters.tools.contains { $0.displayToolType == .retrieval } == true
+            return contains
+         },
+         set: { newValue in
+            if newValue {
+               self.parameters.tools.append(AssistantObject.Tool(type: .retrieval))
+            } else {
+               self.parameters.tools.removeAll { $0.displayToolType == .retrieval }
+            }
+         }
+      )
    }
 }
 
 extension Binding where Value == String? {
-    var orEmpty: Binding<String> {
-        return Binding<String>(
-            get: { self.wrappedValue ?? "" },
-            set: { self.wrappedValue = $0 }
-        )
+   var orEmpty: Binding<String> {
+      return Binding<String>(
+         get: { self.wrappedValue ?? "" },
+         set: { self.wrappedValue = $0 }
+      )
+   }
+}
+
+extension String {
+    var fileName: String {
+        return (self as NSString).lastPathComponent
     }
 }
-//
-//#Preview {
-//   AssistantConfigurationScreen(provider: SideMenuConfigurationProvider(service: OpenAIServiceFactory.service(apiKey: "")), assistantID: nil)
-//}
+
+#Preview {
+   AssistantConfigurationScreen(
+      currentAssistant: .constant(nil),
+      assistantID: nil,
+      provider: SideMenuConfigurationProvider(service: OpenAIServiceFactory.service(apiKey: "")))
+}

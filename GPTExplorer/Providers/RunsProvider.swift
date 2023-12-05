@@ -27,7 +27,7 @@ import SwiftOpenAI
    func runTheThread(
       threadID: String,
       parameters: RunParameter)
-      async throws -> RunObject?
+   async throws -> RunObject?
    {
       do {
          return try await service.createRun(threadID: threadID, parameters: parameters)
@@ -40,7 +40,7 @@ import SwiftOpenAI
    func getRunSteps(
       threadID: String,
       runID: String)
-      async throws -> RunStepObject?
+   async throws -> RunStepObject?
    {
       do {
          let timeoutDuration = 20_000_000_000 // 20 seconds in nanoseconds
@@ -77,11 +77,10 @@ import SwiftOpenAI
       }
    }
    
-   
    private func pollForCompletion(
       threadID: String,
       runID: String)
-      async throws -> RunStepObject?
+   async throws -> RunStepObject?
    {
       var isCompleted = false
       var lastStep: RunStepObject? = nil
@@ -94,7 +93,7 @@ import SwiftOpenAI
             break  // Exit the loop if the task has been cancelled
          }
          
-         let data = try await service.listRunSteps(threadID: threadID, runID: runID, limit: nil, order: nil, after: nil, before: nil)         
+         let data = try await service.listRunSteps(threadID: threadID, runID: runID, limit: nil, order: nil, after: nil, before: nil)
          if let firstStep = data.data.first, let status = RunStepObject.Status(rawValue: firstStep.status), status != .inProgress {
             isCompleted = true
             lastStep = firstStep
@@ -105,5 +104,4 @@ import SwiftOpenAI
       }
       return lastStep
    }
-   
 }

@@ -80,21 +80,8 @@ struct ThreadTextArea: View {
       if let fileIDS, !fileIDS.isEmpty {
          VStack(spacing: 0) {
             ForEach(fileIDS, id: \.self) { fileID in
-               HStack {
-                  Image(systemName: "doc")
-                     .resizable()
-                     .aspectRatio(contentMode: .fit)
-                     .frame(width: 10)
-                     .foregroundColor(.secondary)
-                  Text(fileID)
-                     .font(.caption2)
-               }
-               .padding(.horizontal, Sizes.spacingMedium)
-               .padding(.vertical, Sizes.spacingMedium)
-               .background(
-                  RoundedRectangle(cornerRadius: 8)
-                     .stroke(.gray.opacity(0.5), lineWidth: 0.5)
-               )
+               // TODO: Use file uploader
+               AttachmentView(fileName: fileID, actionTrigger: .constant(false))
             }
          }
          .animation(.bouncy, value: fileIDS.isEmpty)

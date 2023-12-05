@@ -7,6 +7,12 @@
 
 import SwiftOpenAI
 
+extension AssistantObject.Tool: Equatable {
+   public static func == (lhs: AssistantObject.Tool, rhs: AssistantObject.Tool) -> Bool {
+      lhs.displayToolType == rhs.displayToolType
+   }
+}
+
 extension AssistantParameters: Equatable {
    
    public static func == (lhs: SwiftOpenAI.AssistantParameters, rhs: SwiftOpenAI.AssistantParameters) -> Bool {
@@ -15,7 +21,8 @@ extension AssistantParameters: Equatable {
       lhs.description == rhs.description &&
       lhs.instructions == rhs.instructions  &&
       lhs.fileIDS == rhs.fileIDS &&
-      lhs.metadata == rhs.metadata
+      lhs.metadata == rhs.metadata &&
+      lhs.tools == rhs.tools
    }
 }
 

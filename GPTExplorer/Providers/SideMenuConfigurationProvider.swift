@@ -9,6 +9,30 @@ import Foundation
 import SwiftOpenAI
 import SwiftUI
 
+extension FileObject.DeletionStatus: Equatable {
+   public static func == (lhs: FileObject.DeletionStatus, rhs: FileObject.DeletionStatus) -> Bool {
+      lhs.id == rhs.id
+   }
+}
+
+extension FileObject: Equatable {
+   public static func == (lhs: FileObject, rhs: FileObject) -> Bool {
+      lhs.id == rhs.id
+   }
+}
+
+extension FileParameters: Equatable, Identifiable {
+   public static func == (lhs: FileParameters, rhs: FileParameters) -> Bool {
+      lhs.file == rhs.file &&
+      lhs.fileName == rhs.fileName &&
+      lhs.purpose == rhs.purpose
+   }
+   
+   public var id: String {
+      fileName
+   }
+}
+
 extension ModifyThreadParameters: Equatable {
    public static func == (lhs: ModifyThreadParameters, rhs: ModifyThreadParameters) -> Bool {
       lhs.metadata == rhs.metadata
@@ -26,7 +50,6 @@ enum ProviderState: Equatable {
    case deleteThreadsSuccess(message: String)
    case deleteThreadsError(message: String)
 
-
    case assistantDeletedSuccess(id: String, message: String)
    case assistantDeletedError(id: String, message: String)
    case assistantUpdatedSuccess(id: String, message: String)
@@ -38,6 +61,8 @@ enum ProviderState: Equatable {
    case listAssistantsError(message: String)
    
    case udpateSideMenuError(sections: Set<SideMenuConfigurationProvider.Section>, message: String)
+   
+   case uploadedFileError(message: String)
    
    var message: String {
       switch self {
@@ -59,6 +84,7 @@ enum ProviderState: Equatable {
       case .listAssistantsError(let message): return message
       case .udpateSideMenuError(_, let message): return message
       case .assistantCreatedSuccess(message: let message): return message
+      case .uploadedFileError(let message): return message
       }
    }
 }
@@ -144,6 +170,7 @@ enum SideMenuItem: Identifiable, Equatable {
    
    let threadsIDStorage: UserDefaultsIDStorage<String> = UserDefaultsIDStorage<String>(key: "threadsIDStorage")
    let service: OpenAIService
+   let filesProvider: FilesProvider
    let navigationProvider: NavigationProvider
    var mapItems: [Section: [SideMenuItem]] = [Section.actions: [.action(.createAssistant)]]
    
@@ -153,7 +180,36 @@ enum SideMenuItem: Identifiable, Equatable {
    {
       self.service = service
       self.navigationProvider = .init()
+      filesProvider = FilesProvider(service: service)
    }
+   
+   // MARK: Files
+   
+//   func uploadFiles(
+//      parameters: [FileParameters])
+//      async throws
+//      -> ResultItem<[FileObject]>
+//   {
+//      do {
+//         var tasks: [Task<FileObject?, Error>] = []
+//         
+//         for fileParameter in parameters {
+//            let task = Task { try await filesProvider.uploadFile(parameters: fileParameter) }
+//            tasks.append(task)
+//         }
+//         
+//         var files: [FileObject] = []
+//         
+//         for task in tasks.enumerated() {
+//            let file = try await task.element.value
+//            if let file {
+//               files.append(file)
+//            }
+//         }
+////      } catch let error as APIError {
+////         
+////      }
+//   }
    
    // MARK: Assistants
   
@@ -446,6 +502,7 @@ enum SideMenuItem: Identifiable, Equatable {
    }
 
    // MARK: Private
+   
    private var threadItems: [SideMenuItem] = []
    private var assistantItems: [SideMenuItem] = []
    
