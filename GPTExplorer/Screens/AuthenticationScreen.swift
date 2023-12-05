@@ -23,7 +23,7 @@ extension Color {
 
 struct AuthenticationScreen: View {
    
-   @State private var apiKey = "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"
+   @State private var apiKey = ""
    @State private var organizationIdentifier = ""
    @State private var localOrganizationID: String? = nil
    @State private var navigationProvider: NavigationProvider = .init()

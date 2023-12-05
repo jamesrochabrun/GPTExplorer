@@ -12,7 +12,7 @@ import SwiftUI
 /// https://platform.openai.com/docs/api-reference/assistants/getAssistantFile
 /// List assistant filesBeta instead of object fileIDS?
 /// fix the error: the issue is that the assistat has a file passed in to the parameter, so first ty to get the assistant files and see if if matches the filids!
-
+// Important: clean the uploaded files if are no needed. 
 final class FilesProvider {
    
    private let service: OpenAIService
