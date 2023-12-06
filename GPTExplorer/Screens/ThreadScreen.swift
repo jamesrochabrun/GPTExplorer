@@ -112,6 +112,9 @@ struct ThreadScreen: View {
             }
          }
       }
+      .onChange(of: currentAssistant) { oldValue, newValue in
+         // TODO: navigate to somewhere
+      }
       .sheet(isPresented: $showAssistantConfigurationModal) {
          AssistantConfigurationScreen(currentAssistant: $currentAssistant, assistantID: currentThread?.assistantID, provider: provider)
       }
@@ -139,7 +142,7 @@ struct ThreadScreen: View {
                   }
                }
          default:
-            fatalError("This is programming error item can not be \(item), Only assistant and thread are allowed here.")
+            EmptyView()
          }
       }
    }

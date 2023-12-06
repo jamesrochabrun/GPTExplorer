@@ -43,6 +43,7 @@ struct AssistantConfigurationScreen: View {
       assistantID: String?,
       provider: SideMenuConfigurationProvider)
    {
+      _navigationProvider = State(initialValue: provider.navigationProvider)
       _provider = State(initialValue: provider)
       _currentAssistant = currentAssistant
       self.assistantID = assistantID
@@ -50,7 +51,9 @@ struct AssistantConfigurationScreen: View {
    
    @Binding var currentAssistant: AssistantObject?
    let assistantID: String?
-   @State private var isLoading = false
+   @State private var isLoadingSaveAction: Bool? = false
+   @State private var isLoadingDeleteAction: Bool? = false
+   @State private var navigationProvider: NavigationProvider
    
    var body: some View {
       ScrollView {
@@ -63,16 +66,6 @@ struct AssistantConfigurationScreen: View {
          }
          .padding()
       }
-      .disabled(isLoading)
-      .overlay(
-         Group {
-            if isLoading {
-               ProgressView()
-            } else {
-               EmptyView()
-            }
-         }
-      )
       .safeAreaInset(edge: .bottom) {
          footerActions
       }
@@ -145,8 +138,6 @@ struct AssistantConfigurationScreen: View {
       .alert("Are you sure you want to delete this Assistant?", isPresented: $showDeleteAssistantAlert) {
          Button("Yes", role: .destructive) {
             Task {
-               isLoading = true
-               defer { isLoading = false }
                if let assistantID = currentAssistant?.id {
                   try await deleteAssistantWith(id: assistantID)
                }
@@ -180,14 +171,12 @@ struct AssistantConfigurationScreen: View {
    
    var footerActions: some View {
       HStack {
-         ActionButton("Delete") {
+         ActionButton("Delete", isLoading: $isLoadingDeleteAction) {
             showDeleteAssistantAlert = true
          }
          .disabled(currentAssistant == nil)
-         ActionButton("Save") {
+         ActionButton("Save", isLoading: $isLoadingSaveAction) {
             Task {
-               isLoading = true
-               defer { isLoading = false }
                if let assistantID = currentAssistant?.id {
                   try await modifyAssistantWith(id: assistantID)
                } else {
@@ -268,6 +257,8 @@ struct AssistantConfigurationScreen: View {
    }
    
    private func createAssistant() async throws {
+      isLoadingSaveAction = true
+      defer { isLoadingSaveAction = false }
       let assistantResponse = try await provider.createAssistant(parameters: parameters)
       currentAssistant = assistantResponse.item
       currentProviderState = assistantResponse.state
@@ -277,12 +268,16 @@ struct AssistantConfigurationScreen: View {
       id: String)
       async throws
    {
+      isLoadingSaveAction = true
+      defer { isLoadingSaveAction = false }
       let updatedAssistantResponse = try await provider.modifyAssistant(id: id, parameters: parameters)
       currentAssistant = updatedAssistantResponse.item ?? currentAssistant
       currentProviderState = updatedAssistantResponse.state
    }
    
    private func deleteAssistantWith(id: String) async throws {
+      isLoadingDeleteAction = true
+      defer { isLoadingDeleteAction = false }
       let deletionResponse = try await provider.deleteAssistant(id: id)
       if deletionResponse.item?.deleted == true {
          currentAssistant = nil
@@ -355,7 +350,7 @@ struct AssistantConfigurationScreen: View {
    ///  Updated by files picker. This value will be later added to parameters.fileID's on save button.
    @State private var fileIDS: [String] = []
    /// Used mostly to display already uploaded files if any.
-   @State private var filePickerInitialActions: [FilePickerAction] = [.retrieveAndDisplay(id: "s"), .retrieveAndDisplay(id: "s"), .retrieveAndDisplay(id: "s"), .retrieveAndDisplay(id: "s")]
+   @State private var filePickerInitialActions: [FilePickerAction] = []
 
    private var isCodeInterpreterOn: Binding<Bool> {
       Binding(

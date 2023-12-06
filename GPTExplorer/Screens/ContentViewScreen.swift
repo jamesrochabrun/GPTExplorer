@@ -13,8 +13,7 @@ struct ContentViewScreen: View {
    let service: OpenAIService
    @State private var sideMenuConfigurationProvider: SideMenuConfigurationProvider
    @State private var navigationProvider: NavigationProvider
-//   @State private var threadProvider: ThreadProvider
-   
+
    init(
       service: OpenAIService,
       sideMenuConfigurationProvider: SideMenuConfigurationProvider)
@@ -22,7 +21,6 @@ struct ContentViewScreen: View {
       self.service = service
       self._navigationProvider = State(initialValue: sideMenuConfigurationProvider.navigationProvider)
       self._sideMenuConfigurationProvider = State(initialValue: sideMenuConfigurationProvider)
-     // self._threadProvider = State(initialValue: sideMenuConfigurationProvider.threadProvider)
    }
    
    var mainBackground: some View {
@@ -82,12 +80,6 @@ struct ContentViewScreen: View {
          } else {
             threadScreen
          }
-      case .action(let action):
-         switch action {
-         case .createAssistant:
-            AssistantConfigurationScreen(currentAssistant: .constant(nil), assistantID: nil, provider: sideMenuConfigurationProvider)
-               .padding(.vertical)
-         }
       case .chat:
          let chatScreen = Text("CHAT COMING SOON 🤖")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -99,6 +91,8 @@ struct ContentViewScreen: View {
          } else {
             chatScreen
          }
+      default:
+         EmptyView()
       }
    }
 }

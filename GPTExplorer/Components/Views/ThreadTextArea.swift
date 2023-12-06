@@ -81,7 +81,7 @@ struct ThreadTextArea: View {
          VStack(spacing: 0) {
             ForEach(fileIDS, id: \.self) { fileID in
                // TODO: Use file uploader
-               AttachmentView(fileName: fileID, actionTrigger: .constant(false))
+               AttachmentView(fileName: fileID, actionTrigger: .constant(false), isLoading: false)
             }
          }
          .animation(.bouncy, value: fileIDS.isEmpty)

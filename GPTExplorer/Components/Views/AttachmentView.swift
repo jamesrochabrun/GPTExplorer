@@ -11,21 +11,29 @@ struct AttachmentView: View {
    
    let fileName: String
    @Binding var actionTrigger: Bool
+   let isLoading: Bool 
 
    var body: some View {
       HStack(spacing: Sizes.spacingExtraSmall) {
          HStack {
-            Image(systemName: "doc")
-               .resizable()
-               .aspectRatio(contentMode: .fit)
-               .frame(width: 10)
-               .foregroundColor(.secondary)
+            if isLoading == true {
+               ProgressView()
+                  .frame(width: 10, height: 10)
+                  .padding(.horizontal, Sizes.spacingExtraSmall)
+            } else {
+               Image(systemName: "doc")
+                  .resizable()
+                  .aspectRatio(contentMode: .fit)
+                  .frame(width: 10)
+                  .foregroundColor(.secondary)
+            }
             Text(fileName)
                .font(.caption2)
          }
          IconButton(iconName: "xmark.circle.fill") {
              actionTrigger = true
          }
+         .disabled(isLoading)
          .iconButtonStyle(.plain)
       }
       .padding(.leading, Sizes.spacingMedium)
@@ -37,5 +45,5 @@ struct AttachmentView: View {
 }
 
 #Preview {
-   AttachmentView(fileName: "Mydocument.pdf", actionTrigger: .constant(true))
+   AttachmentView(fileName: "Mydocument.pdf", actionTrigger: .constant(true), isLoading: true)
 }

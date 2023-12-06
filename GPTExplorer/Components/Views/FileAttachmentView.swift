@@ -26,7 +26,7 @@ struct FileAttachmentView: View {
       parameters: FileParameters)
       -> some View
    {
-      AttachmentView(fileName: fileObject?.filename ?? parameters.fileName, actionTrigger: $deleted)
+      AttachmentView(fileName: fileObject?.filename ?? parameters.fileName, actionTrigger: $deleted, isLoading: fileObject == nil || deleted)
          .disabled(fileObject == nil)
          .opacity(fileObject == nil ? 0.3 : 1)
          .onFirstAppear {
@@ -45,9 +45,7 @@ struct FileAttachmentView: View {
       id: String)
       -> some View
    {
-      AttachmentView(fileName: fileObject?.filename ?? "Document", actionTrigger: $deleted)
-         .disabled(fileObject == nil)
-         .opacity(fileObject == nil ? 0.3 : 1)
+      AttachmentView(fileName: fileObject?.filename ?? "Document", actionTrigger: $deleted, isLoading: fileObject == nil || deleted)
          .onFirstAppear {
             Task {
                fileObject = try await fileProvider.retrieveFileWith(id: id)

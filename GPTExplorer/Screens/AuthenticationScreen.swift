@@ -8,17 +8,6 @@
 import SwiftUI
 import SwiftOpenAI
 
-extension Color {
-   static func random() -> Color {
-      return Color(
-         red: Double.random(in: 0...1),
-         green: Double.random(in: 0...1),
-         blue: Double.random(in: 0...1),
-         opacity: 1.0
-      )
-   }
-}
-
 // MARK: AuthenticationScreen
 
 struct AuthenticationScreen: View {
@@ -59,7 +48,7 @@ struct AuthenticationScreen: View {
                Text("Continue")
                   .padding()
                   .padding(.horizontal, 48)
-                  .foregroundColor(.white)
+                  .foregroundColor(apiKey.isEmpty ? ThemeColor.actionForegroundDisabled : .white)
                   .background(
                      Capsule()
                         .foregroundColor(apiKey.isEmpty ? ThemeColor.actionBackgroundDisabled : ThemeColor.brandColor))

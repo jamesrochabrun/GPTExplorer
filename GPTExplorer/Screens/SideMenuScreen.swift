@@ -24,7 +24,7 @@ struct SideMenuScreen: View {
    }
    
    @State private var navigationProvider: NavigationProvider
-   
+
    func selectedBackground(item: SideMenuItem) -> some View {
       Rectangle()
          .fill(.blue)
@@ -62,7 +62,7 @@ struct SideMenuScreen: View {
                }
                .listRowSeparator(.hidden)
                .listRowBackground(
-                  ThemeColor.backgroundColor
+                  Color.clear
                )
                .padding(.vertical, Sizes.spacingExtraSmall / 2)
                .padding(.horizontal, Sizes.spacingExtraSmall)
@@ -70,13 +70,14 @@ struct SideMenuScreen: View {
                   selectedBackground(item: item)
                )
                .background(
-                  Color.clear // This helps with the tap area
+                  Color.clear // This helps with the tap area of each item
                )
                .onTapGesture {
-                  navigationProvider.changeToSelectedItem = (selectedItem: item, animated: false)
-                  withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                     navigationProvider.isOpen = false
+                  if item == .action(.createAssistant) {
+                     showAssistantConfigurationModal = true
+                     return
                   }
+                  navigateToSelected(item: item)
                }
             }
          }
@@ -107,14 +108,19 @@ struct SideMenuScreen: View {
             EmptyView()
          }
       }
+      .onChange(of: currentAssistant) { oldValue, newValue in
+         if oldValue != newValue, let newValue  {
+            navigateToSelected(item: .assistant(newValue))
+         }
+      }
       .sheet(isPresented: $showAssistantConfigurationModal) {
-         /// TODO: Do we want to present this as a modal instead? currently shown as an action 
-         AssistantConfigurationScreen(currentAssistant: .constant(nil), assistantID: nil, provider: provider)
-//            .onDisappear {
-//               Task {
-//                  try await provider.updateSideMenu(sections: [.assistants])
-//               }
-//            }
+         AssistantConfigurationScreen(currentAssistant: $currentAssistant, assistantID: nil, provider: provider)
+      }
+   }
+   private func navigateToSelected(item: SideMenuItem) {
+      navigationProvider.changeToSelectedItem = (selectedItem: item, animated: false)
+      withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+         navigationProvider.isOpen = false
       }
    }
    
@@ -125,6 +131,7 @@ struct SideMenuScreen: View {
    @Environment(\.presentationMode) private var presentationMode
    @State private var showAssistantConfigurationModal = false
    @State private var currentProviderState: ProviderState?
+   @State private var currentAssistant: AssistantObject?
    
    
    private func updateSideMenu(
