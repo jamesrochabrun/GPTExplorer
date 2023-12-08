@@ -138,19 +138,19 @@ extension AudioWave.Wave: Animatable {
 struct AudioWaveView: View {
    
    var audioWave: AudioWave!
-   var _colors: [Color]!
-   var _supportLineColor: Color!
-   var _power: Double!
+   var lightModeColors: [Color]
+   var darkModeColors: [Color]
+
+   var supportLineColor: Color!
+   var power: Double!
    
    @Environment (\.colorScheme) var colorScheme
    @State private var animated: Bool = false
    init() {
       
-      self._power = 0.0
-      self._colors =  colorScheme == .light ? [ThemeColor.brandSecondaryColor] :
-         [
-         .primary
-//         ThemeColor.brandColor,
+      self.power = 0.0
+      self.lightModeColors = [ThemeColor.brandSecondaryColor]
+      self.darkModeColors = [.primary]
 //         ThemeColor.brandSecondaryColor
 //         // Red
 //         Color(red: (173 / 255), green: (57 / 255), blue: (76 / 255)),
@@ -158,40 +158,39 @@ struct AudioWaveView: View {
 //         Color(red: (48 / 255), green: (220 / 255), blue: (155 / 255)),
 //         // Blue
 //         Color(red: (25 / 255), green: (122 / 255), blue: (255 / 255))
-      ]
-      self._supportLineColor = Color(.white)
+      self.supportLineColor = Color(.white)
       // Initialize model
-      self.audioWave = AudioWave(numWaves: self._colors.count, power: self._power)
+      self.audioWave = AudioWave(numWaves: self.lightModeColors.count, power: self.power)
    }
    
    func colors(colors: [Color]) -> Self {
-      var this = self;
-      if (colors.count != this._colors.count) {
-         this.audioWave = AudioWave(numWaves: colors.count, power: this._power)
+      var this = self
+      if (colors.count != this.lightModeColors.count) {
+         this.audioWave = AudioWave(numWaves: colors.count, power: this.power)
       }
-      this._colors = colors
+      this.lightModeColors = colors
       return this
    }
    
    func power(power: Double) -> Self {
-      var this = self;
-      this.audioWave = AudioWave(numWaves: self._colors.count, power: power)
+      var this = self
+      this.audioWave = AudioWave(numWaves: self.lightModeColors.count, power: power)
       return this
    }
    
    func supportLineColor(color: Color) -> Self {
-      var this = self;
-      this._supportLineColor = color
+      var this = self
+      this.supportLineColor = color
       return this
       
    }
    
    var body: some View {
-      GeometryReader { geometry in
+      GeometryReader { _ in
          ZStack {
-            SupportLine(color: self._supportLineColor)
-            ForEach(0..<self._colors.count, id: \.self) { i in
-               WaveView(wave: self.audioWave.waves[i], color: self._colors[i])
+            SupportLine(color: supportLineColor)
+            ForEach(0..<self.lightModeColors.count, id: \.self) { i in
+               WaveView(wave: audioWave.waves[i], color: colorScheme == .dark ? darkModeColors[i] : lightModeColors[i])
             }
          }
          .blendMode(.lighten)

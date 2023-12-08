@@ -25,11 +25,12 @@ struct SideMenuScreen: View {
    
    @State private var navigationProvider: NavigationProvider
 
-   func selectedBackground(item: SideMenuItem) -> some View {
+   private func selectedBackground(
+      item: SideMenuItem)
+      -> some View
+   {
       Rectangle()
-         .fill(.blue)
-         .frame(maxWidth: navigationProvider.changeToSelectedItem.selectedItem.id == item.id ? .infinity : 0)
-         .frame(maxWidth: .infinity, alignment: .leading)
+         .fill(navigationProvider.changeToSelectedItem.selectedItem.id == item.id ? ThemeColor.rowSelectionColor : .clear)
    }
    
    var body: some View {
@@ -46,10 +47,8 @@ struct SideMenuScreen: View {
                   case .thread(let thread):
                      if let displayTitle = thread.displayTitle {
                         Text(displayTitle)
-                           .frame(maxWidth: .infinity, alignment: .leading)
                      } else {
                         LoadingDotsView(prefix: "New chat")
-                           .frame(maxWidth: .infinity, alignment: .leading)
                      }
                   case .action(let action):
                      switch action {
@@ -57,9 +56,12 @@ struct SideMenuScreen: View {
                         Text("Create Asssitant")
                      }
                   case .chat:
-                     Text("GPT 4...")
+                     Text("ChatGPT")
                   }
                }
+               .padding(.vertical, 4)
+               .padding(.horizontal, 4)
+               .frame(maxWidth: .infinity, alignment: .leading)
                .listRowSeparator(.hidden)
                .listRowBackground(
                   Color.clear
@@ -69,9 +71,8 @@ struct SideMenuScreen: View {
                .background(
                   selectedBackground(item: item)
                )
-               .background(
-                  Color.clear // This helps with the tap area of each item
-               )
+               .clipShape(RoundedRectangle(cornerRadius: 10))
+               .contentShape(Rectangle()) // This helps with the tap area of each item
                .onTapGesture {
                   if item == .action(.createAssistant) {
                      showAssistantConfigurationModal = true
@@ -142,4 +143,8 @@ struct SideMenuScreen: View {
       currentProviderState = updateSideMenuResponse.state
    }
 
+}
+
+#Preview("Screen") {
+   SideMenuScreen(service: OpenAIServiceFactory.service(apiKey: ""), sideMenuConfigurationProvider: .init(service: OpenAIServiceFactory.service(apiKey: "")))
 }

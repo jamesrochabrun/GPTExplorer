@@ -11,7 +11,7 @@ enum ThemeColor {}
 
 extension ThemeColor {
 
-   static let brandColor = Color(red: 55.0 / 255.0, green: 163.0 / 255.0, blue: 127.0 / 255.0)
+   static let brandColor = colorFromRGBString("rgb(11,163,127)")//Color(red: 55.0 / 255.0, green: 163.0 / 255.0, blue: 127.0 / 255.0)
    static let brandSecondaryColor = colorFromRGBString("rgb(49,13,180)")//Color(red: 27 / 255.0, green: 36 / 255.0, blue: 64 / 255.0)
       
    static let actionBackground = colorFromRGBString("rgb(236,236,241)")
@@ -19,6 +19,8 @@ extension ThemeColor {
    
    static let actionForeground = colorFromRGBString("rgb(53,55,64)")
    static let actionForegroundDisabled = colorFromRGBString("rgb(172,172,190)")
+   
+   static let rowSelectionColor = Color(hex: "772D8B")
 
    static func colorFromRGBString(_ rgbString: String) -> Color {
        // Remove the "rgb(" and ")" parts and split by comma
@@ -40,3 +42,30 @@ extension ThemeColor {
    }
 }
 
+
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int = UInt64()
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (a, r, g, b) = (255, 0, 0, 0)
+        }
+        
+        self.init(
+            .sRGB,
+            red: Double(r) / 255,
+            green: Double(g) / 255,
+            blue:  Double(b) / 255,
+            opacity: Double(a) / 255
+        )
+    }
+}

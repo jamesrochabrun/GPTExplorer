@@ -30,45 +30,48 @@ struct ContentViewScreen: View {
    
    var mainBackground: some View {
       ThemeColor.brandSecondaryColor
-      //navigationProvider.isOpen ? ThemeColor.backgroundColor : Color(.systemBackground)
+     // navigationProvider.isOpen ? ThemeColor.brandSecondaryColor : Color(.systemBackground)
    }
    
    var body: some View {
-      ZStack(alignment: .topLeading) {
-         
-         mainBackground
-            .ignoresSafeArea()
-         
-         SideMenuScreen(service: service, sideMenuConfigurationProvider: sideMenuConfigurationProvider)
-            .foregroundColor(.primary)
-            .background(Color.clear)
-            .frame(maxWidth: 288, maxHeight: .infinity)
-//            .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .opacity(navigationProvider.isOpen ? 1 : 0)
-            .offset(x: navigationProvider.isOpen ? 0 : -300)
-            .rotation3DEffect(.degrees(navigationProvider.isOpen ? 0 : 30), axis: (x: 0.0, y: 1.0, z: 0.0))
-         mainContent
-//            .shadow(color: .gray, radius: 10, x: 5, y: 5)
-            .mask(RoundedRectangle(cornerRadius: navigationProvider.isOpen ? 30 : 0, style: .continuous))
-            .rotation3DEffect(.degrees(navigationProvider.isOpen ? 30 : 0), axis: (x: 0.0, y: -1.0, z: 0.0))
-            .offset(x: navigationProvider.isOpen ? 265 : 0)
-            .scaleEffect(navigationProvider.isOpen ? 0.9 : 1)
-            .ignoresSafeArea(.container)
-         
-         IconButton(iconName: navigationProvider.isOpen ? "xmark" : "list.bullet") {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-               navigationProvider.isOpen.toggle()
+      GeometryReader { proxy in
+         let sideMenuWidth = proxy.size.width * 0.7
+         ZStack(alignment: .topLeading) {
+            
+            mainBackground
+               .ignoresSafeArea()
+            
+            SideMenuScreen(service: service, sideMenuConfigurationProvider: sideMenuConfigurationProvider)
+               .foregroundColor(.primary)
+               .background(Color.clear)
+               .frame(maxWidth: sideMenuWidth, maxHeight: .infinity)
+   //            .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
+               .frame(maxWidth: .infinity, alignment: .leading)
+               .opacity(navigationProvider.isOpen ? 1 : 0)
+               .offset(x: navigationProvider.isOpen ? 0 : -sideMenuWidth)
+               .rotation3DEffect(.degrees(navigationProvider.isOpen ? 0 : 30), axis: (x: 0.0, y: 1.0, z: 0.0))
+            mainContent
+   //            .shadow(color: .gray, radius: 10, x: 5, y: 5)
+               .mask(RoundedRectangle(cornerRadius: navigationProvider.isOpen ? 30 : 0, style: .continuous))
+               .rotation3DEffect(.degrees(navigationProvider.isOpen ? 30 : 0), axis: (x: 0.0, y: -1.0, z: 0.0))
+               .offset(x: navigationProvider.isOpen ? sideMenuWidth : 0)
+               .scaleEffect(navigationProvider.isOpen ? 0.9 : 1)
+               .ignoresSafeArea(.container)
+            
+            IconButton(iconName: navigationProvider.isOpen ? "xmark" : "list.bullet") {
+               withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                  navigationProvider.isOpen.toggle()
+               }
             }
+            .iconButtonStyle(navigationProvider.isOpen ? .plainReversed : .plain)
+            .padding(.horizontal)
+            .offset(x: navigationProvider.isOpen ? sideMenuWidth - 30.0 : 0)
+            .offset(y: navigationProvider.isOpen ? 20 : 0)
          }
-         .iconButtonStyle(navigationProvider.isOpen ? .plainReversed : .plain)
-         .padding(.horizontal)
-         .offset(x: navigationProvider.isOpen ? 228 : 0)
-         .offset(y: navigationProvider.isOpen ? 20 : 0)
+         .navigationBarBackButtonHidden(true)
+         .sensoryFeedback(.impact(weight: .medium, intensity: navigationProvider.isOpen ? 1.0 : 0.7), trigger: navigationProvider.isOpen)
       }
-    //  .animation(.easeIn(duration: 0.3), value: navigationProvider.changeToSelectedItem.selectedItem)
-      .navigationBarBackButtonHidden(true)
-      .sensoryFeedback(.impact(weight: .medium, intensity: navigationProvider.isOpen ? 1.0 : 0.7), trigger: navigationProvider.isOpen)
+
    }
    
    var chatBackgroundColor: Color {
