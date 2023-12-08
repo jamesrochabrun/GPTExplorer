@@ -29,15 +29,14 @@ struct ContentViewScreen: View {
    }
    
    var mainBackground: some View {
-      ThemeColor.brandSecondaryColor
-     // navigationProvider.isOpen ? ThemeColor.brandSecondaryColor : Color(.systemBackground)
+      //ThemeColor.brandSecondaryColor
+      navigationProvider.isOpen ? ThemeColor.brandSecondaryColor : Color(.systemBackground)
    }
    
    var body: some View {
       GeometryReader { proxy in
          let sideMenuWidth = proxy.size.width * 0.7
          ZStack(alignment: .topLeading) {
-            
             mainBackground
                .ignoresSafeArea()
             
@@ -70,8 +69,24 @@ struct ContentViewScreen: View {
          }
          .navigationBarBackButtonHidden(true)
          .sensoryFeedback(.impact(weight: .medium, intensity: navigationProvider.isOpen ? 1.0 : 0.7), trigger: navigationProvider.isOpen)
+         .gesture(
+            DragGesture()
+               .onEnded {
+                  if $0.translation.width < -100 {
+                     // Swipe left: close menu
+                     withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                        navigationProvider.isOpen = false
+                     }
+                  }
+                  if $0.translation.width > 100 {
+                     // Swipe right: open menu
+                     withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                        navigationProvider.isOpen = true
+                     }
+                  }
+               }
+         )
       }
-
    }
    
    var chatBackgroundColor: Color {
@@ -103,7 +118,8 @@ struct ContentViewScreen: View {
             .transition(.opacity) // Example transition
             .id(navigationProvider.changeToSelectedItem.selectedItem.id)
          if navigationProvider.changeToSelectedItem.animated {
-            chatScreen.transition(.opacity) // Example transition
+            chatScreen
+               .transition(.opacity) // Example transition, this wont work unless the zstack that contains this views.
          } else {
             chatScreen
          }
