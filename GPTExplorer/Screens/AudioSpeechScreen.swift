@@ -63,7 +63,16 @@ struct AudioSpeechScreen: View {
          }
       }
       .onFirstAppear {
-         audioProvider.startCaptureAudio()
+         DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+            // your function
+            audioProvider.state = .idle
+            audioProvider.startCaptureAudio()
+         }
+      }
+      .onChange(of: audioProvider.state) { oldValue, newValue in
+         if oldValue != newValue {
+            UISelectionFeedbackGenerator().selectionChanged()
+         }
       }
       .onDisappear {
          audioProvider.reset()
@@ -74,25 +83,25 @@ struct AudioSpeechScreen: View {
    @ViewBuilder
    var overlayView: some View {
       switch audioProvider.state {
-      case .idle, .error:
-         // We trigger the audio on first appear
+      case .initial:
+         BouncingCircleView()
+            .padding(.horizontal, 50)
+      case .idle, .error, .playingSpeech, .recording:
+         // We trigger the audio on first appear, no need to show UI
          EmptyView()
       case .processingSpeech:
          CircleBouncingView(animationDuration: 0.5)
             .frame(width: 90, height: 90)
       case .pausedCancel:
          CircleBouncingView(animationDuration: 1)
-            .frame(width: 20, height: 20)
-//
-      default:
-         EmptyView()
+            .frame(width: 40, height: 40)
       }
    }
 
    var stopOrPauseRecordingButton: some View {
       IconButton(iconName: audioProvider.state == .pausedCancel ? "play.circle" : "stop.circle") {
          switch audioProvider.state {
-         case .recording, .idle, .error, .processingSpeech, .playingSpeech:
+         case .recording, .idle, .error, .processingSpeech, .playingSpeech, .initial:
             audioProvider.stopRecording()
          case .pausedCancel:
             audioProvider.startCaptureAudio()
@@ -104,7 +113,7 @@ struct AudioSpeechScreen: View {
    var cancelAndDismissButton: some View {
       IconButton(iconName: "xmark.circle") {
          audioProvider.cancelProcessingTask()
-            showScreen = false
+         showScreen = false
       }
       .iconButtonStyle(.circleMediumSecondary)
    }
@@ -113,6 +122,12 @@ struct AudioSpeechScreen: View {
 #Preview("Idle") {
    let provider = AudioSpeechProvider(service: OpenAIServiceFactory.service(apiKey: ""))
    provider.state = .idle
+   return AudioSpeechScreen(audioProvider: provider, showScreen: .constant(false))
+}
+
+#Preview("Initial") {
+   let provider = AudioSpeechProvider(service: OpenAIServiceFactory.service(apiKey: ""))
+   provider.state = .initial
    return AudioSpeechScreen(audioProvider: provider, showScreen: .constant(false))
 }
 
@@ -164,36 +179,24 @@ struct CircleBouncingView: View {
    }
 }
 
-struct EDD: View {
+struct BouncingCircleView: View {
+    @State private var moveRight = false
+   private let animationDuration: Double = 0.75 // Duration for faster animation
+    private let circleSize: CGFloat = 90
+    private let stretchFactor: CGFloat = 1.2 // Maximum stretch factor
+
     var body: some View {
-        HStack {
-           IconButton(iconName:  "play.circle") {
-           }
-           .iconButtonStyle(.circleSecondary)
-
-
-            Spacer()
-
-           IconButton(iconName: "xmark.circle") {
-          
-           }
-           .iconButtonStyle(.circleMediumSecondary)
-
-            Spacer()
-           
-           IconButton(iconName:  "play.circle") {
-           }
-           .iconButtonStyle(.circleSecondary)
-           .hidden()
-      
-          // .frame(width: 0)
-
-
+        GeometryReader { geometry in
+            Circle()
+                .frame(width: circleSize, height: circleSize)
+                .modifier(StretchAtEdgesModifier(currentX: moveRight ? geometry.size.width - circleSize / 2 : circleSize / 2, maxWidth: geometry.size.width, circleRadius: circleSize / 2, maxStretch: stretchFactor))
+                .position(x: moveRight ? geometry.size.width - circleSize / 2 : circleSize / 2, y: geometry.size.height / 2)
+                .onAppear {
+                    withAnimation(Animation.easeInOut(duration: animationDuration).repeatForever(autoreverses: true)) {
+                        moveRight.toggle()
+                    }
+                }
         }
-        .frame(maxWidth: .infinity)
     }
 }
 
-#Preview(body: {
-   EDD()
-})

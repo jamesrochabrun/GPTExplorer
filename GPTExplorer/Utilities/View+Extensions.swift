@@ -27,3 +27,26 @@ extension View {
         modifier(OnFirstAppear(perform: perform))
     }
 }
+
+struct StretchAtEdgesModifier: AnimatableModifier {
+    var currentX: CGFloat
+    let maxWidth: CGFloat
+    let circleRadius: CGFloat
+    let maxStretch: CGFloat
+
+    var animatableData: CGFloat {
+        get { currentX }
+        set { currentX = newValue }
+    }
+
+    func body(content: Content) -> some View {
+        // Calculate how far the circle is from the center
+        let center = maxWidth / 2
+        let distanceFromCenter = abs(currentX - center)
+        // Interpolate the stretch based on the distance from center
+        let stretch = 1 + (maxStretch - 1) * (1 - distanceFromCenter / (center - circleRadius))
+        
+        return content
+            .scaleEffect(x: 1, y: stretch, anchor: .center)
+    }
+}

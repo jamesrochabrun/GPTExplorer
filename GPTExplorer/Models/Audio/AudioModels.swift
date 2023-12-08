@@ -20,9 +20,9 @@ enum Voice: String, CaseIterable {
 
 enum VoiceChatState: Equatable {
    case idle
-//   case recordingSpeech // nope
-   case processingSpeech // nope
-   case playingSpeech // nope?
+   case initial
+   case processingSpeech
+   case playingSpeech
    case recording
    case pausedCancel
    case error(AudioError)
@@ -31,8 +31,8 @@ enum VoiceChatState: Equatable {
       switch self {
       case .idle:
          return "idle"
-//      case .recordingSpeech:
-//         return "Recording speech"
+      case .initial:
+         return "Connecting"
       case .processingSpeech:
          return "Processing speech"
       case .playingSpeech:

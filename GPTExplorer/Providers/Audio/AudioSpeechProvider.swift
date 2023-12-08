@@ -23,6 +23,8 @@ import SwiftUI
    var prevAmplitude: Double?
    var processingSpeechTask: Task<Void, Never>?
    
+   static let animationInterval = 0.15
+   
    var capturedURL: URL {
       FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
          .first!.appendingPathComponent("recording.m4a")
@@ -50,10 +52,10 @@ import SwiftUI
 #endif
    }
    
-   var state = VoiceChatState.idle {
+   var state = VoiceChatState.initial {
       didSet { print(state) }
    }
-   
+      
    var isIdle: Bool {
       if case .idle = state {
          return true
@@ -67,37 +69,7 @@ import SwiftUI
       default: return 0
       }
    }
-   
-   var assistantColor: Color {
-      switch state {
-      case .processingSpeech, .idle:
-         return Color.primary
-      case .playingSpeech:
-         return ThemeColor.brandSecondaryColor
-      case .recording:
-         return ThemeColor.brandColor
-      case .pausedCancel:
-         return Color.primary
-      case .error:
-         return Color.red
-      }
-   }
-   
-   var localAmplitude: Double? {
-      switch state {
-      case .processingSpeech, .idle:
-         return Double.random(in: 0...0.35)
-      case .playingSpeech:
-         return nil
-      case .recording:
-         return nil
-      case .pausedCancel:
-         return Double.random(in: 0...0.35)
-      case .error:
-         return Double.random(in: 0...0.35)
-      }
-   }
-   
+      
    func startCaptureAudio() {
       reset()
       state = .recording
@@ -105,22 +77,24 @@ import SwiftUI
          audioRecorder = try AVAudioRecorder(url: capturedURL,
                                              settings: [
                                                 AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-                                                AVSampleRateKey: 12000,
+                                                AVSampleRateKey: 8000,//12000, // test 
                                                 AVNumberOfChannelsKey: 1,
                                                 AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
                                              ])
          audioRecorder.isMeteringEnabled = true
          audioRecorder.delegate = self
          audioRecorder.record()
-         
-         animationTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [unowned self]_ in
+
+         animationTimer = Timer.scheduledTimer(withTimeInterval: Self.animationInterval, repeats: true) { [weak self] _ in
+            guard let self else { return }
             guard self.audioRecorder != nil else { return }
             self.audioRecorder.updateMeters()
             let power = min(1, max(0, 1 - abs(Double(self.audioRecorder.averagePower(forChannel: 0)) / 50) ))
             self.amplitude = power
          }
          
-         recordingTimer = Timer.scheduledTimer(withTimeInterval: 1.6, repeats: true) { [unowned self]_ in
+         recordingTimer = Timer.scheduledTimer(withTimeInterval: 1.6, repeats: true) { [weak self]_ in
+            guard let self else { return }
             guard self.audioRecorder != nil else { return }
             self.audioRecorder.updateMeters()
             let amplitude = min(1, max(0, 1 - abs(Double(self.audioRecorder.averagePower(forChannel: 0)) / 50) ))
@@ -181,7 +155,8 @@ import SwiftUI
       audioPlayer?.delegate = self
       audioPlayer?.play()
       
-      animationTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [unowned self] _ in
+      animationTimer = Timer.scheduledTimer(withTimeInterval: Self.animationInterval, repeats: true) { [weak self] _ in
+         guard let self = self else { return }
          guard let audioPlayer = self.audioPlayer else { return }
          audioPlayer.updateMeters()
          self.amplitude = min(1, max(0, 1 - abs(Double(audioPlayer.averagePower(forChannel: 0)) / 160)))

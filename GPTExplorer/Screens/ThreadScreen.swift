@@ -134,6 +134,7 @@ struct ThreadScreen: View {
          }
       }
       .animation(.linear, value: showAudioSpeech) // Smooth fade animation
+      .sensoryFeedback(.impact, trigger: showAudioSpeech)
    }
    
    @ViewBuilder
