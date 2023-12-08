@@ -12,7 +12,7 @@ enum ThemeColor {}
 extension ThemeColor {
 
    static let brandColor = Color(red: 55.0 / 255.0, green: 163.0 / 255.0, blue: 127.0 / 255.0)
-   static let backgroundColor = Color(red: 27 / 255.0, green: 36 / 255.0, blue: 64 / 255.0)
+   static let brandSecondaryColor = colorFromRGBString("rgb(49,13,180)")//Color(red: 27 / 255.0, green: 36 / 255.0, blue: 64 / 255.0)
       
    static let actionBackground = colorFromRGBString("rgb(236,236,241)")
    static let actionBackgroundDisabled = colorFromRGBString("rgb(247,247,248)")

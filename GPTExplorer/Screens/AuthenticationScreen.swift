@@ -12,10 +12,12 @@ import SwiftOpenAI
 
 struct AuthenticationScreen: View {
    
-   @State private var apiKey = ""
+   @State private var apiKey = "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"
    @State private var organizationIdentifier = ""
    @State private var localOrganizationID: String? = nil
    @State private var navigationProvider: NavigationProvider = .init()
+   private let startDate = Date()
+
 
    @ViewBuilder
    var destination: some View {
@@ -28,41 +30,58 @@ struct AuthenticationScreen: View {
          sideMenuConfigurationProvider: SideMenuConfigurationProvider(service: service))
    }
    
-   var body: some View {
-      NavigationStack {
-         VStack {
-            Spacer()
-            VStack(spacing: 24) {
-               TextField("Enter API Key", text: $apiKey)
-               TextField("Enter Organization ID (Optional)", text: $organizationIdentifier)
-                  .onChange(of: organizationIdentifier) { _, newValue in
-                     if !newValue.isEmpty {
-                        localOrganizationID = newValue
-                     }
-                  }
-            }
-            .padding()
-            .textFieldStyle(.roundedBorder)
-            NavigationLink(destination: destination)
-            {
-               Text("Continue")
-                  .padding()
-                  .padding(.horizontal, 48)
-                  .foregroundColor(apiKey.isEmpty ? ThemeColor.actionForegroundDisabled : .white)
-                  .background(
-                     Capsule()
-                        .foregroundColor(apiKey.isEmpty ? ThemeColor.actionBackgroundDisabled : ThemeColor.brandColor))
-            }
-            .disabled(apiKey.isEmpty)
-            Spacer()
-            Group {
-               Text("If you don't have a valid API KEY yet, you can visit ") + Text("[this link](https://platform.openai.com/account/api-keys)") + Text(" to get started.")
-            }
-            .font(.caption)
-         }
-         .padding()
-         .navigationTitle("Enter OpenAI API KEY")
+   var shaderBackground: some View {
+      TimelineView(.animation) { context in
+         Rectangle()
+            .colorEffect(ShaderLibrary.circleLoader(.boundingRect, .float(startDate.timeIntervalSinceNow)), isEnabled: true)
+            .ignoresSafeArea()
       }
+   }
+   
+   var body: some View {
+         NavigationStack {
+            ZStack {
+               shaderBackground
+               VStack {
+                  Spacer()
+                  Text("GPT-Explorer")
+                     .foregroundColor(.white)
+                     .font(.largeTitle)
+                     .bold()
+                     .fontWidth(.expanded)
+                     .padding(.bottom)
+                  VStack(spacing: 24) {
+                     TextField("Enter API Key", text: $apiKey)
+                     TextField("Enter Organization ID (Optional)", text: $organizationIdentifier)
+                        .onChange(of: organizationIdentifier) { _, newValue in
+                           if !newValue.isEmpty {
+                              localOrganizationID = newValue
+                           }
+                        }
+                  }
+                  .padding()
+                  .textFieldStyle(.roundedBorder)
+                  NavigationLink(destination: destination)
+                  {
+                     Text("Continue")
+                        .padding()
+                        .padding(.horizontal, 48)
+                        .foregroundColor(apiKey.isEmpty ? ThemeColor.actionForegroundDisabled : .white)
+                        .background(
+                           Capsule()
+                              .foregroundColor(apiKey.isEmpty ? ThemeColor.actionBackgroundDisabled : ThemeColor.brandColor))
+                  }
+                  .disabled(apiKey.isEmpty)
+                  Spacer()
+                  Group {
+                     Text("If you don't have a valid API KEY yet, you can visit ") + Text("[this link](https://platform.openai.com/account/api-keys)") + Text(" to get started.")
+                  }
+                  .font(.caption)
+               }
+               .padding()
+            }
+   //         .navigationTitle("Enter OpenAI API KEY")
+         }
    }
 }
 

@@ -46,6 +46,12 @@
 		7B1C76CB2B13395A008E161D /* ContentViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */; };
 		7B1C76CD2B133F0B008E161D /* ChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CC2B133F0B008E161D /* ChatScreen.swift */; };
 		7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */; };
+		7B3B8BA62B21967500ABE6D7 /* AudioWaveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3B8BA52B21967500ABE6D7 /* AudioWaveView.swift */; };
+		7B8973B32B205FCF00908753 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973B22B205FCF00908753 /* Shaders.metal */; };
+		7B8973B72B2063D800908753 /* AudioModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973B62B2063D800908753 /* AudioModels.swift */; };
+		7B8973BD2B20652500908753 /* AudioSpeechProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */; };
+		7B8973BF2B20661000908753 /* AudioSpeechScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973BE2B20661000908753 /* AudioSpeechScreen.swift */; };
+		7B9DB59A2B218A1A00610D63 /* Binding+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9DB5992B218A1A00610D63 /* Binding+Extension.swift */; };
 		7BC197842B1B22600083ACB3 /* LoadingDotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC197832B1B22600083ACB3 /* LoadingDotsView.swift */; };
 		7BC197862B1E77200083ACB3 /* FilesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC197852B1E77200083ACB3 /* FilesProvider.swift */; };
 		7BC197882B1E870A0083ACB3 /* FileAttachmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC197872B1E870A0083ACB3 /* FileAttachmentView.swift */; };
@@ -113,6 +119,12 @@
 		7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewScreen.swift; sourceTree = "<group>"; };
 		7B1C76CC2B133F0B008E161D /* ChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScreen.swift; sourceTree = "<group>"; };
 		7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationProvider.swift; sourceTree = "<group>"; };
+		7B3B8BA52B21967500ABE6D7 /* AudioWaveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioWaveView.swift; sourceTree = "<group>"; };
+		7B8973B22B205FCF00908753 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		7B8973B62B2063D800908753 /* AudioModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioModels.swift; sourceTree = "<group>"; };
+		7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSpeechProvider.swift; sourceTree = "<group>"; };
+		7B8973BE2B20661000908753 /* AudioSpeechScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSpeechScreen.swift; sourceTree = "<group>"; };
+		7B9DB5992B218A1A00610D63 /* Binding+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+Extension.swift"; sourceTree = "<group>"; };
 		7BC197832B1B22600083ACB3 /* LoadingDotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingDotsView.swift; sourceTree = "<group>"; };
 		7BC197852B1E77200083ACB3 /* FilesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesProvider.swift; sourceTree = "<group>"; };
 		7BC197872B1E870A0083ACB3 /* FileAttachmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAttachmentView.swift; sourceTree = "<group>"; };
@@ -180,6 +192,7 @@
 				7B1C76572B0C7B24008E161D /* Assets.xcassets */,
 				7B1C76592B0C7B24008E161D /* GPTExplorer.entitlements */,
 				7B1C765A2B0C7B24008E161D /* Preview Content */,
+				7B8973B22B205FCF00908753 /* Shaders.metal */,
 			);
 			path = GPTExplorer;
 			sourceTree = "<group>";
@@ -233,11 +246,10 @@
 		7B1C76922B0C7E27008E161D /* Providers */ = {
 			isa = PBXGroup;
 			children = (
-				7B1C76932B0C7E39008E161D /* SideMenuConfigurationProvider.swift */,
-				7B1C76AB2B0D7090008E161D /* MessagesProvider.swift */,
-				7B1C76C82B11F188008E161D /* RunsProvider.swift */,
-				7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */,
-				7BC197852B1E77200083ACB3 /* FilesProvider.swift */,
+				7B8973BB2B20651B00908753 /* Files */,
+				7B8973BA2B20651500908753 /* Audio */,
+				7B8973B92B20650600908753 /* Navigation */,
+				7B8973B82B2064F300908753 /* Assistants */,
 			);
 			path = Providers;
 			sourceTree = "<group>";
@@ -251,6 +263,7 @@
 				7B1C769A2B0C8702008E161D /* AssistantConfigurationScreen.swift */,
 				7B1C76A52B0C8B85008E161D /* ThreadScreen.swift */,
 				7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */,
+				7B8973BE2B20661000908753 /* AudioSpeechScreen.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -288,7 +301,8 @@
 		7B1C76B32B0D77D4008E161D /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				7B1C76B42B0D77E2008E161D /* ChatMessageDisplayModel.swift */,
+				7B8973B52B2063C900908753 /* Audio */,
+				7B8973B42B2063C400908753 /* Chat */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -296,9 +310,11 @@
 		7B1C76BA2B0DCAE5008E161D /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				7B3B8BA42B21962F00ABE6D7 /* AudioWave */,
 				7B1C76BB2B0DCB4A008E161D /* UserDefaultsIDStorage.swift */,
 				7B1C76BF2B0EBD34008E161D /* View+Extensions.swift */,
 				7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */,
+				7B9DB5992B218A1A00610D63 /* Binding+Extension.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -309,6 +325,64 @@
 				7B1C76C42B0F3665008E161D /* PushedScreen.swift */,
 			);
 			path = Screens;
+			sourceTree = "<group>";
+		};
+		7B3B8BA42B21962F00ABE6D7 /* AudioWave */ = {
+			isa = PBXGroup;
+			children = (
+				7B3B8BA52B21967500ABE6D7 /* AudioWaveView.swift */,
+			);
+			path = AudioWave;
+			sourceTree = "<group>";
+		};
+		7B8973B42B2063C400908753 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C76B42B0D77E2008E161D /* ChatMessageDisplayModel.swift */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		7B8973B52B2063C900908753 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				7B8973B62B2063D800908753 /* AudioModels.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		7B8973B82B2064F300908753 /* Assistants */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C76AB2B0D7090008E161D /* MessagesProvider.swift */,
+				7B1C76C82B11F188008E161D /* RunsProvider.swift */,
+			);
+			path = Assistants;
+			sourceTree = "<group>";
+		};
+		7B8973B92B20650600908753 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */,
+				7B1C76932B0C7E39008E161D /* SideMenuConfigurationProvider.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		7B8973BA2B20651500908753 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		7B8973BB2B20651B00908753 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				7BC197852B1E77200083ACB3 /* FilesProvider.swift */,
+			);
+			path = Files;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -462,16 +536,20 @@
 				7B1C76542B0C7B23008E161D /* ContentView.swift in Sources */,
 				7B1C76942B0C7E39008E161D /* SideMenuConfigurationProvider.swift in Sources */,
 				7B1C76562B0C7B23008E161D /* Item.swift in Sources */,
+				7B8973B32B205FCF00908753 /* Shaders.metal in Sources */,
+				7B8973BD2B20652500908753 /* AudioSpeechProvider.swift in Sources */,
 				7B1C769B2B0C8702008E161D /* AssistantConfigurationScreen.swift in Sources */,
 				7B1C76B92B0D7B76008E161D /* EmptyPlaceholderView.swift in Sources */,
 				7BC1978C2B1EE9CA0083ACB3 /* FilesPicker.swift in Sources */,
 				7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */,
+				7B9DB59A2B218A1A00610D63 /* Binding+Extension.swift in Sources */,
 				7B1C76A62B0C8B85008E161D /* ThreadScreen.swift in Sources */,
 				7B1C76BC2B0DCB4A008E161D /* UserDefaultsIDStorage.swift in Sources */,
 				7B1C76522B0C7B23008E161D /* GPTExplorerApp.swift in Sources */,
 				7B1C76AE2B0D72CA008E161D /* PhotoPicker.swift in Sources */,
 				7B1C76C72B116200008E161D /* AssistantParameters+Extension.swift in Sources */,
 				7B1C76C02B0EBD34008E161D /* View+Extensions.swift in Sources */,
+				7B8973B72B2063D800908753 /* AudioModels.swift in Sources */,
 				7B1C76B22B0D74A3008E161D /* ChatTextArea.swift in Sources */,
 				7B1C768E2B0C7C24008E161D /* AuthenticationScreen.swift in Sources */,
 				7B1C76862B0C7BA5008E161D /* ThemeColor.swift in Sources */,
@@ -480,6 +558,8 @@
 				7B1C76B52B0D77E2008E161D /* ChatMessageDisplayModel.swift in Sources */,
 				7BC197842B1B22600083ACB3 /* LoadingDotsView.swift in Sources */,
 				7B1C769E2B0C8746008E161D /* CheckboxView.swift in Sources */,
+				7B8973BF2B20661000908753 /* AudioSpeechScreen.swift in Sources */,
+				7B3B8BA62B21967500ABE6D7 /* AudioWaveView.swift in Sources */,
 				7B1C76C52B0F3665008E161D /* PushedScreen.swift in Sources */,
 				7B1C76C92B11F188008E161D /* RunsProvider.swift in Sources */,
 				7BC197862B1E77200083ACB3 /* FilesProvider.swift in Sources */,
@@ -648,6 +728,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "GPT Explorer needs permission to access your microphone.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -656,8 +737,7 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -686,6 +766,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "GPT Explorer needs permission to access your microphone.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -694,8 +775,7 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";

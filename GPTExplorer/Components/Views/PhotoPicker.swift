@@ -36,10 +36,18 @@ struct PhotoPicker: View {
                   let base64String = data.base64EncodedString()
                   let url = URL(string: "data:image/jpeg;base64,\(base64String)")!
                   selectedImageURLS.append(url)
+                  #if canImport(UIKit)
                   if let uiImage = UIImage(data: data) {
                      let image = Image(uiImage: uiImage)
                      selectedImages.append(image)
                   }
+                  #elseif canImport(AppKit)
+                  if let uiImage = NSImage(data: data) {
+                     let image = Image(nsImage: uiImage)
+                     selectedImages.append(image)
+                  }
+                  #endif
+
                }
             }
          }

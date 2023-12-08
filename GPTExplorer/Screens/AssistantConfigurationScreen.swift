@@ -404,15 +404,6 @@ struct AssistantConfigurationScreen: View {
    }
 }
 
-extension Binding where Value == String? {
-   var orEmpty: Binding<String> {
-      return Binding<String>(
-         get: { self.wrappedValue ?? "" },
-         set: { self.wrappedValue = $0 }
-      )
-   }
-}
-
 extension String {
     var fileName: String {
         return (self as NSString).lastPathComponent

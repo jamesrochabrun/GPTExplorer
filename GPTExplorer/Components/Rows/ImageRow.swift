@@ -57,7 +57,7 @@ struct ImageRow: View {
 #Preview {
 
    ZStack {
-      ThemeColor.backgroundColor
+      ThemeColor.brandSecondaryColor
       VStack {
          ImageRow(url: urlImageViewMockURL.absoluteString, title: "Some Assistant", subtitle: "The math description long line")
             .border(.black)

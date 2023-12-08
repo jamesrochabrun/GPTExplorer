@@ -16,12 +16,24 @@ struct IconButton: View {
    
    var body: some View {
       Button(action: action) {
-         Image(systemName: iconName)
-            .foregroundColor(isEnabled ? style.foregroundColor : style.foregroundColorDisabled)
-            .padding(.horizontal, style.horizontalPadding)
-            .padding(.vertical, style.verticalPadding)
-            .background(isEnabled ? style.backgroundColor : style.backgroundColorDisabled)
-            .cornerRadius(style.cornerRadius)
+         Group {
+            switch style.display {
+            case .intrinsic:
+               Image(systemName: iconName)
+            case .resizable(let size):
+               Image(systemName: iconName)
+                  .resizable()
+                  .aspectRatio(contentMode: .fit)
+                  .padding(.horizontal, size.width / 20) // approx
+                  .padding(.vertical, size.width / 20) // approx
+                  .frame(width: size.width, height: size.height)
+            }
+         }
+         .foregroundColor(isEnabled ? style.foregroundColor : style.foregroundColorDisabled)
+         .padding(.horizontal, style.horizontalPadding)
+         .padding(.vertical, style.verticalPadding)
+         .background(isEnabled ? style.backgroundColor : style.backgroundColorDisabled)
+         .cornerRadius(style.cornerRadius)
       }
    }
    
@@ -33,6 +45,11 @@ struct IconButton: View {
 
 struct IconButtonStyle {
    
+   enum Display {
+      case intrinsic
+      case resizable(CGSize)
+   }
+   
    var backgroundColor: Color = ThemeColor.brandColor
    var backgroundColorDisabled = ThemeColor.actionBackgroundDisabled
    var foregroundColorDisabled = ThemeColor.actionForegroundDisabled
@@ -40,8 +57,16 @@ struct IconButtonStyle {
    var horizontalPadding: CGFloat = 10
    var verticalPadding: CGFloat = 10
    var cornerRadius: CGFloat = 10
+   var display = Display.intrinsic
+   
    
    static var secondary: Self {
+      var style = IconButtonStyle()
+      style.backgroundColor = ThemeColor.brandSecondaryColor
+      return style
+   }
+   
+   static var tertiary: Self {
       var style = IconButtonStyle()
       style.foregroundColor = ThemeColor.actionForeground
       style.backgroundColor = ThemeColor.actionBackground
@@ -59,6 +84,38 @@ struct IconButtonStyle {
    static var plainReversed: Self {
       var style = plain
       style.foregroundColor = .white
+      return style
+   }
+   
+   static var circle: Self {
+      var style = IconButtonStyle()
+      style.cornerRadius = 50
+      return style
+   }
+   
+   static var circleMedium: Self {
+      var style = IconButtonStyle()
+      style.cornerRadius = 40
+      style.display = .resizable(.init(width: 40, height: 40))
+      return style
+   }
+   
+   static var circleMediumSecondary: Self {
+      var style = secondary
+      style.cornerRadius = 40
+      style.display = .resizable(.init(width: 40, height: 40))
+      return style
+   }
+   
+   static var circleSecondary: Self {
+      var style = secondary
+      style.cornerRadius = 50
+      return style
+   }
+   
+   static var circleTertiary: Self {
+      var style = tertiary
+      style.cornerRadius = 50
       return style
    }
 }
@@ -86,11 +143,23 @@ extension View {
    VStack {
       IconButton(iconName: "paperplane", action: {})
       IconButton(iconName: "paperplane", action: {})
-         .iconButtonStyle(.secondary)
+         .iconButtonStyle(.tertiary)
       IconButton(iconName: "paperplane", action: {})
          .iconButtonStyle(.plain)
       IconButton(iconName: "paperplane", action: {})
          .iconButtonStyle(.plainReversed)
+         .border(.brown) // just to be able to see it as it is white.
+      IconButton(iconName: "mic", action: {})
+         .iconButtonStyle(.circleMedium)
+      IconButton(iconName: "paperplane", action: {})
+         .iconButtonStyle(.circleTertiary)
+      
+      IconButton(iconName: "stop.circle", action: {})
+         .iconButtonStyle(.circleMediumSecondary)
+      IconButton(iconName: "xmark.circle", action: {})
+         .iconButtonStyle(.circleMediumSecondary)
+      IconButton(iconName: "mic.circle", action: {})
+         .iconButtonStyle(.circleMediumSecondary)
    }
 }
 
@@ -98,11 +167,21 @@ extension View {
    VStack {
       IconButton(iconName: "paperplane", action: {})
       IconButton(iconName: "paperplane", action: {})
-         .iconButtonStyle(.secondary)
+         .iconButtonStyle(.tertiary)
       IconButton(iconName: "paperplane", action: {})
          .iconButtonStyle(.plain)
       IconButton(iconName: "paperplane", action: {})
          .iconButtonStyle(.plainReversed)
+      IconButton(iconName: "paperplane", action: {})
+         .iconButtonStyle(.circle)
+      IconButton(iconName: "paperplane", action: {})
+         .iconButtonStyle(.circleTertiary)
+      IconButton(iconName: "stop.circle", action: {})
+         .iconButtonStyle(.circleMediumSecondary)
+      IconButton(iconName: "xmark.circle", action: {})
+         .iconButtonStyle(.circleMediumSecondary)
+      IconButton(iconName: "mic", action: {})
+         .iconButtonStyle(.circleMediumSecondary)
    }
    .disabled(true)
 }

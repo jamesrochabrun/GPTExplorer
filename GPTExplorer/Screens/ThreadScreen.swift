@@ -34,8 +34,8 @@ struct ThreadScreen: View {
          fatalError("This is programming error")
       }
    }
-      
-   var body: some View {
+   
+   var threadContent: some View {
       NavigationView {
          mainContent
       }
@@ -113,11 +113,27 @@ struct ThreadScreen: View {
          }
       }
       .onChange(of: currentAssistant) { oldValue, newValue in
-         // TODO: navigate to somewhere
+         if oldValue != newValue {
+            if newValue == nil {
+               /// if `newValue` is nil means that `currentAssistant` has been deleted, so we navigate to the chat screen.
+               navigationProvider.changeToSelectedItem = (selectedItem: .chat, animated: false)
+            }
+         }
       }
       .sheet(isPresented: $showAssistantConfigurationModal) {
          AssistantConfigurationScreen(currentAssistant: $currentAssistant, assistantID: currentThread?.assistantID, provider: provider)
       }
+   }
+   
+   var body: some View {
+      ZStack {
+         threadContent
+         if showAudioSpeech == true {
+            AudioSpeechScreen(audioProvider: .init(service: provider.service), showScreen: $showAudioSpeech.orFalse)
+               .transition(.opacity) // Fade transition
+         }
+      }
+      .animation(.linear, value: showAudioSpeech) // Smooth fade animation
    }
    
    @ViewBuilder
@@ -126,7 +142,6 @@ struct ThreadScreen: View {
          headerView
          switch item {
          case .assistant:
-            // if this is reached means there are no messages, no thread created, we create one
             if messagesProvider.chatDisplayMessages.isEmpty {
                assistantPlaceholder
             } else {
@@ -216,7 +231,8 @@ struct ThreadScreen: View {
       ThreadTextArea(
          prompt: $prompt,
          isAddAndRunActionLoading: $isAddAndRunActionLoading,
-         isAddMessageActionLoading: $isAddMessageActionLoading)
+         isAddMessageActionLoading: $isAddMessageActionLoading, 
+         showAudioSpeech: $showAudioSpeech)
       {
          Task {
             let input = prompt
@@ -377,6 +393,7 @@ struct ThreadScreen: View {
    @State private var showAssistantConfigurationModal = false
    @State private var isAddAndRunActionLoading: Bool? = false
    @State private var isAddMessageActionLoading: Bool? = false
+   @State private var showAudioSpeech: Bool? = false
    @Environment(\.presentationMode) private var presentationMode
    
    /// USED FOR NOW ONLY FOR RUNS AND MESSAGES

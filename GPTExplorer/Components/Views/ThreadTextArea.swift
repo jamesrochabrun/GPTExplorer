@@ -17,11 +17,13 @@ struct ThreadTextArea: View {
    let addMessageAction: () -> Void
    @Binding var isAddMessageActionLoading: Bool?
    let fileIDS: [String]?
+   @Binding var showAudioSpeech: Bool?
    
    init(
       prompt: Binding<String>,
       isAddAndRunActionLoading: Binding<Bool?>,
       isAddMessageActionLoading: Binding<Bool?>,
+      showAudioSpeech: Binding<Bool?>,
       fileIDS: [String]? = nil,
       addAndRunAction: @escaping () -> Void,
       addMessageAction: @escaping () -> Void)
@@ -29,6 +31,7 @@ struct ThreadTextArea: View {
       self._prompt = prompt
       _isAddAndRunActionLoading = isAddAndRunActionLoading
       _isAddMessageActionLoading = isAddMessageActionLoading
+      _showAudioSpeech = showAudioSpeech
       self.fileIDS = fileIDS
       self.addAndRunAction = addAndRunAction
       self.addMessageAction = addMessageAction
@@ -39,6 +42,7 @@ struct ThreadTextArea: View {
          textField
          files
          actions
+            .fixedSize(horizontal: true, vertical: false)
       }
       .padding(.vertical, Sizes.spacingExtraLarge)
       .padding(.horizontal, Sizes.spacingExtraLarge)
@@ -71,7 +75,13 @@ struct ThreadTextArea: View {
          .actionButtonStyle(.secondary)
          IconButton(iconName: "paperclip") {
          }
-         .iconButtonStyle(.secondary)
+         .iconButtonStyle(.tertiary)
+         if showAudioSpeech != nil {
+            IconButton(iconName: "beats.headphones") {
+               showAudioSpeech = true
+            }
+            .iconButtonStyle(.circleTertiary)
+         }
       }
    }
    
@@ -95,12 +105,14 @@ struct ThreadTextArea: View {
          prompt: .constant("Some input"),
          isAddAndRunActionLoading: .constant(true),
          isAddMessageActionLoading: .constant(true),
+         showAudioSpeech: .constant(false),
          addAndRunAction: { },
          addMessageAction: { })
       ThreadTextArea(
          prompt: .constant("Some input"),
          isAddAndRunActionLoading: .constant(false),
          isAddMessageActionLoading: .constant(true),
+         showAudioSpeech: .constant(false),
          fileIDS: ["Screenshot: 2023: 10-09 at 9:35.png"],
          addAndRunAction: { },
          addMessageAction: { })
@@ -109,6 +121,7 @@ struct ThreadTextArea: View {
          prompt: .constant("Some input"),
          isAddAndRunActionLoading: .constant(false),
          isAddMessageActionLoading: .constant(true),
+         showAudioSpeech: .constant(false),
          fileIDS: ["Screenshot: 2023: 10-09 at 9:35.png"],
          addAndRunAction: { },
          addMessageAction: { })

@@ -7,6 +7,11 @@
 
 import SwiftUI
 import SwiftOpenAI
+#if os(iOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 struct ContentViewScreen: View {
    
@@ -24,7 +29,7 @@ struct ContentViewScreen: View {
    }
    
    var mainBackground: some View {
-      ThemeColor.backgroundColor
+      ThemeColor.brandSecondaryColor
       //navigationProvider.isOpen ? ThemeColor.backgroundColor : Color(.systemBackground)
    }
    
@@ -66,6 +71,14 @@ struct ContentViewScreen: View {
       .sensoryFeedback(.impact(weight: .medium, intensity: navigationProvider.isOpen ? 1.0 : 0.7), trigger: navigationProvider.isOpen)
    }
    
+   var chatBackgroundColor: Color {
+       #if os(iOS)
+       return Color(UIColor.systemBackground)
+       #else
+       return Color(NSColor.windowBackgroundColor)
+       #endif
+   }
+   
    @ViewBuilder
    var mainContent: some View {
       switch navigationProvider.changeToSelectedItem.selectedItem {
@@ -83,7 +96,7 @@ struct ContentViewScreen: View {
       case .chat:
          let chatScreen = Text("CHAT COMING SOON 🤖")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemBackground))
+            .background(chatBackgroundColor)
             .transition(.opacity) // Example transition
             .id(navigationProvider.changeToSelectedItem.selectedItem.id)
          if navigationProvider.changeToSelectedItem.animated {

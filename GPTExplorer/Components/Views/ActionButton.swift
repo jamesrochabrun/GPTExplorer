@@ -155,7 +155,7 @@ extension View {
          ActionButton("Add") {}
             .actionButtonStyle(.secondary)
          IconButton(iconName: "paperclip", action: {})
-            .iconButtonStyle(.secondary)
+            .iconButtonStyle(.tertiary)
       }
       .actionButtonStyle(.plain)
       
@@ -166,7 +166,7 @@ extension View {
             ActionButton("Add") {}
                .actionButtonStyle(.secondary)
             IconButton(iconName: "paperclip", action: {})
-               .iconButtonStyle(.secondary)
+               .iconButtonStyle(.tertiary)
          }
          .actionButtonStyle(.plain)
       }
