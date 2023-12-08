@@ -31,6 +31,7 @@ struct AudioSpeechScreen: View {
             .opacity(audioProvider.assistantViewOpacity)
             .frame(height: 264)
             .overlay { overlayView }
+            .transition(.opacity)
          Spacer()
          HStack {
             stopOrPauseRecordingButton
@@ -42,6 +43,7 @@ struct AudioSpeechScreen: View {
                .accessibilityHidden(true)
                .hidden()
          }
+         .transition(.opacity)
          .padding(.horizontal, 60)
          if case let .error(error) = audioProvider.state  {
             VStack {
@@ -50,13 +52,16 @@ struct AudioSpeechScreen: View {
                   .font(.caption)
             }
             .padding()
+            .transition(.opacity)
          }
          Text(audioProvider.state.displayDescription)
             .font(.footnote)
             .padding()
+            .transition(.opacity)
          Spacer()
             .frame(height: 60)
       }
+      .animation(.linear, value: audioProvider.state)
       .onChange(of: audioProvider.state) { oldValue, newValue in
          if oldValue != newValue, newValue == .idle {
             audioProvider.startCaptureAudio()
@@ -75,7 +80,7 @@ struct AudioSpeechScreen: View {
          }
       }
       .onDisappear {
-         audioProvider.reset()
+         audioProvider.cancelProcessingTask()
       }
       .background(Color(.systemBackground))
    }
@@ -86,15 +91,18 @@ struct AudioSpeechScreen: View {
       case .initial:
          BouncingCircleView()
             .padding(.horizontal, 50)
+            .transition(.opacity)
       case .idle, .error, .playingSpeech, .recording:
          // We trigger the audio on first appear, no need to show UI
          EmptyView()
       case .processingSpeech:
          CircleBouncingView(animationDuration: 0.5)
             .frame(width: 90, height: 90)
+            .transition(.opacity)
       case .pausedCancel:
          CircleBouncingView(animationDuration: 1)
             .frame(width: 40, height: 40)
+            .transition(.opacity)
       }
    }
 

@@ -28,7 +28,7 @@ struct CheckboxRow: View {
 #Preview {
    VStack {
       CheckboxRow(title: "Code generation", isChecked: .constant(true))
-      CheckboxRow(title: "Dall-e", isChecked: .constant(true))
+      CheckboxRow(title: "Dall-e", isChecked: .constant(false))
    }
 }
 

@@ -35,7 +35,7 @@ struct InputHeaderView<Content: View>: View {
 
 struct InputHeaderViewStyle {
    
-   var verticalPadding: CGFloat = 8.0
+   var verticalPadding: CGFloat = 10.0
 
 }
 

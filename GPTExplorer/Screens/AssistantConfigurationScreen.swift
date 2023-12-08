@@ -54,6 +54,7 @@ struct AssistantConfigurationScreen: View {
    @State private var isLoadingSaveAction: Bool? = false
    @State private var isLoadingDeleteAction: Bool? = false
    @State private var navigationProvider: NavigationProvider
+   @Environment (\.colorScheme) var colorScheme
    
    var body: some View {
       ScrollView {
@@ -65,7 +66,9 @@ struct AssistantConfigurationScreen: View {
             capabilities
          }
          .padding()
+         .padding(.horizontal, Sizes.spacingLarge)
       }
+      .background(colorScheme == .dark ? Color.black : Color.white)
       .safeAreaInset(edge: .bottom) {
          footerActions
       }
@@ -292,15 +295,15 @@ struct AssistantConfigurationScreen: View {
    var inputViews: some View {
       VStack(spacing: Sizes.spacingExtraLarge) {
          InputHeaderView(title: "Name") {
-            TextField("", text: $parameters.name.orEmpty, axis: .vertical)
+            RoundedTextField(text: $parameters.name.orEmpty, placeholder: "")
          }
          InputHeaderView(title: "Description") {
-            TextField("", text: $parameters.description.orEmpty, axis: .vertical)
+            RoundedTextField(text: $parameters.description.orEmpty, placeholder: "")
          }
          InputHeaderView(title: "Instructions") {
             ZStack {
                RoundedRectangle(cornerRadius: 4)
-                  .stroke(.gray.opacity(0.3))
+                  .stroke(.gray)
                TextEditor(text: $parameters.instructions.orEmpty)
                   .foregroundStyle(.primary)
                   .clipShape(RoundedRectangle(cornerRadius: 4))
@@ -308,7 +311,6 @@ struct AssistantConfigurationScreen: View {
             }
          }
       }
-      .textFieldStyle(.roundedBorder)
    }
    
    @State private var presentImporter = false

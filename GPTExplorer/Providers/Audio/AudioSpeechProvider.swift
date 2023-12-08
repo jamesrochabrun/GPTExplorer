@@ -41,7 +41,8 @@ import SwiftUI
          try recordingSession.setCategory(.playAndRecord, options: .default)
 #endif
          try recordingSession.setActive(true)
-         AVAudioApplication.requestRecordPermission { [unowned self] allowed in
+         AVAudioApplication.requestRecordPermission { [weak self] allowed in
+            guard let self = self else { return }
             if !allowed {
                self.state = .error(.permissionRequestError)
             }
@@ -127,7 +128,8 @@ import SwiftUI
    }
    
    func processSpeechTask(audioData: Data) -> Task<Void, Never> {
-      Task { @MainActor [unowned self] in
+      Task { @MainActor [weak self] in
+         guard let self = self else { return }
          do {
             self.state = .processingSpeech
             let prompt = try await service.createTranscription(parameters: .init(fileName: "recording.m4a", file: audioData)).text

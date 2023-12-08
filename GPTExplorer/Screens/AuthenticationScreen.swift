@@ -51,8 +51,8 @@ struct AuthenticationScreen: View {
                      .fontWidth(.expanded)
                      .padding(.bottom)
                   VStack(spacing: 24) {
-                     TextField("Enter API Key", text: $apiKey)
-                     TextField("Enter Organization ID (Optional)", text: $organizationIdentifier)
+                     RoundedTextField(text: $apiKey, placeholder: "Enter API Key")
+                     RoundedTextField(text: $organizationIdentifier, placeholder: "Enter Organization ID (Optional)")
                         .onChange(of: organizationIdentifier) { _, newValue in
                            if !newValue.isEmpty {
                               localOrganizationID = newValue
@@ -60,7 +60,6 @@ struct AuthenticationScreen: View {
                         }
                   }
                   .padding()
-                  .textFieldStyle(.roundedBorder)
                   NavigationLink(destination: destination)
                   {
                      Text("Continue")

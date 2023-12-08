@@ -47,6 +47,7 @@
 		7B1C76CD2B133F0B008E161D /* ChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CC2B133F0B008E161D /* ChatScreen.swift */; };
 		7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */; };
 		7B3B8BA62B21967500ABE6D7 /* AudioWaveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3B8BA52B21967500ABE6D7 /* AudioWaveView.swift */; };
+		7B7A12B92B2309FF00999925 /* RoundedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12B82B2309FF00999925 /* RoundedTextField.swift */; };
 		7B8973B32B205FCF00908753 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973B22B205FCF00908753 /* Shaders.metal */; };
 		7B8973B72B2063D800908753 /* AudioModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973B62B2063D800908753 /* AudioModels.swift */; };
 		7B8973BD2B20652500908753 /* AudioSpeechProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */; };
@@ -120,6 +121,7 @@
 		7B1C76CC2B133F0B008E161D /* ChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScreen.swift; sourceTree = "<group>"; };
 		7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationProvider.swift; sourceTree = "<group>"; };
 		7B3B8BA52B21967500ABE6D7 /* AudioWaveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioWaveView.swift; sourceTree = "<group>"; };
+		7B7A12B82B2309FF00999925 /* RoundedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedTextField.swift; sourceTree = "<group>"; };
 		7B8973B22B205FCF00908753 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		7B8973B62B2063D800908753 /* AudioModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioModels.swift; sourceTree = "<group>"; };
 		7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSpeechProvider.swift; sourceTree = "<group>"; };
@@ -284,6 +286,7 @@
 				7BC197872B1E870A0083ACB3 /* FileAttachmentView.swift */,
 				7BC197892B1E91CD0083ACB3 /* AttachmentView.swift */,
 				7BC1978B2B1EE9CA0083ACB3 /* FilesPicker.swift */,
+				7B7A12B82B2309FF00999925 /* RoundedTextField.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -564,6 +567,7 @@
 				7B1C76C92B11F188008E161D /* RunsProvider.swift in Sources */,
 				7BC197862B1E77200083ACB3 /* FilesProvider.swift in Sources */,
 				7B1C76BE2B0DDB0E008E161D /* ThreadTextArea.swift in Sources */,
+				7B7A12B92B2309FF00999925 /* RoundedTextField.swift in Sources */,
 				7B1C76982B0C7FFA008E161D /* Padding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -19,7 +19,7 @@ struct CheckboxView: View {
             isChecked.toggle()
          }
       }) {
-         Image(systemName: isChecked ? "checkmark.square" : "square")
+         Image(systemName: isChecked ? "circle.circle.fill" : "circle")
       }
       .buttonStyle(PlainButtonStyle())
    }
