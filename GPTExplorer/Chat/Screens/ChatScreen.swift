@@ -57,8 +57,6 @@ struct ChatScreen: View {
                      // Clears text field.
                      let userPrompt = prompt
                      prompt = ""
-//                     let selectedURLS = selectedImageURLS
-//                     selectedImageURLS = []
                      
                      /// Create the Parameters
                      
@@ -78,6 +76,7 @@ struct ChatScreen: View {
                      let userContent = ChatMessageDisplayModel.DisplayContent.DisplayMessageType(text: userPrompt, urls: selectedImageURLS)
                                      
                      resetImageInputs()
+                     /// TODO: I think we need to also clear the `selectedItems` in `PhotoPicker`
 
                      try await chatProvider.chat(content: userContent, chatCompletionParameters)
                   }

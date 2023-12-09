@@ -81,9 +81,7 @@ struct AssistantConfigurationScreen: View {
    }
    
    var create: some View {
-      Text("Create")
-         .frame(maxWidth: .infinity, maxHeight: .infinity)
-         .foregroundColor(.white)
+      ChatScreen(service: provider.service)
    }
    
    var body: some View {
