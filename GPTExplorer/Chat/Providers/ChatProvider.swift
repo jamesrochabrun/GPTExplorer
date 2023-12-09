@@ -72,7 +72,7 @@ enum FunctionCallDefinition: String, CaseIterable {
    /// To be used for UI purposes.
    var chatDisplayMessages: [ChatMessageDisplayModel] = []
    /// The updates assistant parameters
-   var assistantParameters: AssistantParameters?
+   var assistantParameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.rawValue))
    
    // MARK: - Initializer
    

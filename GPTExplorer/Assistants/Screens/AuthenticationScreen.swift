@@ -18,7 +18,6 @@ struct AuthenticationScreen: View {
    @State private var navigationProvider: NavigationProvider = .init()
    private let startDate = Date()
 
-
    @ViewBuilder
    var destination: some View {
       let service = OpenAIServiceFactory.service(

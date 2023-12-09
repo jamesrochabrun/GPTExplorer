@@ -49,6 +49,7 @@
 		7B7A12B92B2309FF00999925 /* RoundedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12B82B2309FF00999925 /* RoundedTextField.swift */; };
 		7B7A12BD2B23CE1B00999925 /* ChatProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12BC2B23CE1B00999925 /* ChatProvider.swift */; };
 		7B7A12C12B23CECA00999925 /* ChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12C02B23CECA00999925 /* ChatScreen.swift */; };
+		7B83BE992B2462EE000F37C0 /* CreateAssistantChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B83BE982B2462EE000F37C0 /* CreateAssistantChatScreen.swift */; };
 		7B8973B32B205FCF00908753 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973B22B205FCF00908753 /* Shaders.metal */; };
 		7B8973B72B2063D800908753 /* AudioModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973B62B2063D800908753 /* AudioModels.swift */; };
 		7B8973BD2B20652500908753 /* AudioSpeechProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */; };
@@ -124,6 +125,7 @@
 		7B7A12B82B2309FF00999925 /* RoundedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedTextField.swift; sourceTree = "<group>"; };
 		7B7A12BC2B23CE1B00999925 /* ChatProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatProvider.swift; sourceTree = "<group>"; };
 		7B7A12C02B23CECA00999925 /* ChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScreen.swift; sourceTree = "<group>"; };
+		7B83BE982B2462EE000F37C0 /* CreateAssistantChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAssistantChatScreen.swift; sourceTree = "<group>"; };
 		7B8973B22B205FCF00908753 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		7B8973B62B2063D800908753 /* AudioModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioModels.swift; sourceTree = "<group>"; };
 		7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSpeechProvider.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 				7B1C76A52B0C8B85008E161D /* ThreadScreen.swift */,
 				7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */,
 				7B8973BE2B20661000908753 /* AudioSpeechScreen.swift */,
+				7B83BE982B2462EE000F37C0 /* CreateAssistantChatScreen.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -581,6 +584,7 @@
 				7B1C76B92B0D7B76008E161D /* EmptyPlaceholderView.swift in Sources */,
 				7BC1978C2B1EE9CA0083ACB3 /* FilesPicker.swift in Sources */,
 				7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */,
+				7B83BE992B2462EE000F37C0 /* CreateAssistantChatScreen.swift in Sources */,
 				7B9DB59A2B218A1A00610D63 /* Binding+Extension.swift in Sources */,
 				7B1C76A62B0C8B85008E161D /* ThreadScreen.swift in Sources */,
 				7B1C76BC2B0DCB4A008E161D /* UserDefaultsIDStorage.swift in Sources */,

@@ -47,10 +47,12 @@ struct AssistantConfigurationScreen: View {
       _provider = State(initialValue: provider)
       _currentAssistant = currentAssistant
       self.assistantID = assistantID
+      chatProvider = ChatProvider(service: provider.service)
    }
    
    @Binding var currentAssistant: AssistantObject?
-   let assistantID: String?
+   private let assistantID: String?
+   private let chatProvider: ChatProvider
    @State private var isLoadingSaveAction: Bool? = false
    @State private var isLoadingDeleteAction: Bool? = false
    @State private var navigationProvider: NavigationProvider
@@ -81,7 +83,7 @@ struct AssistantConfigurationScreen: View {
    }
    
    var create: some View {
-      ChatScreen(service: provider.service)
+      CreateAssistantChatScreen(provider: chatProvider, assistantParameters: $parameters)
    }
    
    var body: some View {
