@@ -89,3 +89,9 @@ struct AuthenticationScreen: View {
    AuthenticationScreen()
 }
 
+
+
+/// TODO: Make possible to pass also URL tools and files ids to the configure
+/// also be able to use text to speech for this
+/// Lastly be able to add the text to speech messages in to the chat list.
+/// Consider making an initial user message with the parameters but dont; show that message in the UI.
