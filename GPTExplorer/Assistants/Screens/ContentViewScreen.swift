@@ -112,14 +112,11 @@ struct ContentViewScreen: View {
             threadScreen
          }
       case .chat:
-         let chatScreen = Text("CHAT COMING SOON 🤖")
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(chatBackgroundColor)
-            .transition(.opacity) // Example transition
+         let chatScreen = ChatScreen(service: service)
             .id(navigationProvider.changeToSelectedItem.selectedItem.id)
          if navigationProvider.changeToSelectedItem.animated {
             chatScreen
-               .transition(.opacity) // Example transition, this wont work unless the zstack that contains this views.
+              .transition(.opacity) // Example transition, this wont work unless the zstack that contains this views.
          } else {
             chatScreen
          }

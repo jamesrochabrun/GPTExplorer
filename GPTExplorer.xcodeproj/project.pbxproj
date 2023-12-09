@@ -44,10 +44,11 @@
 		7B1C76C72B116200008E161D /* AssistantParameters+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */; };
 		7B1C76C92B11F188008E161D /* RunsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76C82B11F188008E161D /* RunsProvider.swift */; };
 		7B1C76CB2B13395A008E161D /* ContentViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */; };
-		7B1C76CD2B133F0B008E161D /* ChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CC2B133F0B008E161D /* ChatScreen.swift */; };
 		7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */; };
 		7B3B8BA62B21967500ABE6D7 /* AudioWaveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3B8BA52B21967500ABE6D7 /* AudioWaveView.swift */; };
 		7B7A12B92B2309FF00999925 /* RoundedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12B82B2309FF00999925 /* RoundedTextField.swift */; };
+		7B7A12BD2B23CE1B00999925 /* ChatProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12BC2B23CE1B00999925 /* ChatProvider.swift */; };
+		7B7A12C12B23CECA00999925 /* ChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12C02B23CECA00999925 /* ChatScreen.swift */; };
 		7B8973B32B205FCF00908753 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973B22B205FCF00908753 /* Shaders.metal */; };
 		7B8973B72B2063D800908753 /* AudioModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973B62B2063D800908753 /* AudioModels.swift */; };
 		7B8973BD2B20652500908753 /* AudioSpeechProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */; };
@@ -118,10 +119,11 @@
 		7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssistantParameters+Extension.swift"; sourceTree = "<group>"; };
 		7B1C76C82B11F188008E161D /* RunsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunsProvider.swift; sourceTree = "<group>"; };
 		7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewScreen.swift; sourceTree = "<group>"; };
-		7B1C76CC2B133F0B008E161D /* ChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScreen.swift; sourceTree = "<group>"; };
 		7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationProvider.swift; sourceTree = "<group>"; };
 		7B3B8BA52B21967500ABE6D7 /* AudioWaveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioWaveView.swift; sourceTree = "<group>"; };
 		7B7A12B82B2309FF00999925 /* RoundedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedTextField.swift; sourceTree = "<group>"; };
+		7B7A12BC2B23CE1B00999925 /* ChatProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatProvider.swift; sourceTree = "<group>"; };
+		7B7A12C02B23CECA00999925 /* ChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScreen.swift; sourceTree = "<group>"; };
 		7B8973B22B205FCF00908753 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		7B8973B62B2063D800908753 /* AudioModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioModels.swift; sourceTree = "<group>"; };
 		7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSpeechProvider.swift; sourceTree = "<group>"; };
@@ -183,11 +185,9 @@
 		7B1C76502B0C7B23008E161D /* GPTExplorer */ = {
 			isa = PBXGroup;
 			children = (
+				7B7A12BB2B23CD7B00999925 /* Chat */,
+				7B7A12BA2B23CD6A00999925 /* Assistants */,
 				7B1C76BA2B0DCAE5008E161D /* Utilities */,
-				7B1C76B32B0D77D4008E161D /* Models */,
-				7B1C76922B0C7E27008E161D /* Providers */,
-				7B1C769C2B0C8705008E161D /* Screens */,
-				7B1C76812B0C7B52008E161D /* Components */,
 				7B1C76512B0C7B23008E161D /* GPTExplorerApp.swift */,
 				7B1C76532B0C7B23008E161D /* ContentView.swift */,
 				7B1C76552B0C7B23008E161D /* Item.swift */,
@@ -260,7 +260,6 @@
 			isa = PBXGroup;
 			children = (
 				7B1C768D2B0C7C24008E161D /* AuthenticationScreen.swift */,
-				7B1C76CC2B133F0B008E161D /* ChatScreen.swift */,
 				7B1C76902B0C7DCF008E161D /* SideMenuScreen.swift */,
 				7B1C769A2B0C8702008E161D /* AssistantConfigurationScreen.swift */,
 				7B1C76A52B0C8B85008E161D /* ThreadScreen.swift */,
@@ -336,6 +335,42 @@
 				7B3B8BA52B21967500ABE6D7 /* AudioWaveView.swift */,
 			);
 			path = AudioWave;
+			sourceTree = "<group>";
+		};
+		7B7A12BA2B23CD6A00999925 /* Assistants */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C76B32B0D77D4008E161D /* Models */,
+				7B1C76922B0C7E27008E161D /* Providers */,
+				7B1C769C2B0C8705008E161D /* Screens */,
+				7B1C76812B0C7B52008E161D /* Components */,
+			);
+			path = Assistants;
+			sourceTree = "<group>";
+		};
+		7B7A12BB2B23CD7B00999925 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				7B7A12BF2B23CEBE00999925 /* Screens */,
+				7B7A12BE2B23CEB700999925 /* Providers */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		7B7A12BE2B23CEB700999925 /* Providers */ = {
+			isa = PBXGroup;
+			children = (
+				7B7A12BC2B23CE1B00999925 /* ChatProvider.swift */,
+			);
+			path = Providers;
+			sourceTree = "<group>";
+		};
+		7B7A12BF2B23CEBE00999925 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				7B7A12C02B23CECA00999925 /* ChatScreen.swift */,
+			);
+			path = Screens;
 			sourceTree = "<group>";
 		};
 		7B8973B42B2063C400908753 /* Chat */ = {
@@ -530,7 +565,7 @@
 				7BC197882B1E870A0083ACB3 /* FileAttachmentView.swift in Sources */,
 				7B1C768A2B0C7BC9008E161D /* URLImageView.swift in Sources */,
 				7B1C76842B0C7B98008E161D /* Sizes.swift in Sources */,
-				7B1C76CD2B133F0B008E161D /* ChatScreen.swift in Sources */,
+				7B7A12C12B23CECA00999925 /* ChatScreen.swift in Sources */,
 				7B1C76A82B0C948E008E161D /* ActionButton.swift in Sources */,
 				7B1C76CB2B13395A008E161D /* ContentViewScreen.swift in Sources */,
 				7B1C76A42B0C87D2008E161D /* InputHeaderView.swift in Sources */,
@@ -540,6 +575,7 @@
 				7B1C76942B0C7E39008E161D /* SideMenuConfigurationProvider.swift in Sources */,
 				7B1C76562B0C7B23008E161D /* Item.swift in Sources */,
 				7B8973B32B205FCF00908753 /* Shaders.metal in Sources */,
+				7B7A12BD2B23CE1B00999925 /* ChatProvider.swift in Sources */,
 				7B8973BD2B20652500908753 /* AudioSpeechProvider.swift in Sources */,
 				7B1C769B2B0C8702008E161D /* AssistantConfigurationScreen.swift in Sources */,
 				7B1C76B92B0D7B76008E161D /* EmptyPlaceholderView.swift in Sources */,

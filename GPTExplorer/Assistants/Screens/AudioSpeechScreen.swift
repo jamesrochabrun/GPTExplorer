@@ -69,7 +69,6 @@ struct AudioSpeechScreen: View {
       }
       .onFirstAppear {
          DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
-            // your function
             audioProvider.state = .idle
             audioProvider.startCaptureAudio()
          }

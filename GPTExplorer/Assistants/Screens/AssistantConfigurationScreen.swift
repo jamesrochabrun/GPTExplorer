@@ -55,8 +55,14 @@ struct AssistantConfigurationScreen: View {
    @State private var isLoadingDeleteAction: Bool? = false
    @State private var navigationProvider: NavigationProvider
    @Environment (\.colorScheme) var colorScheme
+   @State private var selectedSegment: Configuration = .create
    
-   var body: some View {
+   enum Configuration: String, CaseIterable {
+      case create = "Create"
+      case configure = "Configure"
+   }
+   
+   var configuration: some View {
       ScrollView {
          VStack(spacing: Sizes.spacingExtraLarge) {
             titleHeader
@@ -71,6 +77,32 @@ struct AssistantConfigurationScreen: View {
       .background(colorScheme == .dark ? Color.black : Color.white)
       .safeAreaInset(edge: .bottom) {
          footerActions
+      }
+   }
+   
+   var create: some View {
+      Text("Create")
+         .frame(maxWidth: .infinity, maxHeight: .infinity)
+         .foregroundColor(.white)
+   }
+   
+   var body: some View {
+      VStack {
+         Picker("", selection: $selectedSegment) {
+            Text(Configuration.create.rawValue).tag(Configuration.create)
+            Text(Configuration.configure.rawValue).tag(Configuration.configure)
+         }
+         .padding()
+         .pickerStyle(SegmentedPickerStyle())
+         ZStack {
+            switch selectedSegment {
+            case .create:
+               create
+            case .configure:
+               configuration
+            }
+         }
+         .animation(.easeInOut, value: selectedSegment)
       }
       .onChange(of: fileIDS) { oldValue, newValue in
          if oldValue != newValue {
