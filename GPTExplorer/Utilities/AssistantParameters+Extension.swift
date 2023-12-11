@@ -6,8 +6,14 @@
 //
 
 import SwiftOpenAI
+import UIKit
 
 extension AssistantObject: Equatable {
+   
+   var avatarURL: String? {
+      metadata[AssistantMetadataKeys.avatar]
+   }
+   
    public static func == (lhs: AssistantObject, rhs: AssistantObject) -> Bool {
       lhs.id == rhs.id &&
       lhs.name == rhs.name &&
@@ -28,6 +34,16 @@ extension AssistantObject.Tool: Equatable {
 }
 
 extension AssistantParameters: Equatable {
+   
+   var avatarURL: String? {
+      get { metadata?[AssistantMetadataKeys.avatar] }
+      set { 
+         if metadata == nil {
+            metadata = [:]
+         }
+         metadata![AssistantMetadataKeys.avatar] = newValue
+      }
+   }
    
    public static func == (lhs: SwiftOpenAI.AssistantParameters, rhs: SwiftOpenAI.AssistantParameters) -> Bool {
       lhs.model == rhs.model &&

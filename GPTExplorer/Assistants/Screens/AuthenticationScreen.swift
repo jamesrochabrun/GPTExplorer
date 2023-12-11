@@ -50,8 +50,8 @@ struct AuthenticationScreen: View {
                      .fontWidth(.expanded)
                      .padding(.bottom)
                   VStack(spacing: 24) {
-                     RoundedTextField(text: $apiKey, placeholder: "Enter API Key")
-                     RoundedTextField(text: $organizationIdentifier, placeholder: "Enter Organization ID (Optional)")
+                     CustomTextField(text: $apiKey, placeholder: "Enter API Key")
+                     CustomTextField(text: $organizationIdentifier, placeholder: "Enter Organization ID (Optional)")
                         .onChange(of: organizationIdentifier) { _, newValue in
                            if !newValue.isEmpty {
                               localOrganizationID = newValue

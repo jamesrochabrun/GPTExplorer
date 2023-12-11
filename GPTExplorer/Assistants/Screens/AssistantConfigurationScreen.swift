@@ -50,15 +50,6 @@ struct AssistantConfigurationScreen: View {
       chatProvider = ChatProvider(service: provider.service)
    }
    
-   @Binding var currentAssistant: AssistantObject?
-   private let assistantID: String?
-   private let chatProvider: ChatProvider
-   @State private var isLoadingSaveAction: Bool? = false
-   @State private var isLoadingDeleteAction: Bool? = false
-   @State private var navigationProvider: NavigationProvider
-   @Environment (\.colorScheme) var colorScheme
-   @State private var selectedSegment: Configuration = .create
-   
    enum Configuration: String, CaseIterable {
       case create = "Create"
       case configure = "Configure"
@@ -73,6 +64,7 @@ struct AssistantConfigurationScreen: View {
             knowledge
             capabilities
          }
+         .animation(.easeInOut, value: fileIDS)
          .padding()
          .padding(.horizontal, Sizes.spacingLarge)
       }
@@ -111,9 +103,16 @@ struct AssistantConfigurationScreen: View {
       }
       .onChange(of: avatarURL) { oldValue, newValue in
          if let newValue = newValue, oldValue != newValue {
-            parameters.metadata = [AssistantMetadataKeys.avatarMetadataKey: newValue.absoluteString]
+            parameters.avatarURL = newValue.absoluteString
          }
-      }.onFirstAppear {
+      }
+      .onChange(of: parameters) { oldValue, newValue in
+         if oldValue != newValue,
+            let avatarURL = newValue.avatarURL {
+            self.avatarURL = URL(string: avatarURL)
+         }
+      }
+      .onFirstAppear {
          Task {
             if let currentAssistant {
                try await setInitialParametersForAssistantWith(id: currentAssistant.id)
@@ -196,7 +195,7 @@ struct AssistantConfigurationScreen: View {
          }
       }
       if
-         let avatarURLString = parameters.metadata?[AssistantMetadataKeys.avatarMetadataKey],
+         let avatarURLString = parameters.avatarURL,
          let avatarURL = URL(string: avatarURLString)
       {
          self.avatarURL = avatarURL
@@ -327,10 +326,10 @@ struct AssistantConfigurationScreen: View {
    var inputViews: some View {
       VStack(spacing: Sizes.spacingExtraLarge) {
          InputHeaderView(title: "Name") {
-            RoundedTextField(text: $parameters.name.orEmpty, placeholder: "")
+            CustomTextField(text: $parameters.name.orEmpty, placeholder: "")
          }
          InputHeaderView(title: "Description") {
-            RoundedTextField(text: $parameters.description.orEmpty, placeholder: "")
+            CustomTextField(text: $parameters.description.orEmpty, placeholder: "")
          }
          InputHeaderView(title: "Instructions") {
             ZStack {
@@ -369,17 +368,24 @@ struct AssistantConfigurationScreen: View {
       
    // MARK: Private
    
+   private let assistantID: String?
+   private let chatProvider: ChatProvider
+   @Binding private var currentAssistant: AssistantObject?
+   
    @State private var provider: SideMenuConfigurationProvider
    @State private var parameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.rawValue))
    @State private var currentModel = Model.gpt41106Preview
    @State private var isAvatarLoading = false
-   @State private var providerDidFail = false
-   @State private var currentSuccessMessage: String? = nil
    @Environment(\.presentationMode) private var presentationMode
    @State private var showDeleteAssistantAlert = false
    @State private var currentProviderState: ProviderState?
    @State private var avatarURL: URL?
-   
+   @State private var isLoadingSaveAction: Bool? = false
+   @State private var isLoadingDeleteAction: Bool? = false
+   @State private var navigationProvider: NavigationProvider
+   @State private var selectedSegment: Configuration = .create
+   @Environment (\.colorScheme) var colorScheme
+                   
    /// Files management
    ///  Updated by files picker. This value will be later added to parameters.fileID's on save button.
    @State private var fileIDS: [String] = []

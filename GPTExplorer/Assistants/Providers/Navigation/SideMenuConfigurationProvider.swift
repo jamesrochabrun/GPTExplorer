@@ -102,7 +102,7 @@ enum ThreadMetadataKeys {
 
 enum AssistantMetadataKeys {
    
-   static let avatarMetadataKey = "assistant_avatar"
+   static let avatar = "assistant_avatar"
 }
 
 extension ThreadObject: Equatable {

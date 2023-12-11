@@ -41,7 +41,7 @@ struct SideMenuScreen: View {
                   switch item {
                   case .assistant(let assistant):
                      ImageRow(
-                        url: assistant.metadata[AssistantMetadataKeys.avatarMetadataKey],
+                        url: assistant.avatarURL,
                         title: assistant.name ?? "NO NAME",
                         subtitle: assistant.description)
                   case .thread(let thread):

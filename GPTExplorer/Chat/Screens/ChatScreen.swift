@@ -19,7 +19,7 @@ struct ChatScreen: View {
       messages: [],
       model: Model.gpt35Turbo1106,
       toolChoice: .auto,
-      tools: FunctionCallDefinition.allCases.map { $0.functionTool })
+      tools: [FunctionCallDefinition.createImage.functionTool])
    @State private var selectedModel: Model = .gpt35Turbo1106
    
    init(service: OpenAIService) {

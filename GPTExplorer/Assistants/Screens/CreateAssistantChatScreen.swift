@@ -78,7 +78,7 @@ struct CreateAssistantChatScreen: View {
                      chatCompletionParameters.maxTokens = isVision ? 300 : chatCompletionParameters.maxTokens
                      
                      // Create a system message AKA instruction.
-                     let systemMessage = ChatCompletionParameters.Message(role: .system, content: .text("You are an assistant powered by AI, if the messages has a tool message you will weight that bigger in order to create a response, you always respond in readable language, sometimes you add an emoji on your responses if makes sense to do so."))
+                     let systemMessage = ChatCompletionParameters.Message(role: .system, content: .text("You are an artist powered by AI, if the messages has a tool message you will weight that bigger in order to create a response, and you are providing me an image, you always respond in readable language and never providing URLs of images, most of the times you add an emoji on your responses if makes sense, do not describe the image."))
                      
                      chatCompletionParameters.messages = [systemMessage]
                      

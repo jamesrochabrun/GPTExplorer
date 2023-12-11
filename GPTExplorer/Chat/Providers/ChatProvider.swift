@@ -43,13 +43,17 @@ enum FunctionCallDefinition: String, CaseIterable {
       case .buildAssistant:
          return .init(function: .init(
             name: self.rawValue,
-            description: "Call this function if the request is associated to build an assistant to certain parameters, the values we need to extract are, name, description, instructions.",
+            description: "Call this function if the request is associated to build an assistant to certain parameters, the values we need to extract are, name, description, instructions., enabling tools such code interpreter, retrieval or Dalle",
             parameters: .init(
                type: .object,
                properties: [
                   "name": .init(type: .string, description: "The name for the assistant."),
                   "description": .init(type: .string, description: "The assistant's description"),
-                  "instructions": .init(type: .string, description: "The assistant's instructions")
+                  "instructions": .init(type: .string, description: "The assistant's instructions"),
+                  "code_interpreter": .init(type: .boolean, description: "A bool se to true if user requests code interpreter tool"),
+                  "retrieval": .init(type: .boolean, description: "A bool se to true if user requests code retrieval tool"),
+                  "dalle": .init(type: .boolean, description: "A bool se to true if user requests dalle image generator tool"),
+                  "avatar_description": .init(type: .string, description: "The description of the image that was requested by the user.")
                ],
                required: ["name"])))
       }
@@ -73,6 +77,7 @@ enum FunctionCallDefinition: String, CaseIterable {
    var chatDisplayMessages: [ChatMessageDisplayModel] = []
    /// The updates assistant parameters
    var assistantParameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.rawValue))
+   var assistantURL: URL?
    
    // MARK: - Initializer
    
@@ -362,6 +367,12 @@ extension ChatProvider {
          content: .content(.init(text: nil, urls: urls)),
          origin: .received(.dalle))
       updateLastAssistantMessage(dalleAssistantMessage)
+      
+      // This means that user started a build assistant flow
+      if let url = urls.first, assistantParameters.name != nil {
+         assistantParameters.avatarURL = url.absoluteString
+      }
+      
       return prompt
    }
    
@@ -371,18 +382,38 @@ extension ChatProvider {
       -> String
    {
       print("FUNCTIONCALL Generate Assistant \(arguments)")
-
+      
       let dictionary = arguments.toDictionary()!
       let name = dictionary["name"] as! String
       let description = dictionary["description"] as? String
       let instructions = dictionary["instructions"] as? String
+      let codeInterpreter = dictionary["code_interpreter"] as? Bool
+      let retrieval = dictionary["retrieval"] as? Bool
+      let dalle = dictionary["dalle"] as? Bool
+      let avatarDescription = dictionary["avatar_description"] as? String
       
-      assistantParameters = .init(
+      var assistantParameters = AssistantParameters(
          action: .create(model: Model.gpt41106Preview.rawValue),
          name: name,
          description: description,
          instructions: instructions)
-      return "Your assisstant \(name) has beeen updated and it is almost ready!, you can finish the configuration on the configuration tab."
+      
+      if codeInterpreter != nil {
+         assistantParameters.tools.append(AssistantObject.Tool(type: .codeInterpreter))
+      }
+      if retrieval != nil {
+         assistantParameters.tools.append(AssistantObject.Tool(type: .retrieval))
+      }
+      if dalle != nil {
+         assistantParameters.tools.append(AssistantFunctionCallDefinition.createImage.functionTool)
+      }
+      self.assistantParameters = assistantParameters
+      
+      var toolMessage = "Your assisstant \(name) has beeen updated and it is almost ready!, you can finish the configuration on the configuration tab."
+      if let avatarDescription {
+         toolMessage += "Your image \(avatarDescription) has been created."
+      }
+      return toolMessage
    }
 }
 

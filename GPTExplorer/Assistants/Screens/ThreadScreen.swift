@@ -200,7 +200,7 @@ struct ThreadScreen: View {
          VStack {
             Spacer()
             EmptyPlaceholderView(
-               imageURL: currentAssistant.metadata[AssistantMetadataKeys.avatarMetadataKey],
+               imageURL: currentAssistant.avatarURL,
                placeholder: Image(systemName: "oval.bottomhalf.filled"),
                title: currentAssistant.name ?? "NO NAME",
                subtitle: currentAssistant.description)
