@@ -27,6 +27,7 @@ struct PhotoPicker: View {
    var body: some View {
       PhotosPicker(selection: $selectedItems, matching: .images) {
          Image(systemName: "photo")
+            .tint(ThemeColor.brandColor)
       }
       .onChange(of: selectedItems) {
          Task {

@@ -11,30 +11,28 @@ import SwiftOpenAI
 
 struct CreateAssistantChatScreen: View {
    
-   @State private var isLoading = false
-   @State private var prompt = ""
-   @State private var chatProvider: ChatProvider
-   @State private var selectedImageURLS: [URL] = []
-   @State private var selectedImages: [Image] = []
-   @State private var chatCompletionParameters = ChatCompletionParameters(
-      messages: [],
-      model: Model.gpt35Turbo1106,
-      toolChoice: .auto,
-      tools: FunctionCallDefinition.allCases.map { $0.functionTool })
-   @State private var selectedModel: Model = .gpt35Turbo1106
-   @Binding private var assistantParameters: AssistantParameters
-   
    init(
+      service: OpenAIService,
       provider: ChatProvider,
       assistantParameters: Binding<AssistantParameters>)
    {
+      self.service = service
       _chatProvider = State(initialValue: provider)
       _assistantParameters = assistantParameters
    }
    
    var body: some View {
       NavigationView {
-         mainContent
+         ZStack {
+            mainContent
+            if showAudioSpeech == true {
+               AudioSpeechScreen(audioProvider: .init(service: service), showScreen: $showAudioSpeech.orFalse)
+                  .transition(.opacity) // Fade transition
+            }
+         }
+         .animation(.linear, value: showAudioSpeech) // Smooth fade animation
+         .sensoryFeedback(.impact, trigger: showAudioSpeech)
+   
       }
    }
    
@@ -60,7 +58,8 @@ struct CreateAssistantChatScreen: View {
             ChatTextArea(
                selectedImageURLS: $selectedImageURLS,
                selectedImages: $selectedImages,
-               prompt: $prompt) {
+               prompt: $prompt, 
+               showAudioSpeech: $showAudioSpeech) {
                   Task {
                      isLoading = true
                      defer { isLoading = false }
@@ -100,5 +99,20 @@ struct CreateAssistantChatScreen: View {
        selectedImages = []
        selectedImageURLS = []
     }
+   
+   private let service: OpenAIService
+   @State private var isLoading = false
+   @State private var showAudioSpeech: Bool? = false
+   @State private var prompt = ""
+   @State private var chatProvider: ChatProvider
+   @State private var selectedImageURLS: [URL] = []
+   @State private var selectedImages: [Image] = []
+   @State private var chatCompletionParameters = ChatCompletionParameters(
+      messages: [],
+      model: Model.gpt35Turbo1106,
+      toolChoice: .auto,
+      tools: FunctionCallDefinition.allCases.map { $0.functionTool })
+   @State private var selectedModel: Model = .gpt35Turbo1106
+   @Binding private var assistantParameters: AssistantParameters
 }
 

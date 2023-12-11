@@ -41,13 +41,15 @@ struct AssistantConfigurationScreen: View {
    init(
       currentAssistant: Binding<AssistantObject?>,
       assistantID: String?,
-      provider: SideMenuConfigurationProvider)
+      provider: SideMenuConfigurationProvider,
+      service: OpenAIService)
    {
       _navigationProvider = State(initialValue: provider.navigationProvider)
       _provider = State(initialValue: provider)
       _currentAssistant = currentAssistant
       self.assistantID = assistantID
-      chatProvider = ChatProvider(service: provider.service)
+      chatProvider = ChatProvider(service: service)
+      self.service = service
    }
    
    enum Configuration: String, CaseIterable {
@@ -75,7 +77,7 @@ struct AssistantConfigurationScreen: View {
    }
    
    var create: some View {
-      CreateAssistantChatScreen(provider: chatProvider, assistantParameters: $parameters)
+      CreateAssistantChatScreen(service: service, provider: chatProvider, assistantParameters: $parameters)
    }
    
    var body: some View {
@@ -368,6 +370,7 @@ struct AssistantConfigurationScreen: View {
       
    // MARK: Private
    
+   private let service: OpenAIService
    private let assistantID: String?
    private let chatProvider: ChatProvider
    @Binding private var currentAssistant: AssistantObject?
@@ -451,8 +454,9 @@ extension String {
 }
 
 #Preview {
-   AssistantConfigurationScreen(
+   let service = OpenAIServiceFactory.service(apiKey: "")
+   return AssistantConfigurationScreen(
       currentAssistant: .constant(nil),
       assistantID: nil,
-      provider: SideMenuConfigurationProvider(service: OpenAIServiceFactory.service(apiKey: "")))
+      provider: SideMenuConfigurationProvider(service: service), service: service)
 }

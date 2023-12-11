@@ -37,7 +37,10 @@ struct ThreadScreen: View {
    
    var threadContent: some View {
       NavigationView {
-         mainContent
+         VStack(spacing: 0) {
+            mainContent
+            bottomTextArea
+         }
       }
       .onFirstAppear {
          Task {
@@ -47,10 +50,6 @@ struct ThreadScreen: View {
                currentAssistant = try await provider.retrieveAssistant(id: assistantID).item
             }
          }
-      }
-      .safeAreaInset(edge: .bottom) {
-         bottomTextArea
-            .padding(.bottom, 34)
       }
       .alert(currentProviderState?.message ?? "", isPresented: Binding<Bool>(
          get: { currentProviderState != nil },
@@ -121,7 +120,7 @@ struct ThreadScreen: View {
          }
       }
       .sheet(isPresented: $showAssistantConfigurationModal) {
-         AssistantConfigurationScreen(currentAssistant: $currentAssistant, assistantID: currentThread?.assistantID, provider: provider)
+         AssistantConfigurationScreen(currentAssistant: $currentAssistant, assistantID: currentThread?.assistantID, provider: provider, service: service)
       }
    }
    

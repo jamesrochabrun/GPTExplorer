@@ -14,10 +14,11 @@ struct ChatTextArea: View {
    @Binding var selectedImageURLS: [URL]
    @Binding var selectedImages: [Image]
    @Binding var prompt: String
+   @Binding var showAudioSpeech: Bool?
    let sendButtonAction: () -> Void
 
    var body: some View {
-      HStack(spacing: 0) {
+      HStack(alignment: .lastTextBaseline, spacing: 0) {
          PhotoPicker(selectedImageURLS: $selectedImageURLS, selectedImages: $selectedImages)
          VStack(alignment: .leading, spacing: 0) {
             if !selectedImages.isEmpty {
@@ -54,7 +55,8 @@ struct ChatTextArea: View {
    }
    
    var sendButton: some View {
-      IconButton(iconName: "paperplane", action: sendButtonAction)
+      IconButton(iconName: prompt.isEmpty ? "beats.headphones" : "paperplane", action: sendButtonAction)
+         .iconButtonStyle(.circle)
    }
    
    var textField: some View {
@@ -68,9 +70,20 @@ struct ChatTextArea: View {
 // MARK: Mock+Preview
 
 #Preview {
-   ChatTextArea(
-      selectedImageURLS: .constant([urlImageViewMockURL]),
-      selectedImages: .constant([Image(systemName: "paperplane")]),
-      prompt: .constant("Hello world"),
-      sendButtonAction: {})
+   
+   VStack {
+      ChatTextArea(
+         selectedImageURLS: .constant([urlImageViewMockURL]),
+         selectedImages: .constant([Image(systemName: "paperplane")]),
+         prompt: .constant("Hello world"), 
+         showAudioSpeech: .constant(true),
+         sendButtonAction: {})
+      ChatTextArea(
+         selectedImageURLS: .constant([urlImageViewMockURL]),
+         selectedImages: .constant([]),
+         prompt: .constant("Hello world"),
+         showAudioSpeech: .constant(true),
+         sendButtonAction: {})
+   }
+
 }

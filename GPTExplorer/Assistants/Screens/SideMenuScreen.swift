@@ -115,7 +115,7 @@ struct SideMenuScreen: View {
          }
       }
       .sheet(isPresented: $showAssistantConfigurationModal) {
-         AssistantConfigurationScreen(currentAssistant: $currentAssistant, assistantID: nil, provider: provider)
+         AssistantConfigurationScreen(currentAssistant: $currentAssistant, assistantID: nil, provider: provider, service: service)
       }
    }
    private func navigateToSelected(item: SideMenuItem) {

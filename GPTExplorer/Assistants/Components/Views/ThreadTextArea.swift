@@ -76,13 +76,14 @@ struct ThreadTextArea: View {
          IconButton(iconName: "paperclip") {
          }
          .iconButtonStyle(.tertiary)
-         if showAudioSpeech != nil {
+         if showAudioSpeech != nil, prompt.isEmpty {
             IconButton(iconName: "beats.headphones") {
                showAudioSpeech = true
             }
             .iconButtonStyle(.circleTertiary)
          }
       }
+      .animation(.easeInOut, value: prompt.isEmpty)
    }
    
    @ViewBuilder
