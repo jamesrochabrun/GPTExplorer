@@ -14,25 +14,18 @@ struct CreateAssistantChatScreen: View {
    init(
       service: OpenAIService,
       provider: ChatProvider,
-      assistantParameters: Binding<AssistantParameters>)
+      assistantParameters: Binding<AssistantParameters>,
+      showAudioSpeech: Binding<Bool?>)
    {
       self.service = service
       _chatProvider = State(initialValue: provider)
       _assistantParameters = assistantParameters
+      _showAudioSpeech = showAudioSpeech
    }
    
    var body: some View {
       NavigationView {
-         ZStack {
-            mainContent
-            if showAudioSpeech == true {
-               AudioSpeechScreen(audioProvider: .init(service: service), showScreen: $showAudioSpeech.orFalse)
-                  .transition(.opacity) // Fade transition
-            }
-         }
-         .animation(.linear, value: showAudioSpeech) // Smooth fade animation
-         .sensoryFeedback(.impact, trigger: showAudioSpeech)
-   
+         mainContent
       }
    }
    
@@ -102,7 +95,7 @@ struct CreateAssistantChatScreen: View {
    
    private let service: OpenAIService
    @State private var isLoading = false
-   @State private var showAudioSpeech: Bool? = false
+   @Binding private var showAudioSpeech: Bool?
    @State private var prompt = ""
    @State private var chatProvider: ChatProvider
    @State private var selectedImageURLS: [URL] = []

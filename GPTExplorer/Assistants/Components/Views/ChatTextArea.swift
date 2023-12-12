@@ -55,8 +55,14 @@ struct ChatTextArea: View {
    }
    
    var sendButton: some View {
-      IconButton(iconName: prompt.isEmpty ? "beats.headphones" : "paperplane", action: sendButtonAction)
-         .iconButtonStyle(.circle)
+      IconButton(iconName: prompt.isEmpty ? "beats.headphones" : "paperplane") {
+         if prompt.isEmpty {
+            showAudioSpeech = true
+         } else {
+            sendButtonAction()
+         }
+      }
+      .iconButtonStyle(.circle)
    }
    
    var textField: some View {

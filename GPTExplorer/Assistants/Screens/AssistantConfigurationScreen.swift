@@ -77,10 +77,14 @@ struct AssistantConfigurationScreen: View {
    }
    
    var create: some View {
-      CreateAssistantChatScreen(service: service, provider: chatProvider, assistantParameters: $parameters)
+      CreateAssistantChatScreen(
+         service: service,
+         provider: chatProvider,
+         assistantParameters: $parameters,
+         showAudioSpeech: $showAudioSpeech)
    }
    
-   var body: some View {
+   var mainContent: some View {
       VStack {
          Picker("", selection: $selectedSegment) {
             Text(Configuration.create.rawValue).tag(Configuration.create)
@@ -98,6 +102,18 @@ struct AssistantConfigurationScreen: View {
          }
          .animation(.easeInOut, value: selectedSegment)
       }
+   }
+   
+   var body: some View {
+      ZStack {
+         mainContent
+         if showAudioSpeech == true {
+            AudioSpeechScreen(audioProvider: .init(service: provider.service), showScreen: $showAudioSpeech.orFalse)
+               .transition(.opacity) // Fade transition
+         }
+      }
+      .animation(.linear, value: showAudioSpeech) // Smooth fade animation
+      .sensoryFeedback(.impact, trigger: showAudioSpeech)
       .onChange(of: fileIDS) { oldValue, newValue in
          if oldValue != newValue {
             parameters.fileIDS = newValue
@@ -387,6 +403,7 @@ struct AssistantConfigurationScreen: View {
    @State private var isLoadingDeleteAction: Bool? = false
    @State private var navigationProvider: NavigationProvider
    @State private var selectedSegment: Configuration = .create
+   @State private var showAudioSpeech: Bool? = false
    @Environment (\.colorScheme) var colorScheme
                    
    /// Files management
@@ -460,3 +477,22 @@ extension String {
       assistantID: nil,
       provider: SideMenuConfigurationProvider(service: service), service: service)
 }
+
+
+/**
+ var body: some View {
+    NavigationView {
+       ZStack {
+          mainContent
+          if showAudioSpeech == true {
+             AudioSpeechScreen(audioProvider: .init(service: service), showScreen: $showAudioSpeech.orFalse)
+                .transition(.opacity) // Fade transition
+          }
+       }
+       .animation(.linear, value: showAudioSpeech) // Smooth fade animation
+       .sensoryFeedback(.impact, trigger: showAudioSpeech)
+ 
+    }
+ }
+ 
+ */
