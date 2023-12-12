@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftOpenAI
-//import Markdown
 
 struct RunDetailsScreen: View {
    
@@ -40,7 +39,6 @@ struct RunDetailsScreen: View {
          Divider()
       }
       .padding(Padding.rowHorizontal)
-      .border(.red)
    }
    
    var body: some View {
@@ -81,91 +79,98 @@ struct RunDetailsScreen: View {
    RunDetailsScreen(runsProvider: .init(service: OpenAIServiceFactory.service(apiKey: "")), runMetadata: .init(runID: "run_LMl49bJhE5OiDH1cemxj9P7M", threadID: "thread_yCSZ7aTNLfuQj7z04jtmd0qf"))
 }
 
+private struct Mock {
+
+   static func steps(from json: String = mock) -> [RunStepObject] {
+      let data = json.data(using: .utf8)!
+      let decoder = JSONDecoder()
+      return try! decoder.decode([RunStepObject].self, from: data)
+   }
+}
 
 private let mock = """
-```json
-{
-    "assistant_id" = "asst_DY7KY2XxRbL2LOyBZWlWRbHI";
-    "cancelled_at" = "<null>";
-    "completed_at" = 1702370669;
-    "created_at" = 1702370668;
-    "expires_at" = "<null>";
-    "failed_at" = "<null>";
-    id = "step_FFGZgmVsFmXGNsLucOlHZvEe";
-    "last_error" = "<null>";
-    object = "thread.run.step";
-    "run_id" = "run_biuKzN1nY7iyosf0WGGrEQkr";
-    status = completed;
-    "step_details" =     {
-        "message_creation" =         {
-            "message_id" = "msg_oSbgkqQDwiJOKRZbP7XQL1os";
-        };
-        type = "message_creation";
-    };
-    "thread_id" = "thread_kFplwU4zWFXTqiybIUA5qLHk";
-    type = "message_creation";
-},
-{
-    "assistant_id" = "asst_DY7KY2XxRbL2LOyBZWlWRbHI";
-    "cancelled_at" = "<null>";
-    "completed_at" = 1702370668;
-    "created_at" = 1702370663;
-    "expires_at" = "<null>";
-    "failed_at" = "<null>";
-    id = "step_X02DdgvKUHZUj3vAwWPfD6Kb";
-    "last_error" = "<null>";
-    object = "thread.run.step";
-    "run_id" = "run_biuKzN1nY7iyosf0WGGrEQkr";
-    status = completed;
-    "step_details" =     {
-        "tool_calls" =         (
-                        {
-                "code_interpreter" =                 {
-                    input = "# Re-import the math module and calculate the square root again\nimport math\n\n# Calculate the square root of 555555\nmath.sqrt(555555)";
-                    outputs =                     (
-                                                {
-                            logs = "745.3556198218405";
-                            type = logs;
-                        }
-                    );
-                };
-                id = "call_1p97Bty8eVA8VMusLiysrlD3";
-                type = "code_interpreter";
-            }
-        );
-        type = "tool_calls";
-    };
-    "thread_id" = "thread_kFplwU4zWFXTqiybIUA5qLHk";
-    type = "tool_calls";
-},
-{
-    "assistant_id" = "asst_DY7KY2XxRbL2LOyBZWlWRbHI";
-    "cancelled_at" = "<null>";
-    "completed_at" = 1702370663;
-    "created_at" = 1702370659;
-    "expires_at" = "<null>";
-    "failed_at" = "<null>";
-    id = "step_SlnQM3HcUVS2JbWgOgjeiEoI";
-    "last_error" = "<null>";
-    object = "thread.run.step";
-    "run_id" = "run_biuKzN1nY7iyosf0WGGrEQkr";
-    status = completed;
-    "step_details" =     {
-        "tool_calls" =         (
-                        {
-                "code_interpreter" =                 {
-                    input = "# Calculate the square root of 555555\nmath.sqrt(555555)";
-                    outputs =                     (
-                    );
-                };
-                id = "call_tjT4gS7vkEPkrmkCqOvbisRs";
-                type = "code_interpreter";
-            }
-        );
-        type = "tool_calls";
-    };
-    "thread_id" = "thread_kFplwU4zWFXTqiybIUA5qLHk";
-    type = "tool_calls";
-}
-```
+[
+    {
+        "assistant_id": "asst_DY7KY2XxRbL2LOyBZWlWRbHI",
+        "cancelled_at": null,
+        "completed_at": 1702409578,
+        "created_at": 1702409578,
+        "expires_at": null,
+        "failed_at": null,
+        "id": "step_n2aiWQIZtA3nZbfDnKeiQata",
+        "last_error": null,
+        "object": "thread.run.step",
+        "run_id": "run_VlaHPg6OOx1lefChOxycnD6O",
+        "status": "completed",
+        "step_details": {
+            "message_creation": {
+                "message_id": "msg_m52k6qgeNQnCsdKokik262BN"
+            },
+            "type": "message_creation"
+        },
+        "thread_id": "thread_kFplwU4zWFXTqiybIUA5qLHk",
+        "type": "message_creation"
+    },
+    {
+        "assistant_id": "asst_DY7KY2XxRbL2LOyBZWlWRbHI",
+        "cancelled_at": null,
+        "completed_at": 1702409578,
+        "created_at": 1702409574,
+        "expires_at": null,
+        "failed_at": null,
+        "id": "step_BVYxuwLIJJybGZWBIqGQCo3p",
+        "last_error": null,
+        "object": "thread.run.step",
+        "run_id": "run_VlaHPg6OOx1lefChOxycnD6O",
+        "status": "completed",
+        "step_details": {
+            "tool_calls": [
+                {
+                    "code_interpreter": {
+                        "input": "# The code execution state has been reset which requires re-importing the math module.\nimport math\n\n# Calculate the square root of 1456\nsqrt_1456 = math.sqrt(1456)\nsqrt_1456",
+                        "outputs": [
+                            {
+                                "logs": "38.157568056677825",
+                                "type": "logs"
+                            }
+                        ]
+                    },
+                    "id": "call_XYMUKoVeGmXDcpJUj9G2TaFk",
+                    "type": "code_interpreter"
+                }
+            ],
+            "type": "tool_calls"
+        },
+        "thread_id": "thread_kFplwU4zWFXTqiybIUA5qLHk",
+        "type": "tool_calls"
+    },
+    {
+        "assistant_id": "asst_DY7KY2XxRbL2LOyBZWlWRbHI",
+        "cancelled_at": null,
+        "completed_at": 1702409574,
+        "created_at": 1702409570,
+        "expires_at": null,
+        "failed_at": null,
+        "id": "step_8OdJcxwXJJ5UVNv3KUtYMPTD",
+        "last_error": null,
+        "object": "thread.run.step",
+        "run_id": "run_VlaHPg6OOx1lefChOxycnD6O",
+        "status": "completed",
+        "step_details": {
+            "tool_calls": [
+                {
+                    "code_interpreter": {
+                        "input": "# Calculate the square root of 1456 math.sqrt(1456)",
+                        "outputs": []
+                    },
+                    "id": "call_DgbAnbS6HGhTEwhPbFNwurZO",
+                    "type": "code_interpreter"
+                }
+            ],
+            "type": "tool_calls"
+        },
+        "thread_id": "thread_kFplwU4zWFXTqiybIUA5qLHk",
+        "type": "tool_calls"
+    }
+]
 """
