@@ -12,7 +12,7 @@ import SwiftOpenAI
 
 struct AuthenticationScreen: View {
    
-   @State private var apiKey = "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"
+   @State private var apiKey = ""
    @State private var organizationIdentifier = ""
    @State private var localOrganizationID: String? = nil
    @State private var navigationProvider: NavigationProvider = .init()
@@ -88,10 +88,3 @@ struct AuthenticationScreen: View {
 #Preview {
    AuthenticationScreen()
 }
-
-
-
-/// TODO: Make possible to pass also URL tools and files ids to the configure
-/// also be able to use text to speech for this
-/// Lastly be able to add the text to speech messages in to the chat list.
-/// Consider making an initial user message with the parameters but dont; show that message in the UI.

@@ -122,6 +122,9 @@ struct ThreadScreen: View {
       .sheet(isPresented: $showAssistantConfigurationModal) {
          AssistantConfigurationScreen(currentAssistant: $currentAssistant, assistantID: currentThread?.assistantID, provider: provider, service: service)
       }
+      .sheet(item: $runMetadata) { runMetadata in
+         RunDetailsScreen(runsProvider: runsProvider, runMetadata: runMetadata)
+      }
    }
    
    var body: some View {
@@ -220,7 +223,7 @@ struct ThreadScreen: View {
          }
       } else {
          List(messagesProvider.chatDisplayMessages) { message in
-            ChatMessageRow(message: message)
+            ChatMessageRow(message: message, runMetadata: $runMetadata)
                .listRowSeparator(.hidden)
          }
          .listStyle(.plain)
@@ -368,14 +371,19 @@ struct ThreadScreen: View {
       guard let run = try await runsProvider.runTheThread(threadID: threadID, parameters: RunParameter(assistantID: assistantID))
       else { return }
       
-      guard let lastRunStep = try await runsProvider.getRunSteps(threadID: threadID, runID: run.id)
+      guard let lastRunStep = try await runsProvider.getLastRunStep(threadID: threadID, runID: run.id)
       else { return }
       
-      // TODO remove force unwrapp after testing
-      let assistantMessage = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: lastRunStep.stepDetails.messageCreation.messageID)!
-      let assistantMessageDisplayModel = messagesProvider.createMessageDisplayModel(from: assistantMessage, assistantName: assistantName)!
+      // TODO: Explore how to add the code interpreter content as well (next!)
+      let assistantMessage = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: lastRunStep.stepDetails.messageCreation!.messageID)!
       
-      await messagesProvider.addMessage(assistantMessageDisplayModel)
+      if let assistantMessageDisplayModel = messagesProvider.createMessageDisplayModel(
+         from: assistantMessage,
+         assistantName: assistantName,
+         runID: run.id,
+         threadID: threadID) {
+         await messagesProvider.addMessage(assistantMessageDisplayModel)
+      }
    }
    
    private let service: OpenAIService
@@ -394,6 +402,7 @@ struct ThreadScreen: View {
    @State private var isAddAndRunActionLoading: Bool? = false
    @State private var isAddMessageActionLoading: Bool? = false
    @State private var showAudioSpeech: Bool? = false
+   @State private var runMetadata: ChatMessageDisplayModel.RunMetadata? = nil
    @Environment(\.presentationMode) private var presentationMode
    
    /// USED FOR NOW ONLY FOR RUNS AND MESSAGES

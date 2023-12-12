@@ -8,15 +8,14 @@
 import SwiftUI
 import SwiftOpenAI
 
+
 @Observable class RunsProvider {
    
    private let service: OpenAIService
    
    var errorMessage: String?
-   
-   var runs: [RunObject] = []
    var lastRunStepObject: RunStepObject?
-   
+   var runSteps: [RunStepObject] = []
    
    // MARK: - Initializer
    
@@ -37,19 +36,19 @@ import SwiftOpenAI
       }
    }
    
-   func getRunSteps(
+   func getLastRunStep(
       threadID: String,
       runID: String)
-   async throws -> RunStepObject?
+      async throws -> RunStepObject?
    {
       do {
-         let timeoutDuration = 20_000_000_000 // 20 seconds in nanoseconds
+         let timeoutDuration = 30_000_000_000 // 30 seconds in nanoseconds
          var runStepObject: RunStepObject? = nil
          
          try await withThrowingTaskGroup(of: RunStepObject?.self) { group in
             // Polling task
-            group.addTask {
-               return try await self.pollForCompletion(threadID: threadID, runID: runID)
+            group.addTask { [weak self] in
+               return try await self?.pollForCompletionLatRun(threadID: threadID, runID: runID)
             }
             
             // Timeout task
@@ -77,10 +76,10 @@ import SwiftOpenAI
       }
    }
    
-   private func pollForCompletion(
+   private func pollForCompletionLatRun(
       threadID: String,
       runID: String)
-   async throws -> RunStepObject?
+      async throws -> RunStepObject?
    {
       var isCompleted = false
       var lastStep: RunStepObject? = nil
@@ -103,5 +102,18 @@ import SwiftOpenAI
          }
       }
       return lastStep
+   }
+
+   func getRunSteps(
+      threadID: String,
+      runID: String)
+      async throws
+   {
+      do {
+         runSteps = try await service.listRunSteps(threadID: threadID, runID: runID, limit: nil, order: nil, after: nil, before: nil).data
+      } catch let error as APIError {
+         errorMessage = error.displayDescription
+         throw error
+      }
    }
 }

@@ -11,6 +11,15 @@ import SwiftUI
 struct ChatMessageRow: View {
 
    let message: ChatMessageDisplayModel
+   @Binding private var runMetadata: ChatMessageDisplayModel.RunMetadata?
+   
+   init(
+      message: ChatMessageDisplayModel,
+      runMetadata: Binding<ChatMessageDisplayModel.RunMetadata?>? = nil)
+   {
+      self.message = message
+      _runMetadata = runMetadata ?? .constant(.init(runID: "", threadID: ""))
+   }
 
    @ViewBuilder
    var header: some View {
@@ -76,11 +85,11 @@ struct ChatMessageRow: View {
          EmptyView()
       }
    }
-
+   
    func headerWith(
       _ systemImageName: String,
       title: String)
-      -> some View
+   -> some View
    {
       HStack {
          Image(systemName: systemImageName)
@@ -88,6 +97,16 @@ struct ChatMessageRow: View {
             .frame(width: 16, height: 16)
          Text(title)
             .font(.caption2)
+         Spacer()
+         if 
+            let runMetadata = message.runMetadata,
+               !runMetadata.isEmpty
+         {
+            IconButton(iconName: "ellipsis") {
+               self.runMetadata = runMetadata
+            }
+            .iconButtonStyle(.tertiary)
+         }
       }
       .foregroundColor(.gray.opacity(0.9))
    }
@@ -109,8 +128,13 @@ struct ChatMessageRow: View {
 #Preview {
    VStack {
       ChatMessageRow(message: .init(content: .content(.init(text: "What is the capital of Peru? and what is the population")), origin: .sent))
-      ChatMessageRow(message: .init(content: .content(.init(text: "Lima, an its 28 million habitants.")), origin: .received(.gpt)))
-      ChatMessageRow(message: .init(content: .content(.init(text: "The image you requested is ready 🐱", urls: [URL(string: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg")!])), origin: .received(.dalle)))
+      ChatMessageRow(message: .init(content: .content(.init(text: "Lima, an its 28 million habitants.")), origin: .received(.gpt), runMetadata: .init(runID: "dddddd", threadID: "dddddd")))
+      ChatMessageRow(
+         message: .init(
+            content: .content(.init(text: "The image you requested is ready 🐱",
+                                    urls: [URL(string: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg")!])),
+            origin: .received(.dalle),
+            runMetadata: nil))
       ChatMessageRow(message: .init(content: .content(.init(text: "")), origin: .received(.gpt)))
    }
    .padding()

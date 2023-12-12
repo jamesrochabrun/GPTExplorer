@@ -76,7 +76,11 @@ import SwiftOpenAI
             after: nil,
             before: nil)
          for message in messagesData.data {
-            let messageDisplayModel = createMessageDisplayModel(from: message, assistantName: assistantName)!
+            let messageDisplayModel = createMessageDisplayModel(
+               from: message,
+               assistantName: assistantName, 
+               runID: message.runID,
+               threadID: message.threadID)!
             await addMessage(messageDisplayModel)
          }
       } catch let error as APIError  {
@@ -86,7 +90,9 @@ import SwiftOpenAI
    
    func createMessageDisplayModel(
       from message: MessageObject,
-      assistantName: String? = nil)
+      assistantName: String? = nil,
+      runID: String? = nil,
+      threadID: String? = nil)
       -> ChatMessageDisplayModel?
    {
       let origin: ChatMessageDisplayModel.MessageOrigin.ReceivedSource.Assistant = message.role == "user" ?  .user : .assistant(assistantName ?? "")
@@ -100,12 +106,15 @@ import SwiftOpenAI
       }) {
          switch firstTextContent {
          case .text(let content):
-            print("jamesrochabrun \(content.text.value), id: \(message.id)")
-
+            var runMetadata: ChatMessageDisplayModel.RunMetadata?
+            if let runID, let threadID {
+               runMetadata = .init(runID: runID, threadID: threadID)
+            }
             return ChatMessageDisplayModel(
                id: message.id,
                content: .content(.init(text: content.text.value)),
-               origin: .received(.asssistant(origin)))
+               origin: .received(.asssistant(origin)),
+               runMetadata: runMetadata)
          default:
             return nil
          }

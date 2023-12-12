@@ -9,10 +9,25 @@ import Foundation
 import SwiftOpenAI
 
 struct ChatMessageDisplayModel: Identifiable {
-
+   
    let id: String
    var content: DisplayContent
    let origin: MessageOrigin
+   let runMetadata: RunMetadata?
+   
+   struct RunMetadata: Identifiable {
+      
+      let runID: String
+      let threadID: String
+      
+      var isEmpty: Bool {
+         runID.isEmpty || threadID.isEmpty
+      }
+      
+      var id: String {
+         runID + threadID
+      }
+   }
 
    enum DisplayContent: Equatable {
 
@@ -39,11 +54,13 @@ struct ChatMessageDisplayModel: Identifiable {
    init(
       id: String = UUID().uuidString,
       content: DisplayContent,
-      origin: MessageOrigin)
+      origin: MessageOrigin,
+      runMetadata: RunMetadata? = nil)
    {
       self.id = id
       self.content = content
       self.origin = origin
+      self.runMetadata = runMetadata
    }
 
    enum MessageOrigin {

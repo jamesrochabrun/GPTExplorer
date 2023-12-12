@@ -50,6 +50,10 @@
 		7B7A12BD2B23CE1B00999925 /* ChatProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12BC2B23CE1B00999925 /* ChatProvider.swift */; };
 		7B7A12C12B23CECA00999925 /* ChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12C02B23CECA00999925 /* ChatScreen.swift */; };
 		7B83BE992B2462EE000F37C0 /* CreateAssistantChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B83BE982B2462EE000F37C0 /* CreateAssistantChatScreen.swift */; };
+		7B83BE9F2B27DCAE000F37C0 /* CircleBouncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B83BE9E2B27DCAE000F37C0 /* CircleBouncingView.swift */; };
+		7B83BEA12B27DCE8000F37C0 /* BouncingCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B83BEA02B27DCE8000F37C0 /* BouncingCircleView.swift */; };
+		7B83BEA42B282E17000F37C0 /* RunDetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B83BEA32B282E17000F37C0 /* RunDetailsScreen.swift */; };
+		7B83BEA62B283820000F37C0 /* RunStepObject+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B83BEA52B283820000F37C0 /* RunStepObject+Extension.swift */; };
 		7B8973B32B205FCF00908753 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973B22B205FCF00908753 /* Shaders.metal */; };
 		7B8973B72B2063D800908753 /* AudioModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973B62B2063D800908753 /* AudioModels.swift */; };
 		7B8973BD2B20652500908753 /* AudioSpeechProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */; };
@@ -126,6 +130,10 @@
 		7B7A12BC2B23CE1B00999925 /* ChatProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatProvider.swift; sourceTree = "<group>"; };
 		7B7A12C02B23CECA00999925 /* ChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScreen.swift; sourceTree = "<group>"; };
 		7B83BE982B2462EE000F37C0 /* CreateAssistantChatScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAssistantChatScreen.swift; sourceTree = "<group>"; };
+		7B83BE9E2B27DCAE000F37C0 /* CircleBouncingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleBouncingView.swift; sourceTree = "<group>"; };
+		7B83BEA02B27DCE8000F37C0 /* BouncingCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BouncingCircleView.swift; sourceTree = "<group>"; };
+		7B83BEA32B282E17000F37C0 /* RunDetailsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunDetailsScreen.swift; sourceTree = "<group>"; };
+		7B83BEA52B283820000F37C0 /* RunStepObject+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RunStepObject+Extension.swift"; sourceTree = "<group>"; };
 		7B8973B22B205FCF00908753 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		7B8973B62B2063D800908753 /* AudioModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioModels.swift; sourceTree = "<group>"; };
 		7B8973BC2B20652500908753 /* AudioSpeechProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSpeechProvider.swift; sourceTree = "<group>"; };
@@ -187,7 +195,6 @@
 		7B1C76502B0C7B23008E161D /* GPTExplorer */ = {
 			isa = PBXGroup;
 			children = (
-				7B7A12BB2B23CD7B00999925 /* Chat */,
 				7B7A12BA2B23CD6A00999925 /* Assistants */,
 				7B1C76BA2B0DCAE5008E161D /* Utilities */,
 				7B1C76512B0C7B23008E161D /* GPTExplorerApp.swift */,
@@ -250,6 +257,7 @@
 		7B1C76922B0C7E27008E161D /* Providers */ = {
 			isa = PBXGroup;
 			children = (
+				7B83BE9D2B27DC7B000F37C0 /* Chat */,
 				7B8973BB2B20651B00908753 /* Files */,
 				7B8973BA2B20651500908753 /* Audio */,
 				7B8973B92B20650600908753 /* Navigation */,
@@ -261,13 +269,13 @@
 		7B1C769C2B0C8705008E161D /* Screens */ = {
 			isa = PBXGroup;
 			children = (
-				7B1C768D2B0C7C24008E161D /* AuthenticationScreen.swift */,
+				7B83BEA22B282E08000F37C0 /* Runs */,
+				7B83BE9C2B27DC53000F37C0 /* Chats */,
+				7B83BE9B2B27DC3B000F37C0 /* Authentication */,
+				7B83BE9A2B27DC2B000F37C0 /* Audio */,
 				7B1C76902B0C7DCF008E161D /* SideMenuScreen.swift */,
 				7B1C769A2B0C8702008E161D /* AssistantConfigurationScreen.swift */,
-				7B1C76A52B0C8B85008E161D /* ThreadScreen.swift */,
 				7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */,
-				7B8973BE2B20661000908753 /* AudioSpeechScreen.swift */,
-				7B83BE982B2462EE000F37C0 /* CreateAssistantChatScreen.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -289,6 +297,8 @@
 				7BC197892B1E91CD0083ACB3 /* AttachmentView.swift */,
 				7BC1978B2B1EE9CA0083ACB3 /* FilesPicker.swift */,
 				7B7A12B82B2309FF00999925 /* CustomTextField.swift */,
+				7B83BE9E2B27DCAE000F37C0 /* CircleBouncingView.swift */,
+				7B83BEA02B27DCE8000F37C0 /* BouncingCircleView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -317,6 +327,7 @@
 			children = (
 				7B3B8BA42B21962F00ABE6D7 /* AudioWave */,
 				7B1C76BB2B0DCB4A008E161D /* UserDefaultsIDStorage.swift */,
+				7B83BEA52B283820000F37C0 /* RunStepObject+Extension.swift */,
 				7B1C76BF2B0EBD34008E161D /* View+Extensions.swift */,
 				7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */,
 				7B9DB5992B218A1A00610D63 /* Binding+Extension.swift */,
@@ -351,29 +362,46 @@
 			path = Assistants;
 			sourceTree = "<group>";
 		};
-		7B7A12BB2B23CD7B00999925 /* Chat */ = {
+		7B83BE9A2B27DC2B000F37C0 /* Audio */ = {
 			isa = PBXGroup;
 			children = (
-				7B7A12BF2B23CEBE00999925 /* Screens */,
-				7B7A12BE2B23CEB700999925 /* Providers */,
+				7B8973BE2B20661000908753 /* AudioSpeechScreen.swift */,
 			);
-			path = Chat;
+			path = Audio;
 			sourceTree = "<group>";
 		};
-		7B7A12BE2B23CEB700999925 /* Providers */ = {
+		7B83BE9B2B27DC3B000F37C0 /* Authentication */ = {
+			isa = PBXGroup;
+			children = (
+				7B1C768D2B0C7C24008E161D /* AuthenticationScreen.swift */,
+			);
+			path = Authentication;
+			sourceTree = "<group>";
+		};
+		7B83BE9C2B27DC53000F37C0 /* Chats */ = {
+			isa = PBXGroup;
+			children = (
+				7B7A12C02B23CECA00999925 /* ChatScreen.swift */,
+				7B83BE982B2462EE000F37C0 /* CreateAssistantChatScreen.swift */,
+				7B1C76A52B0C8B85008E161D /* ThreadScreen.swift */,
+			);
+			path = Chats;
+			sourceTree = "<group>";
+		};
+		7B83BE9D2B27DC7B000F37C0 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
 				7B7A12BC2B23CE1B00999925 /* ChatProvider.swift */,
 			);
-			path = Providers;
+			path = Chat;
 			sourceTree = "<group>";
 		};
-		7B7A12BF2B23CEBE00999925 /* Screens */ = {
+		7B83BEA22B282E08000F37C0 /* Runs */ = {
 			isa = PBXGroup;
 			children = (
-				7B7A12C02B23CECA00999925 /* ChatScreen.swift */,
+				7B83BEA32B282E17000F37C0 /* RunDetailsScreen.swift */,
 			);
-			path = Screens;
+			path = Runs;
 			sourceTree = "<group>";
 		};
 		7B8973B42B2063C400908753 /* Chat */ = {
@@ -570,6 +598,7 @@
 				7B1C76842B0C7B98008E161D /* Sizes.swift in Sources */,
 				7B7A12C12B23CECA00999925 /* ChatScreen.swift in Sources */,
 				7B1C76A82B0C948E008E161D /* ActionButton.swift in Sources */,
+				7B83BEA42B282E17000F37C0 /* RunDetailsScreen.swift in Sources */,
 				7B1C76CB2B13395A008E161D /* ContentViewScreen.swift in Sources */,
 				7B1C76A42B0C87D2008E161D /* InputHeaderView.swift in Sources */,
 				7B1C76962B0C7FBA008E161D /* ImageRow.swift in Sources */,
@@ -597,8 +626,11 @@
 				7B1C768E2B0C7C24008E161D /* AuthenticationScreen.swift in Sources */,
 				7B1C76862B0C7BA5008E161D /* ThemeColor.swift in Sources */,
 				7BC1978A2B1E91CD0083ACB3 /* AttachmentView.swift in Sources */,
+				7B83BEA62B283820000F37C0 /* RunStepObject+Extension.swift in Sources */,
 				7B1C76AC2B0D7090008E161D /* MessagesProvider.swift in Sources */,
 				7B1C76B52B0D77E2008E161D /* ChatMessageDisplayModel.swift in Sources */,
+				7B83BEA12B27DCE8000F37C0 /* BouncingCircleView.swift in Sources */,
+				7B83BE9F2B27DCAE000F37C0 /* CircleBouncingView.swift in Sources */,
 				7BC197842B1B22600083ACB3 /* LoadingDotsView.swift in Sources */,
 				7B1C769E2B0C8746008E161D /* CheckboxView.swift in Sources */,
 				7B8973BF2B20661000908753 /* AudioSpeechScreen.swift in Sources */,
