@@ -371,21 +371,36 @@ struct ThreadScreen: View {
       guard let run = try await runsProvider.runTheThread(threadID: threadID, parameters: RunParameter(assistantID: assistantID))
       else { return }
       
-      guard let lastRunStep = try await runsProvider.getLastRunStep(threadID: threadID, runID: run.id)
-      else { return }
+      let lastRunSteps = try await runsProvider.getLastRunSteps(threadID: threadID, runID: run.id)
       
-      // TODO: Explore how to add the code interpreter content as well (next!)
-      let assistantMessage = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: lastRunStep.stepDetails.messageCreation!.messageID)!
-      
-      if let assistantMessageDisplayModel = messagesProvider.createMessageDisplayModel(
-         from: assistantMessage,
-         assistantName: assistantName,
-         runID: run.id,
-         threadID: threadID) {
-         await messagesProvider.addMessage(assistantMessageDisplayModel)
+      if let lastToolCallStep = lastRunSteps.toolCallsStep {
+         
+         for toolCall in lastToolCallStep.stepDetails.toolCalls ?? [] {
+            switch toolCall.toolCall {
+            case .codeInterpreterToolCall(let codeInterpreterToolCall):
+               let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.codeInterpreter(codeInterpreterToolCall)
+               let displayMessage = ChatMessageDisplayModel(
+                  content: displayToolCallContent,
+                  origin: .received(.asssistant(.codeInterpreter)))
+               await messagesProvider.addMessage(displayMessage)
+            default: break // TODO: test this when payload examples are available
+            }
+         }
+      }
+      if let lastMessageCreationStep = lastRunSteps.messageCreationStep {
+         
+         let assistantMessage = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: lastMessageCreationStep.stepDetails.messageCreation!.messageID)!
+         
+         if let assistantMessageDisplayModel = messagesProvider.createMessageDisplayModel(
+            from: assistantMessage,
+            assistantName: assistantName,
+            runID: run.id,
+            threadID: threadID) {
+            await messagesProvider.addMessage(assistantMessageDisplayModel)
+         }
       }
    }
-   
+
    private let service: OpenAIService
    @Binding private var item: SideMenuItem
    @State private var navigationProvider: NavigationProvider

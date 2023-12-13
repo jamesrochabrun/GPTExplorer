@@ -36,13 +36,15 @@ struct ChatMessageRow: View {
                headerWith("person.circle", title: "USER")
             case .assistant(let assistantName):
                headerWith("wand.and.stars", title: assistantName)
+            case .codeInterpreter:
+               EmptyView()
             }
          }
       case .sent:
          headerWith("person.circle", title: "USER")
       }
    }
-
+   
    var body: some View {
       VStack(alignment: .leading, spacing: 8) {
          header
@@ -54,6 +56,23 @@ struct ChatMessageRow: View {
                   chatMessageViewWith(mediaType.text)
                }
                .transition(.opacity)
+            case .codeInterpreter(let codeInterpreter):
+               VStack(alignment: .leading) {
+                  Text("code_interpreter").bold().font(.body) + Text("(\(codeInterpreter.input))").font(.callout)
+                  ForEach(codeInterpreter.outputs.indices, id: \.self) { index in
+                     let output = codeInterpreter.outputs[index]
+                     switch output {
+                     case .logs(let output):
+                        HStack {
+                           Image(systemName: "arrow.turn.down.right")
+                              .foregroundColor(.primary)
+                           chatMessageViewWith(output.logs)
+                        }
+                     case .images:
+                        EmptyView()
+                     }
+                  }
+               }
             case .error(let error):
                Text(error)
                   .padding()

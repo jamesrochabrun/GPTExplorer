@@ -313,9 +313,13 @@ enum FunctionCallDefinition: String, CaseIterable {
             lastMessage.content = .content(updatedMedia)
          case .error:
             break
+         case .codeInterpreter:
+            break // There is not code interpreter in this context
          }
       case .error:
          lastMessage.content = message.content
+      case .codeInterpreter:
+         break // There is not code interpreter in this context
       }
       
       chatDisplayMessages[index] = ChatMessageDisplayModel(

@@ -32,11 +32,14 @@ struct ChatMessageDisplayModel: Identifiable {
    enum DisplayContent: Equatable {
 
       case content(DisplayMessageType)
+      case codeInterpreter(CodeInterpreterToolCall)
       case error(String)
 
       static func ==(lhs: DisplayContent, rhs: DisplayContent) -> Bool {
          switch (lhs, rhs) {
          case let (.content(a), .content(b)):
+             return a == b
+         case let (.codeInterpreter(a), .codeInterpreter(b)):
              return a == b
          case let (.error(a), .error(b)):
             return a == b
@@ -76,6 +79,7 @@ struct ChatMessageDisplayModel: Identifiable {
          enum Assistant {
             case user
             case assistant(String)
+            case codeInterpreter
          }
       }
    }

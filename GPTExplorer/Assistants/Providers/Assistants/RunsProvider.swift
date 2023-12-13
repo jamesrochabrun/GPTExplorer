@@ -36,72 +36,83 @@ import SwiftOpenAI
       }
    }
    
-   func getLastRunStep(
-      threadID: String,
-      runID: String)
-      async throws -> RunStepObject?
-   {
-      do {
-         let timeoutDuration = 30_000_000_000 // 30 seconds in nanoseconds
-         var runStepObject: RunStepObject? = nil
-         
-         try await withThrowingTaskGroup(of: RunStepObject?.self) { group in
-            // Polling task
-            group.addTask { [weak self] in
-               return try await self?.pollForCompletionLatRun(threadID: threadID, runID: runID)
-            }
-            
-            // Timeout task
-            group.addTask {
-               try await Task.sleep(nanoseconds: UInt64(timeoutDuration))
-               throw APIError.timeOutError
-            }
-            
-            // Wait for the first task to complete
-            for try await result in group {
-               if let result = result {
-                  runStepObject = result
+   func getLastRunSteps(
+       threadID: String,
+       runID: String
+   ) async throws -> (messageCreationStep: RunStepObject?, toolCallsStep: RunStepObject?) {
+       do {
+           let timeoutDuration = 30_000_000_000 // 30 seconds in nanoseconds
+           var runStepObjects: (messageCreationStep: RunStepObject?, toolCallsStep: RunStepObject?) = (nil, nil)
+           
+           try await withThrowingTaskGroup(of: (RunStepObject?, RunStepObject?).self) { group in
+               // Polling task
+               group.addTask { [weak self] in
+                  return try await self?.pollForCompletionLastRuns(threadID: threadID, runID: runID) ?? (nil, nil)
+               }
+               
+               // Timeout task
+               group.addTask {
+                   try await Task.sleep(nanoseconds: UInt64(timeoutDuration))
+                   throw APIError.timeOutError
+               }
+               
+               // Wait for the first task to complete
+               for try await result in group {
+                  runStepObjects = result
                   break
                }
-            }
-            
-            // Cancel any remaining tasks (either the polling task or the timeout task)
-            group.cancelAll()
-         }
-         
-         return runStepObject
-      } catch let error as APIError {
-         errorMessage = error.displayDescription
-         return nil
-      }
+               
+               // Cancel any remaining tasks (either the polling task or the timeout task)
+               group.cancelAll()
+           }
+           
+           return runStepObjects
+       } catch let error as APIError {
+           errorMessage = error.displayDescription
+           return (nil, nil)
+       }
    }
-   
-   private func pollForCompletionLatRun(
-      threadID: String,
-      runID: String)
-      async throws -> RunStepObject?
+
+   private func pollForCompletionLastRuns(
+       threadID: String,
+       runID: String)
+       async throws -> (messageCreationStep: RunStepObject?, toolCallsStep: RunStepObject?)
    {
-      var isCompleted = false
-      var lastStep: RunStepObject? = nil
-      let maxRetries = 10  // Maximum number of retries
-      var currentRetryCount = 0
-      
-      while !isCompleted && currentRetryCount < maxRetries {
-         // Check for task cancellation
-         if Task.isCancelled {
-            break  // Exit the loop if the task has been cancelled
-         }
-         
-         let data = try await service.listRunSteps(threadID: threadID, runID: runID, limit: nil, order: nil, after: nil, before: nil)
-         if let firstStep = data.data.first, let status = RunStepObject.Status(rawValue: firstStep.status), status != .inProgress {
-            isCompleted = true
-            lastStep = firstStep
-         } else {
-            try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second delay
-            currentRetryCount += 1
-         }
-      }
-      return lastStep
+       var lastMessageCreationStep: RunStepObject? = nil
+       var lastToolCallsStep: RunStepObject? = nil
+       let maxRetries = 10
+       var currentRetryCount = 0
+       
+       while currentRetryCount < maxRetries {
+           if Task.isCancelled {
+               break
+           }
+           
+           let data = try await service.listRunSteps(threadID: threadID, runID: runID, limit: nil, order: nil, after: nil, before: nil)
+           for step in data.data {
+               if let status = RunStepObject.Status(rawValue: step.status), status != .inProgress {
+                   switch step.stepDetails.type {
+                   case "message_creation":
+                       lastMessageCreationStep = step
+                   case "tool_calls":
+                       if let toolCalls = step.stepDetails.toolCalls,
+                          toolCalls.contains(where: { $0.type == "code_interpreter" && !($0.toolCall.codeInterpreter?.outputs.isEmpty ?? true) }) {
+                           lastToolCallsStep = step
+                       }
+                   default:
+                       break
+                   }
+               }
+           }
+           
+           if lastMessageCreationStep != nil && lastToolCallsStep != nil {
+               break  // Exit loop if both step types are found
+           }
+           
+           try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second delay
+           currentRetryCount += 1
+       }
+       return (lastMessageCreationStep, lastToolCallsStep)
    }
 
    func getRunSteps(
