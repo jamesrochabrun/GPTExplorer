@@ -136,10 +136,9 @@ struct ThreadScreen: View {
          threadContent
          if showAudioSpeech == true {
             AudioSpeechScreen(audioProvider: .init(service: provider.service, responseModel: .custom(currentAssistant!.model)), showScreen: $showAudioSpeech.orFalse)
-               .transition(.opacity) // Fade transition
          }
       }
-      .animation(.linear, value: showAudioSpeech) // Smooth fade animation
+      .animation(.easeInOut, value: showAudioSpeech) // Smooth fade animation
       .sensoryFeedback(.impact, trigger: showAudioSpeech)
    }
    

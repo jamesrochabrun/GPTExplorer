@@ -25,14 +25,18 @@ struct ChatScreen: View {
                      service: service,
                      responseModel: .custom(currentModel)),
                   showScreen: $showAudioSpeech.orFalse)
-                  .transition(.opacity) // Fade transition
             }
          }
-         .animation(.linear, value: showAudioSpeech) // Smooth fade animation
+         .animation(.easeInOut, value: showAudioSpeech) // Smooth fade animation
          .sensoryFeedback(.impact, trigger: showAudioSpeech)
       }
       .sheet(isPresented: $showModelsPicker) {
-         ModelsListView(service: service, selectedModel: $currentModel)
+         ModelsListScreen(service: service, selectedModel: $currentModel)
+            .presentationDetents([.medium, .large, .fraction(0.75), .height(200)], selection: $modelsPickerDetent)
+            .presentationContentInteraction(.scrolls)
+      }
+      .sheet(isPresented: $showParametersPicker) {
+         ChatParametersEditScreen(parameters: $chatCompletionParameters)
             .presentationDetents([.medium, .large, .fraction(0.75), .height(200)], selection: $modelsPickerDetent)
             .presentationContentInteraction(.scrolls)
       }
@@ -50,9 +54,10 @@ struct ChatScreen: View {
          .frame(maxWidth: .infinity)
          .actionButtonStyle(.plainTrailing)
          Spacer()
-         IconButton(iconName: "list.bullet") {}
-            .opacity(0)
-            .accessibilityHidden(true)
+         IconButton(iconName: "slider.vertical.3") {
+            showParametersPicker = true
+         }
+         .iconButtonStyle(.plain)
       }
       .padding(.horizontal)
    }
@@ -136,6 +141,7 @@ struct ChatScreen: View {
    @State private var selectedModel: Model = .gpt35Turbo1106
    @State private var showAudioSpeech: Bool? = false
    @State private var showModelsPicker = false
+   @State private var showParametersPicker = false
    @State private var modelsPickerDetent = PresentationDetent.medium
    @State private var currentModel = Model.gpt41106Preview.value
 }

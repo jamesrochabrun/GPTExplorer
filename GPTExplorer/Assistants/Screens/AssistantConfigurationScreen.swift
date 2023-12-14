@@ -192,7 +192,7 @@ struct AssistantConfigurationScreen: View {
          }
       }
       .sheet(isPresented: $showModelsPicker) {
-         ModelsListView(service: service, selectedModel: $parameters.model.orEmpty)
+         ModelsListScreen(service: service, selectedModel: $parameters.model.orEmpty)
             .presentationDetents([.medium, .large, .fraction(0.75), .height(200)], selection: $modelsPickerDetent)
             .presentationContentInteraction(.scrolls)
       }

@@ -20,10 +20,19 @@ struct InputHeaderView<Content: View>: View {
    }
    
    var body: some View {
-      VStack(alignment: .leading, spacing: style.verticalPadding) {
+      let mainContent = VStack(alignment: .leading, spacing: style.verticalPadding) {
          Text(title)
             .font(.headline)
          content
+      }
+      if style.isCard {
+         mainContent
+            .padding()
+            .background(RoundedRectangle(cornerRadius: 10)
+               .fill(Color(.systemBackground))
+                            .shadow(radius: 4))
+      } else {
+         mainContent
       }
    }
    
@@ -36,7 +45,17 @@ struct InputHeaderView<Content: View>: View {
 struct InputHeaderViewStyle {
    
    var verticalPadding: CGFloat = 10.0
+   var isCard: Bool = false
 
+}
+
+extension InputHeaderViewStyle {
+   
+   static var card: Self {
+      var style = InputHeaderViewStyle()
+      style.isCard = true
+      return style
+   }
 }
 
 // MARK: Environment

@@ -15,7 +15,7 @@ struct GroupedModels {
    let models: [ModelObject]
 }
 
-struct ModelsListView: View {
+struct ModelsListScreen: View {
    
    let service: OpenAIService
    @Binding var selectedModel: String

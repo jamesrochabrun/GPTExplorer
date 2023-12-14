@@ -44,6 +44,7 @@ struct AuthenticationScreen: View {
                VStack {
                   Spacer()
                   Text("GPT-Explorer")
+                     .shadow(radius: 16)
                      .foregroundColor(.white)
                      .font(.largeTitle)
                      .bold()
@@ -67,7 +68,7 @@ struct AuthenticationScreen: View {
                         .foregroundColor(apiKey.isEmpty ? ThemeColor.actionForegroundDisabled : .white)
                         .background(
                            Capsule()
-                              .foregroundColor(apiKey.isEmpty ? ThemeColor.actionBackgroundDisabled : ThemeColor.brandColor))
+                              .foregroundColor(apiKey.isEmpty ? ThemeColor.actionBackgroundDisabled : ThemeColor.brandSecondaryColor))
                   }
                   .disabled(apiKey.isEmpty)
                   Spacer()
