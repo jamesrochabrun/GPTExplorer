@@ -12,6 +12,7 @@ import SwiftUI
 @Observable final class AudioSpeechProvider: NSObject {
    
    private let service: OpenAIService
+   private var responseModel: Model = .gpt41106Preview
    private var audioPlayer: AVAudioPlayer!
    private var audioRecorder: AVAudioRecorder!
 #if !os(macOS)
@@ -30,8 +31,12 @@ import SwiftUI
          .first!.appendingPathComponent("recording.m4a")
    }
    
-   init(service: OpenAIService) {
+   init(
+      service: OpenAIService,
+      responseModel: Model)
+   {
       self.service = service
+      self.responseModel = responseModel
       super.init()
 #if !os(macOS)
       do {
@@ -135,7 +140,7 @@ import SwiftUI
             let prompt = try await service.createTranscription(parameters: .init(fileName: "recording.m4a", file: audioData)).text
             
             try Task.checkCancellation()
-            let responseText = try await service.startChat(parameters: .init(messages: [.init(role: .user, content: .text(prompt))], model: .gpt41106Preview)).choices.first?.message.content ?? ""
+            let responseText = try await service.startChat(parameters: .init(messages: [.init(role: .user, content: .text(prompt))], model: responseModel)).choices.first?.message.content ?? ""
             
             try Task.checkCancellation()
             let speech = try await service.createSpeech(parameters: .init(model: .tts1, input: responseText, voice: .alloy))

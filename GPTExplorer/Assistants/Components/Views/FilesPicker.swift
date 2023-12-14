@@ -11,7 +11,6 @@ import SwiftOpenAI
 
 enum FilePickerAction: Identifiable, Equatable {
    
-   
    case request(FileParameters)
    case retrieveAndDisplay(id: String)
    

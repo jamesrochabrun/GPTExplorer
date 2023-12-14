@@ -120,7 +120,11 @@ struct ThreadScreen: View {
          }
       }
       .sheet(isPresented: $showAssistantConfigurationModal) {
-         AssistantConfigurationScreen(currentAssistant: $currentAssistant, assistantID: currentThread?.assistantID, provider: provider, service: service)
+         AssistantConfigurationScreen(
+            currentAssistant: $currentAssistant,
+            assistantID: currentThread?.assistantID,
+            provider: provider,
+            service: service)
       }
       .sheet(item: $runMetadata) { runMetadata in
          RunDetailsScreen(runsProvider: runsProvider, runMetadata: runMetadata)
@@ -131,7 +135,7 @@ struct ThreadScreen: View {
       ZStack {
          threadContent
          if showAudioSpeech == true {
-            AudioSpeechScreen(audioProvider: .init(service: provider.service), showScreen: $showAudioSpeech.orFalse)
+            AudioSpeechScreen(audioProvider: .init(service: provider.service, responseModel: .custom(currentAssistant!.model)), showScreen: $showAudioSpeech.orFalse)
                .transition(.opacity) // Fade transition
          }
       }

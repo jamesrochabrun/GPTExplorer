@@ -66,6 +66,7 @@
 		7BC1978C2B1EE9CA0083ACB3 /* FilesPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC1978B2B1EE9CA0083ACB3 /* FilesPicker.swift */; };
 		7BE370752B292D37005E7D51 /* RunStepToolCall+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE370742B292D37005E7D51 /* RunStepToolCall+Extension.swift */; };
 		7BE370772B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE370762B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift */; };
+		7BE370792B29838B005E7D51 /* ModelsPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE370782B29838B005E7D51 /* ModelsPicker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -148,6 +149,7 @@
 		7BC1978B2B1EE9CA0083ACB3 /* FilesPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesPicker.swift; sourceTree = "<group>"; };
 		7BE370742B292D37005E7D51 /* RunStepToolCall+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RunStepToolCall+Extension.swift"; sourceTree = "<group>"; };
 		7BE370762B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodeInterpreterToolCall+Extension.swift"; sourceTree = "<group>"; };
+		7BE370782B29838B005E7D51 /* ModelsPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsPicker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -303,6 +305,7 @@
 				7B7A12B82B2309FF00999925 /* CustomTextField.swift */,
 				7B83BE9E2B27DCAE000F37C0 /* CircleBouncingView.swift */,
 				7B83BEA02B27DCE8000F37C0 /* BouncingCircleView.swift */,
+				7BE370782B29838B005E7D51 /* ModelsPicker.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -647,6 +650,7 @@
 				7B1C76C92B11F188008E161D /* RunsProvider.swift in Sources */,
 				7BC197862B1E77200083ACB3 /* FilesProvider.swift in Sources */,
 				7B1C76BE2B0DDB0E008E161D /* ThreadTextArea.swift in Sources */,
+				7BE370792B29838B005E7D51 /* ModelsPicker.swift in Sources */,
 				7B7A12B92B2309FF00999925 /* CustomTextField.swift in Sources */,
 				7B1C76982B0C7FFA008E161D /* Padding.swift in Sources */,
 			);

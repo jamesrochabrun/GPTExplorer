@@ -61,6 +61,7 @@ struct AssistantConfigurationScreen: View {
       ScrollView {
          VStack(spacing: Sizes.spacingExtraLarge) {
             titleHeader
+            modelsPicker
             avatarView
             inputViews
             knowledge
@@ -108,7 +109,10 @@ struct AssistantConfigurationScreen: View {
       ZStack {
          mainContent
          if showAudioSpeech == true {
-            AudioSpeechScreen(audioProvider: .init(service: provider.service), showScreen: $showAudioSpeech.orFalse)
+            // TODO: Avoid force unwrap!
+            AudioSpeechScreen(
+               audioProvider: .init(service: provider.service, responseModel: .custom(parameters.model!)),
+               showScreen: $showAudioSpeech.orFalse)
                .transition(.opacity) // Fade transition
          }
       }
@@ -187,6 +191,11 @@ struct AssistantConfigurationScreen: View {
             EmptyView()
          }
       }
+      .sheet(isPresented: $showModelsPicker) {
+         ModelsListView(service: service, selectedModel: $parameters.model.orEmpty)
+            .presentationDetents([.medium, .large, .fraction(0.75), .height(200)], selection: $modelsPickerDetent)
+            .presentationContentInteraction(.scrolls)
+      }
       .alert("Are you sure you want to delete this Assistant?", isPresented: $showDeleteAssistantAlert) {
          Button("Yes", role: .destructive) {
             Task {
@@ -205,7 +214,7 @@ struct AssistantConfigurationScreen: View {
       let assistantResponse = try await provider.retrieveAssistant(id: id)
       currentAssistant = assistantResponse.item
       
-      if let parameters = assistantResponse.item?.assistantParameters(currentModel.rawValue) {
+      if let parameters = assistantResponse.item?.assistantParameters() {
          self.parameters = parameters
          if let fileIDS = parameters.fileIDS {
             filePickerInitialActions = fileIDS.map { .retrieveAndDisplay(id: $0) }
@@ -262,7 +271,7 @@ struct AssistantConfigurationScreen: View {
             )
       }
       else if let avatarURL = avatarURL {
-         Menu.init(content: {
+         Menu {
             Button {
                Task {
                   isAvatarLoading = true
@@ -273,11 +282,11 @@ struct AssistantConfigurationScreen: View {
             }  label: {
                Text("Use DALL·E")
             }
-         }, label: {
+         } label: {
             URLImageView(url: avatarURL)
-         })
+         }
       } else {
-         Menu.init(content: {
+         Menu {
             Button {
                Task {
                   isAvatarLoading = true
@@ -288,7 +297,7 @@ struct AssistantConfigurationScreen: View {
             }  label: {
                Text("Use DALL·E")
             }
-         }, label: {
+         } label: {
             Circle()
                .stroke(.gray, style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
                .frame(width: 100, height: 100)
@@ -298,7 +307,7 @@ struct AssistantConfigurationScreen: View {
                      .frame(width: 20, height: 20)
                      .tint(.gray)
                )
-         })
+         }
       }
    }
    
@@ -383,6 +392,13 @@ struct AssistantConfigurationScreen: View {
       }
       .inputViewStyle(.init(verticalPadding: Sizes.spacingExtraLarge))
    }
+   
+   var modelsPicker: some View {
+      ActionButton(parameters.model ?? "Select Model", actionIcon: .init(systemName: "chevron.right")) {
+         showModelsPicker = true
+      }
+      .actionButtonStyle(.plainTrailing)
+   }
       
    // MARK: Private
    
@@ -390,10 +406,8 @@ struct AssistantConfigurationScreen: View {
    private let assistantID: String?
    private let chatProvider: ChatProvider
    @Binding private var currentAssistant: AssistantObject?
-   
    @State private var provider: SideMenuConfigurationProvider
-   @State private var parameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.rawValue))
-   @State private var currentModel = Model.gpt41106Preview
+   @State private var parameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.value))
    @State private var isAvatarLoading = false
    @Environment(\.presentationMode) private var presentationMode
    @State private var showDeleteAssistantAlert = false
@@ -404,6 +418,9 @@ struct AssistantConfigurationScreen: View {
    @State private var navigationProvider: NavigationProvider
    @State private var selectedSegment: Configuration = .create
    @State private var showAudioSpeech: Bool? = false
+   @State private var showModelsPicker = false
+   @State private var modelsPickerDetent = PresentationDetent.medium
+
    @Environment (\.colorScheme) var colorScheme
                    
    /// Files management

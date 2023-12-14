@@ -20,13 +20,41 @@ struct ChatScreen: View {
          ZStack {
             mainContent
             if showAudioSpeech == true {
-               AudioSpeechScreen(audioProvider: .init(service: service), showScreen: $showAudioSpeech.orFalse)
+               AudioSpeechScreen(
+                  audioProvider: .init(
+                     service: service,
+                     responseModel: .custom(currentModel)),
+                  showScreen: $showAudioSpeech.orFalse)
                   .transition(.opacity) // Fade transition
             }
          }
          .animation(.linear, value: showAudioSpeech) // Smooth fade animation
          .sensoryFeedback(.impact, trigger: showAudioSpeech)
       }
+      .sheet(isPresented: $showModelsPicker) {
+         ModelsListView(service: service, selectedModel: $currentModel)
+            .presentationDetents([.medium, .large, .fraction(0.75), .height(200)], selection: $modelsPickerDetent)
+            .presentationContentInteraction(.scrolls)
+      }
+   }
+   
+   var headerView: some View {
+      HStack(spacing: 0) {
+         IconButton(iconName: "list.bullet") {}
+            .opacity(0)
+            .accessibilityHidden(true)
+         Spacer()
+         ActionButton(currentModel, actionIcon: .init(systemName: "chevron.right")) {
+            showModelsPicker = true
+         }
+         .frame(maxWidth: .infinity)
+         .actionButtonStyle(.plainTrailing)
+         Spacer()
+         IconButton(iconName: "list.bullet") {}
+            .opacity(0)
+            .accessibilityHidden(true)
+      }
+      .padding(.horizontal)
    }
    
    var inputView: some View {
@@ -47,7 +75,7 @@ struct ChatScreen: View {
                
                let isVision = !selectedImageURLS.isEmpty
 
-               chatCompletionParameters.model = isVision ? Model.gpt4VisionPreview.rawValue : chatCompletionParameters.model
+               chatCompletionParameters.model = isVision ? Model.gpt4VisionPreview.value : currentModel
                chatCompletionParameters.toolChoice = isVision ? nil : chatCompletionParameters.toolChoice
                chatCompletionParameters.tools = isVision ? nil : chatCompletionParameters.tools
                chatCompletionParameters.maxTokens = isVision ? 300 : chatCompletionParameters.maxTokens
@@ -71,6 +99,7 @@ struct ChatScreen: View {
    private var mainContent: some View {
       ScrollViewReader { proxy in
          VStack {
+            headerView
             List(chatProvider.chatDisplayMessages) { message in
                ChatMessageRow(message: message)
                   .listRowSeparator(.hidden)
@@ -88,10 +117,10 @@ struct ChatScreen: View {
    }
    
    /// Called when the user taps on the send button. Clears the selected images and prompt.
-    private func resetImageInputs() {
-       selectedImages = []
-       selectedImageURLS = []
-    }
+   private func resetImageInputs() {
+      selectedImages = []
+      selectedImageURLS = []
+   }
    
    private let service: OpenAIService
    @State private var isLoading = false
@@ -106,6 +135,9 @@ struct ChatScreen: View {
       tools: [FunctionCallDefinition.createImage.functionTool])
    @State private var selectedModel: Model = .gpt35Turbo1106
    @State private var showAudioSpeech: Bool? = false
+   @State private var showModelsPicker = false
+   @State private var modelsPickerDetent = PresentationDetent.medium
+   @State private var currentModel = Model.gpt41106Preview.value
 }
 
 

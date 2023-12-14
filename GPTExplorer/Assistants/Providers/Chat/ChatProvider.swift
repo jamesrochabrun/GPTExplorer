@@ -76,7 +76,7 @@ enum FunctionCallDefinition: String, CaseIterable {
    /// To be used for UI purposes.
    var chatDisplayMessages: [ChatMessageDisplayModel] = []
    /// The updates assistant parameters
-   var assistantParameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.rawValue))
+   var assistantParameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.value))
    var assistantURL: URL?
    
    // MARK: - Initializer
@@ -397,7 +397,7 @@ extension ChatProvider {
       let avatarDescription = dictionary["avatar_description"] as? String
       
       var assistantParameters = AssistantParameters(
-         action: .create(model: Model.gpt41106Preview.rawValue),
+         action: .create(model: Model.gpt41106Preview.value),
          name: name,
          description: description,
          instructions: instructions)

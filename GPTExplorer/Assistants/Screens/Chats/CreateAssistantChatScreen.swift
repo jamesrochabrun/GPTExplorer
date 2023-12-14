@@ -64,7 +64,7 @@ struct CreateAssistantChatScreen: View {
                      
                      let isVision = !selectedImageURLS.isEmpty
 
-                     chatCompletionParameters.model = isVision ? Model.gpt4VisionPreview.rawValue : chatCompletionParameters.model
+                     chatCompletionParameters.model = isVision ? Model.gpt4VisionPreview.value : chatCompletionParameters.model
                      chatCompletionParameters.toolChoice = isVision ? nil : chatCompletionParameters.toolChoice
                      chatCompletionParameters.tools = isVision ? nil : chatCompletionParameters.tools
                      chatCompletionParameters.maxTokens = isVision ? 300 : chatCompletionParameters.maxTokens

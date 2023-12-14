@@ -289,20 +289,6 @@ enum SideMenuItem: Identifiable, Equatable {
       }
    }
    
-   // Edition asssistant Purposes
-   func retrieveAssistantParameters(
-      id: String,
-      model: String?)
-      async throws -> ResultItem<AssistantParameters>
-   {
-      do {
-         let assistantParameters = try await service.retrieveAssistant(id: id).assistantParameters(model)
-         return .init(item: assistantParameters, state: nil)
-      } catch let error as APIError  {
-         return .init(item: nil, state: .asssitantRetrievedError(id: id, message: error.displayDescription))
-      }
-   }
-   
    func retrieveAssistant(
       id: String)
       async throws -> ResultItem<AssistantObject>

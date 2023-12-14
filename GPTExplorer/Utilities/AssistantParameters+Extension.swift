@@ -58,11 +58,11 @@ extension AssistantParameters: Equatable {
 
 extension AssistantObject {
    
-   func assistantParameters(_ model: String?)
+   func assistantParameters()
       -> AssistantParameters
    {
       .init(
-         action: .modify(model: model),
+         action: .create(model: model),
          name: name,
          description: description,
          instructions: instructions,

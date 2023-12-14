@@ -126,45 +126,49 @@ struct AudioSpeechScreen: View {
    }
 }
 
+private extension AudioSpeechProvider {
+   static let mock = AudioSpeechProvider(service: OpenAIServiceFactory.service(apiKey: ""), responseModel: .gpt35Turbo1106)
+}
+
 #Preview("Idle") {
-   let provider = AudioSpeechProvider(service: OpenAIServiceFactory.service(apiKey: ""))
+   let provider = AudioSpeechProvider.mock
    provider.state = .idle
    return AudioSpeechScreen(audioProvider: provider, showScreen: .constant(false))
 }
 
 #Preview("Initial") {
-   let provider = AudioSpeechProvider(service: OpenAIServiceFactory.service(apiKey: ""))
+   let provider = AudioSpeechProvider.mock
    provider.state = .initial
    return AudioSpeechScreen(audioProvider: provider, showScreen: .constant(false))
 }
 
 #Preview("Recording") {
-   let provider = AudioSpeechProvider(service: OpenAIServiceFactory.service(apiKey: ""))
+   let provider = AudioSpeechProvider.mock
    provider.state = .recording
    provider.amplitude = 0.2
    return AudioSpeechScreen(audioProvider: provider, showScreen: .constant(false))
 }
 
 #Preview("Paused Cancel") {
-   let provider = AudioSpeechProvider(service: OpenAIServiceFactory.service(apiKey: ""))
+   let provider = AudioSpeechProvider.mock
    provider.state = .pausedCancel
    return AudioSpeechScreen(audioProvider: provider, showScreen: .constant(false))
 }
 
 #Preview("Processing  Speech") {
-   let provider = AudioSpeechProvider(service: OpenAIServiceFactory.service(apiKey: ""))
+   let provider = AudioSpeechProvider.mock
    provider.state = .processingSpeech
    return AudioSpeechScreen(audioProvider: provider, showScreen: .constant(false))
 }
 
 #Preview("Playing  Speech") {
-   let provider = AudioSpeechProvider(service: OpenAIServiceFactory.service(apiKey: ""))
+   let provider = AudioSpeechProvider.mock
    provider.state = .playingSpeech
    return AudioSpeechScreen(audioProvider: provider, showScreen: .constant(false))
 }
 
 #Preview("Error") {
-   let provider = AudioSpeechProvider(service: OpenAIServiceFactory.service(apiKey: ""))
+   let provider = AudioSpeechProvider.mock
    provider.state = .error(.configurationError)
    return AudioSpeechScreen(audioProvider: provider, showScreen: .constant(false))
 }
