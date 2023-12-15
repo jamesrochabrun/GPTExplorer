@@ -149,8 +149,9 @@ struct AudioWaveView: View {
    init() {
       
       self.power = 0.0
-      self.lightModeColors = [ThemeColor.brandSecondaryColor]
-      self.darkModeColors = [.primary]
+      let colors = [Color(hex: "4B99EE"), Color(hex: "D361DF"), Color(hex: "1CD0B4"), Color(hex: "F9FFFE")].map { $0.opacity(0.8) }
+      self.darkModeColors = colors
+      self.lightModeColors = colors
 //         ThemeColor.brandSecondaryColor
 //         // Red
 //         Color(red: (173 / 255), green: (57 / 255), blue: (76 / 255)),

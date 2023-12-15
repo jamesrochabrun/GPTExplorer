@@ -42,7 +42,7 @@ struct ThreadTextArea: View {
          textField
          files
          actions
-            .fixedSize(horizontal: true, vertical: false)
+           // .fixedSize(horizontal: true, vertical: false)
       }
       .padding(.vertical, Sizes.spacingExtraLarge)
       .padding(.horizontal, Sizes.spacingExtraLarge)
@@ -61,27 +61,45 @@ struct ThreadTextArea: View {
          axis: .vertical)
    }
    
+   var filesButton: some View {
+      IconButton(iconName: "paperclip") {
+      }
+      .iconButtonStyle(.tertiary)
+   }
+   
+   var addMessageButton: some View {
+      IconButton(iconName: "plus", isLoading: $isAddMessageActionLoading) {
+         addMessageAction()
+      }
+      .iconButtonStyle(.tertiary)
+      .disabled(prompt.isEmpty)
+   }
+   
+   var runMessageButton: some View {
+      ActionButton("Run", actionIcon: Image(systemName: "play.circle"), isLoading: $isAddAndRunActionLoading) {
+         addAndRunAction()
+      }
+      .disabled(prompt.isEmpty)
+      .actionButtonStyle(.plain)
+   }
+   
+   @ViewBuilder
+   var audioSpeachButton: some View {
+      if showAudioSpeech != nil, prompt.isEmpty {
+         IconButton(iconName: "beats.headphones") {
+            showAudioSpeech = true
+         }
+         .iconButtonStyle(.circleTertiary)
+      }
+   }
+   
    var actions: some View {
       HStack {
-         ActionButton("Add and run", actionIcon: Image(systemName: "play"), isLoading: $isAddAndRunActionLoading) {
-            addAndRunAction()
-         }
-         .disabled(prompt.isEmpty)
-         .actionButtonStyle(.plain)
-         ActionButton("Add", isLoading: $isAddMessageActionLoading) {
-            addMessageAction()
-         }
-         .disabled(prompt.isEmpty)
-         .actionButtonStyle(.secondary)
-         IconButton(iconName: "paperclip") {
-         }
-         .iconButtonStyle(.tertiary)
-         if showAudioSpeech != nil, prompt.isEmpty {
-            IconButton(iconName: "beats.headphones") {
-               showAudioSpeech = true
-            }
-            .iconButtonStyle(.circleTertiary)
-         }
+         filesButton
+         Spacer()
+         addMessageButton
+         runMessageButton
+         audioSpeachButton
       }
       .animation(.easeInOut, value: prompt.isEmpty)
    }
@@ -121,8 +139,8 @@ struct ThreadTextArea: View {
       ThreadTextArea(
          prompt: .constant("Some input"),
          isAddAndRunActionLoading: .constant(false),
-         isAddMessageActionLoading: .constant(true),
-         showAudioSpeech: .constant(false),
+         isAddMessageActionLoading: .constant(false),
+         showAudioSpeech: .constant(true),
          fileIDS: ["Screenshot: 2023: 10-09 at 9:35.png"],
          addAndRunAction: { },
          addMessageAction: { })

@@ -13,20 +13,25 @@ struct IconButton: View {
    
    let iconName: String
    let action: () -> Void
+   @Binding var isLoading: Bool?
    
+   init(
+      iconName: String,
+      isLoading: Binding<Bool?> = .constant(nil),
+      action: @escaping () -> Void) {
+      self.iconName = iconName
+      self.action = action
+      _isLoading = isLoading
+   }
+
    var body: some View {
       Button(action: action) {
          Group {
             switch style.display {
             case .intrinsic:
-               Image(systemName: iconName)
+               intrinsicIcon
             case .resizable(let size):
-               Image(systemName: iconName)
-                  .resizable()
-                  .aspectRatio(contentMode: .fit)
-                  .padding(.horizontal, size.width / 20) // approx
-                  .padding(.vertical, size.width / 20) // approx
-                  .frame(width: size.width, height: size.height)
+               resizableIcon(size: size)
             }
          }
          .foregroundColor(isEnabled ? style.foregroundColor : style.foregroundColorDisabled)
@@ -34,6 +39,33 @@ struct IconButton: View {
          .padding(.vertical, style.verticalPadding)
          .background(isEnabled ? style.backgroundColor : style.backgroundColorDisabled)
          .cornerRadius(style.cornerRadius)
+      }
+   }
+   
+   @ViewBuilder
+   private var intrinsicIcon: some View {
+      if isLoading == true {
+         ProgressView()
+            .frame(width: 12, height: 16)
+            .padding(.horizontal, Sizes.spacingExtraSmall)
+      } else {
+         Image(systemName: iconName)
+      }
+   }
+   
+   @ViewBuilder
+   private func resizableIcon(size: CGSize) -> some View {
+      if isLoading == true {
+         ProgressView()
+            .frame(width: 12, height: 16)
+            .padding(.horizontal, Sizes.spacingExtraSmall)
+      } else {
+         Image(systemName: iconName)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .padding(.horizontal, size.width / 20) // approx
+            .padding(.vertical, size.width / 20) // approx
+            .frame(width: size.width, height: size.height) 
       }
    }
    

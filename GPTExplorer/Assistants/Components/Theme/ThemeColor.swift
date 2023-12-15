@@ -22,13 +22,13 @@ extension ThemeColor {
    static let shadowColor = Color(hex: "C0C0C0")
 
    static let brandColor = colorFromRGBString("rgb(11,163,127)")//Color(red: 55.0 / 255.0, green: 163.0 / 255.0, blue: 127.0 / 255.0)
-   static let brandSecondaryColor = colorFromRGBString("rgb(53, 86, 145)")//Color(red: 27 / 255.0, green: 36 / 255.0, blue: 64 / 255.0)
+   static let brandSecondaryColor = rowSelectionColor//colorFromRGBString("rgb(53, 86, 145)")//Color(red: 27 / 255.0, green: 36 / 255.0, blue: 64 / 255.0)
       
    static let actionBackground = colorFromRGBString("rgb(236,236,241)")
    static let actionBackgroundDisabled = colorFromRGBString("rgb(247,247,248)")
    
    static let actionForeground = colorFromRGBString("rgb(53,55,64)")
-   static let actionForegroundDisabled = colorFromRGBString("rgb(172,172,190)")
+   static let actionForegroundDisabled = Color(hex: "4e4f56")
    
    static let rowSelectionColor = Color(hex: "772D8B")
 
