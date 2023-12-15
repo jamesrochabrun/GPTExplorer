@@ -81,7 +81,7 @@ struct AudioSpeechScreen: View {
       .onDisappear {
          audioProvider.cancelProcessingTask()
       }
-      .background(Color(.systemBackground))
+      .background(ThemeColor.systemBackgroundColor)
    }
    
    @ViewBuilder

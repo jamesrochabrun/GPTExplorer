@@ -52,7 +52,7 @@ struct RunDetailsScreen: View {
                      .fontWeight(.semibold)
                      .font(.caption)
                      .background(RoundedRectangle(cornerRadius: 10)
-                        .fill(Color(.systemBackground))
+                        .fill(ThemeColor.systemBackgroundColor)
                                      .shadow(radius: 4))
                } else {
                   Text("Unable to convert Run step in to Json")

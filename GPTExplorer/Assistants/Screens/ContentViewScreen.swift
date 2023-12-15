@@ -24,13 +24,12 @@ struct ContentViewScreen: View {
       sideMenuConfigurationProvider: SideMenuConfigurationProvider)
    {
       self.service = service
-      self._navigationProvider = State(initialValue: sideMenuConfigurationProvider.navigationProvider)
-      self._sideMenuConfigurationProvider = State(initialValue: sideMenuConfigurationProvider)
+      _navigationProvider = State(initialValue: sideMenuConfigurationProvider.navigationProvider)
+      _sideMenuConfigurationProvider = State(initialValue: sideMenuConfigurationProvider)
    }
    
    var mainBackground: some View {
-      //ThemeColor.brandSecondaryColor
-      navigationProvider.isOpen ? ThemeColor.brandSecondaryColor : Color(.systemBackground)
+      navigationProvider.isOpen ? Color(hex: "1f1f1f") : Color(.systemBackground)
    }
    
    var body: some View {
@@ -39,16 +38,18 @@ struct ContentViewScreen: View {
          ZStack(alignment: .topLeading) {
             mainBackground
                .ignoresSafeArea()
-            
-            SideMenuScreen(service: service, sideMenuConfigurationProvider: sideMenuConfigurationProvider)
-               .foregroundColor(.primary)
-               .background(Color.clear)
-               .frame(maxWidth: sideMenuWidth, maxHeight: .infinity)
-   //            .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
-               .frame(maxWidth: .infinity, alignment: .leading)
-               .opacity(navigationProvider.isOpen ? 1 : 0)
-               .offset(x: navigationProvider.isOpen ? 0 : -sideMenuWidth)
-               .rotation3DEffect(.degrees(navigationProvider.isOpen ? 0 : 30), axis: (x: 0.0, y: 1.0, z: 0.0))
+            VStack(alignment: .leading) {
+               customBackButton
+               SideMenuScreen(service: service, sideMenuConfigurationProvider: sideMenuConfigurationProvider)
+                  .foregroundColor(.primary)
+                  .background(Color.clear)
+                  .frame(maxWidth: sideMenuWidth, maxHeight: .infinity)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .opacity(navigationProvider.isOpen ? 1 : 0)
+                  .offset(x: navigationProvider.isOpen ? 0 : -sideMenuWidth)
+                  .rotation3DEffect(.degrees(navigationProvider.isOpen ? 0 : 30), axis: (x: 0.0, y: 1.0, z: 0.0))
+            }
+
             mainContent
    //            .shadow(color: .gray, radius: 10, x: 5, y: 5)
                .mask(RoundedRectangle(cornerRadius: navigationProvider.isOpen ? 30 : 0, style: .continuous))
@@ -89,13 +90,18 @@ struct ContentViewScreen: View {
       }
    }
    
-   var chatBackgroundColor: Color {
-       #if os(iOS)
-       return Color(UIColor.systemBackground)
-       #else
-       return Color(NSColor.windowBackgroundColor)
-       #endif
+   var customBackButton: some View {
+      Button(action: {
+         self.presentationMode.wrappedValue.dismiss()
+      }) {
+         Image(systemName: "arrow.left")
+            .foregroundColor(.white)
+            .padding(.leading, Sizes.spacingExtraLarge)
+      }
    }
+   
+   @Environment(\.presentationMode) private var presentationMode
+
    
    @ViewBuilder
    var mainContent: some View {

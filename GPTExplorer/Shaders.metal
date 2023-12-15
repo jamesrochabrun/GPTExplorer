@@ -38,8 +38,8 @@ angledFill(float2 position, float width, float angle, half4 color)
     float stepCircle = step(circle, -sin(secs + uv.x - uv.y));
 
     // Blue Colors
-   vector_float4 background = vector_float4(1.0, 1.0, 1.0, 1.0);//vector_float4(0.196, 0.051, 0.706, 1.0);
-   vector_float4 circles = vector_float4(0.0, 0.0, 0.0, 1.0);//vector_float4(0.2157, 0.6392, 0.4980, 1.0);
+   vector_float4 circles = vector_float4(1.0, 1.0, 1.0, 1.0);//vector_float4(0.196, 0.051, 0.706, 1.0);
+   vector_float4 background = vector_float4(0.0, 0.0, 0.0, 1.0);//vector_float4(0.2157, 0.6392, 0.4980, 1.0);
 //vector_float4(0.357, 0.525, 0.969, 1.0);
 
     return half4(mix(background, circles, stepCircle));

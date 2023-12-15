@@ -68,6 +68,7 @@
 		7BE370772B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE370762B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift */; };
 		7BE370792B29838B005E7D51 /* ModelsListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE370782B29838B005E7D51 /* ModelsListScreen.swift */; };
 		7BE3707B2B2AC800005E7D51 /* ChatParametersEditScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3707A2B2AC800005E7D51 /* ChatParametersEditScreen.swift */; };
+		7BE3707D2B2C3E8D005E7D51 /* CustomNumericTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3707C2B2C3E8D005E7D51 /* CustomNumericTextField.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -152,6 +153,7 @@
 		7BE370762B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodeInterpreterToolCall+Extension.swift"; sourceTree = "<group>"; };
 		7BE370782B29838B005E7D51 /* ModelsListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsListScreen.swift; sourceTree = "<group>"; };
 		7BE3707A2B2AC800005E7D51 /* ChatParametersEditScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatParametersEditScreen.swift; sourceTree = "<group>"; };
+		7BE3707C2B2C3E8D005E7D51 /* CustomNumericTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNumericTextField.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -305,6 +307,7 @@
 				7BC197892B1E91CD0083ACB3 /* AttachmentView.swift */,
 				7BC1978B2B1EE9CA0083ACB3 /* FilesPicker.swift */,
 				7B7A12B82B2309FF00999925 /* CustomTextField.swift */,
+				7BE3707C2B2C3E8D005E7D51 /* CustomNumericTextField.swift */,
 				7B83BE9E2B27DCAE000F37C0 /* CircleBouncingView.swift */,
 				7B83BEA02B27DCE8000F37C0 /* BouncingCircleView.swift */,
 			);
@@ -616,6 +619,7 @@
 				7B1C76962B0C7FBA008E161D /* ImageRow.swift in Sources */,
 				7B1C76B02B0D73B2008E161D /* IconButton.swift in Sources */,
 				7B1C76542B0C7B23008E161D /* ContentView.swift in Sources */,
+				7BE3707D2B2C3E8D005E7D51 /* CustomNumericTextField.swift in Sources */,
 				7B1C76942B0C7E39008E161D /* SideMenuConfigurationProvider.swift in Sources */,
 				7BE3707B2B2AC800005E7D51 /* ChatParametersEditScreen.swift in Sources */,
 				7B1C76562B0C7B23008E161D /* Item.swift in Sources */,

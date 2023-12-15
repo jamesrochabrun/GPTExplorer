@@ -13,7 +13,7 @@ struct CustomTextField: View {
     var placeholder: String
 
     var body: some View {
-       TextField(placeholder, text: $text, axis: .vertical)
+       TextField(placeholder, text: $text, axis: style.axis)
           .padding(.vertical, style.verticalPadding)
           .padding(.horizontal, style.horizontalPadding)
           .background(style.background)
@@ -26,18 +26,25 @@ struct CustomTextField: View {
     }
    
    @Environment(\.customTextFieldStyle) private var style: CustomTextFieldStyle
-
 }
 
 // MARK: CustomTextFieldStyle
 
 struct CustomTextFieldStyle {
    
-   var axis: Axis = .horizontal
+   var axis: Axis = .vertical
    var verticalPadding = Sizes.spacingMedium
    var horizontalPadding = Sizes.spacingLarge
-   var background = Color(.systemBackground)
+   var background = ThemeColor.systemBackgroundColor
+}
 
+extension CustomTextFieldStyle {
+   
+   static var horizontal: Self {
+      var style = CustomTextFieldStyle()
+      style.axis = .horizontal
+      return style
+   }
 }
 
 // MARK: Environment

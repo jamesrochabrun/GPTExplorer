@@ -10,9 +10,19 @@ import SwiftUI
 enum ThemeColor {}
 
 extension ThemeColor {
+   
+   static var systemBackgroundColor: Color {
+       #if os(iOS)
+       return Color(UIColor.systemBackground)
+       #else
+       return Color(NSColor.windowBackgroundColor)
+       #endif
+   }
+   
+   static let shadowColor = Color(hex: "C0C0C0")
 
    static let brandColor = colorFromRGBString("rgb(11,163,127)")//Color(red: 55.0 / 255.0, green: 163.0 / 255.0, blue: 127.0 / 255.0)
-   static let brandSecondaryColor = colorFromRGBString("rgb(49,13,180)")//Color(red: 27 / 255.0, green: 36 / 255.0, blue: 64 / 255.0)
+   static let brandSecondaryColor = colorFromRGBString("rgb(53, 86, 145)")//Color(red: 27 / 255.0, green: 36 / 255.0, blue: 64 / 255.0)
       
    static let actionBackground = colorFromRGBString("rgb(236,236,241)")
    static let actionBackgroundDisabled = colorFromRGBString("rgb(247,247,248)")

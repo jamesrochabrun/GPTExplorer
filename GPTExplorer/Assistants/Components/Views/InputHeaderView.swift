@@ -9,35 +9,82 @@ import SwiftUI
 
 // MARK: InputHeaderView
 
-struct InputHeaderView<Content: View>: View {
+struct InputHeaderView<Content: View, ExpandableContent: View>: View {
    
-   let content: Content
-   let title: String
+   private let content: Content
+   private let expandableContent: ExpandableContent
+   private let title: String
+   private let subtitle: String?
+   @Binding private var isExpanded: Bool
+   private let isExpandableContent: Bool
    
-   init(title: String, @ViewBuilder content: () -> Content) {
+   
+   init(
+      title: String,
+      subtitle: String? = nil,
+      isExpanded: Binding<Bool>,
+      @ViewBuilder content: () -> Content,
+      @ViewBuilder expandableContent: () -> ExpandableContent)
+   {
+      self.title = title
+      self.subtitle = subtitle
+      _isExpanded = isExpanded
+      self.content = content()
+      self.expandableContent = expandableContent()
+      isExpandableContent = true
+   }
+   
+   init(
+      title: String,
+      @ViewBuilder content: () -> Content,
+      @ViewBuilder expandableContent: () -> ExpandableContent = EmptyView.init)
+      where ExpandableContent == EmptyView
+   {
       self.title = title
       self.content = content()
+      self.expandableContent = expandableContent()
+      _isExpanded = .constant(false)
+      subtitle = nil
+      isExpandableContent = false
    }
    
    var body: some View {
       let mainContent = VStack(alignment: .leading, spacing: style.verticalPadding) {
-         Text(title)
-            .font(.headline)
+         HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading) {
+               Text(title)
+                  .font(.headline)
+               if let subtitle {
+                  Text(subtitle)
+                     .font(.subheadline)
+               }
+            }
+            Spacer()
+            if isExpandableContent {
+               IconButton(iconName: isExpanded ? "chevron.up" : "chevron.down") {
+                  isExpanded.toggle()
+               }
+               .iconButtonStyle(.plain)
+            }
+         }
+         if isExpanded {
+            expandableContent
+         }
          content
       }
+      .animation(.easeInOut, value: isExpanded)
       if style.isCard {
          mainContent
             .padding()
             .background(RoundedRectangle(cornerRadius: 10)
-               .fill(Color(.systemBackground))
-                            .shadow(radius: 4))
+               .fill(ThemeColor.systemBackgroundColor)
+               .shadow(radius: 4))
       } else {
          mainContent
       }
    }
    
    @Environment(\.inputViewStyle) private var style: InputHeaderViewStyle
-   
 }
 
 // MARK: InputHeaderViewStyle
@@ -46,7 +93,6 @@ struct InputHeaderViewStyle {
    
    var verticalPadding: CGFloat = 10.0
    var isCard: Bool = false
-
 }
 
 extension InputHeaderViewStyle {
@@ -83,4 +129,17 @@ extension View {
    InputHeaderView(title: "Some Title") {
       Text("This is secondary")
    }
+}
+
+#Preview("Expandable") {
+   
+   @State var isExpanded: Bool = false
+   return InputHeaderView(
+      title: "Tap to Expand",
+      isExpanded: $isExpanded,
+      content: {
+         Text("Primary content")
+     }, expandableContent: {
+         Text("Expandable content")
+     })
 }

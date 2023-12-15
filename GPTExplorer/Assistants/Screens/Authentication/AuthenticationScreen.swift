@@ -37,44 +37,61 @@ struct AuthenticationScreen: View {
       }
    }
    
+   var mainContent: some View {
+      VStack {
+         Text("GPT-Explorer")
+            .shadow(color: ThemeColor.shadowColor, radius: 7)
+            .foregroundColor(.white)
+            .font(.largeTitle)
+            .fontWidth(.expanded)
+            .fontWeight(.black)
+            .padding(.bottom)
+         VStack(spacing: 24) {
+            CustomTextField(text: $apiKey, placeholder: "Enter API Key")
+               .customTextFieldStyle(.horizontal)
+            CustomTextField(text: $organizationIdentifier, placeholder: "Enter Organization ID (Optional)")
+               .onChange(of: organizationIdentifier) { _, newValue in
+                  if !newValue.isEmpty {
+                     localOrganizationID = newValue
+                  }
+               }
+         }
+         .padding()
+         NavigationLink(destination: destination)
+         {
+            Text("Continue")
+               .padding()
+               .padding(.horizontal, 48)
+               .foregroundColor(apiKey.isEmpty ? ThemeColor.actionForegroundDisabled : .white)
+               .background(
+                  Capsule()
+                     .foregroundColor(apiKey.isEmpty ? ThemeColor.actionBackgroundDisabled : ThemeColor.rowSelectionColor))
+              // .shadow(color: ThemeColor.shadowColor, radius: 7)
+         }
+         .disabled(apiKey.isEmpty)
+      }
+      .padding(.vertical)
+   }
+   
    var body: some View {
          NavigationStack {
             ZStack {
                shaderBackground
                VStack {
                   Spacer()
-                  Text("GPT-Explorer")
-                     .shadow(radius: 16)
-                     .foregroundColor(.white)
-                     .font(.largeTitle)
-                     .bold()
-                     .fontWidth(.expanded)
-                     .padding(.bottom)
-                  VStack(spacing: 24) {
-                     CustomTextField(text: $apiKey, placeholder: "Enter API Key")
-                     CustomTextField(text: $organizationIdentifier, placeholder: "Enter Organization ID (Optional)")
-                        .onChange(of: organizationIdentifier) { _, newValue in
-                           if !newValue.isEmpty {
-                              localOrganizationID = newValue
-                           }
-                        }
-                  }
-                  .padding()
-                  NavigationLink(destination: destination)
-                  {
-                     Text("Continue")
-                        .padding()
-                        .padding(.horizontal, 48)
-                        .foregroundColor(apiKey.isEmpty ? ThemeColor.actionForegroundDisabled : .white)
-                        .background(
-                           Capsule()
-                              .foregroundColor(apiKey.isEmpty ? ThemeColor.actionBackgroundDisabled : ThemeColor.brandSecondaryColor))
-                  }
-                  .disabled(apiKey.isEmpty)
+                  mainContent
+                     .padding()
+                     .background(.ultraThinMaterial)
+                     .cornerRadius(20)
                   Spacer()
                   Group {
                      Text("If you don't have a valid API KEY yet, you can visit ") + Text("[this link](https://platform.openai.com/account/api-keys)") + Text(" to get started.")
+                     
                   }
+                  .tint(ThemeColor.rowSelectionColor)
+                  .padding()
+                  .background(.ultraThinMaterial)
+                  .cornerRadius(10)
                   .font(.caption)
                }
                .padding()
