@@ -14,7 +14,7 @@ struct URLImageView: View {
    let url: URL
    
    var body: some View {
-      AsyncImage(
+      let image = AsyncImage(
          url: url,
          transaction: Transaction(animation: .easeInOut)
       ) { phase in
@@ -35,8 +35,14 @@ struct URLImageView: View {
       }
       .frame(width: style.size, height: style.size)
       .background(Color.clear)
-      .clipShape(Circle())
-      .overlay(Circle().stroke(.primary, lineWidth: 1))
+      if style.clipShaped {
+         image
+            .clipShape(Circle())
+            .overlay(Circle().stroke(.primary, lineWidth: 1))
+      } else {
+         image
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+      }
    }
    
    @Environment(\.urlImageViewStyle) private var style
@@ -49,15 +55,18 @@ struct URLImageViewStyle {
    var size: CGFloat
    var backgroundColor: Color
    var failureImage: Image
+   var clipShaped = true
    
    init(
       size: CGFloat = 100,
       backgroundColor: Color = .gray,
-      failureImage: Image = .init(systemName: "wifi.slash"))
+      failureImage: Image = .init(systemName: "wifi.slash"),
+      clipShaped: Bool = true)
    {
       self.size = size
       self.backgroundColor = backgroundColor
       self.failureImage = failureImage
+      self.clipShaped = clipShaped
    }
 }
 
@@ -72,6 +81,12 @@ extension URLImageViewStyle {
    static var assistantEmptyView: Self {
       var style = assistantRow
       style.size = 60
+      return style
+   }
+   
+   static var assistantRowRoundedRectangle: Self {
+      var style = URLImageViewStyle()
+      style.clipShaped = false
       return style
    }
 }

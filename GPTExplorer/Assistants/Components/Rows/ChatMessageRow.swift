@@ -138,6 +138,7 @@ struct ChatMessageRow: View {
          HStack(spacing: 8) {
             ForEach(urls, id: \.self) { url in
                URLImageView(url: url)
+                  .urlImageViewStyle(.assistantRowRoundedRectangle)
             }
          }
       }
