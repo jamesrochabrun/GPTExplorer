@@ -56,7 +56,7 @@ struct ActionButton: View {
          ProgressView()
             .frame(width: 5, height: 5)
             .padding(.horizontal, Sizes.spacingExtraSmall)
-         
+            .tint(style.progressViewTintColor)
       } else if let actionIcon {
          actionIcon
             .resizable()
@@ -83,6 +83,7 @@ struct ActionButtonStyle {
    var foregroundColorDisabled: Color = ThemeColor.actionForegroundDisabled
    var fontWeight: Font.Weight = .bold
    var iconHeight: CGFloat = 14.0
+   var progressViewTintColor = Color.black
    
    enum HorizontalIconAlignment {
       case leading
@@ -161,6 +162,7 @@ extension View {
       
       VStack {
          Text("Disabled")
+            .bold()
          HStack {
             ActionButton("Add and run", actionIcon: Image(systemName: "play")) {}
             ActionButton("Add") {}

@@ -204,7 +204,7 @@ struct ThreadScreen: View {
       if let currentAssistant {
          VStack {
             Spacer()
-            EmptyPlaceholderView(
+            EmptyAssistantPlaceholderView(
                imageURL: currentAssistant.avatarURL,
                placeholder: Image(systemName: "oval.bottomhalf.filled"),
                title: currentAssistant.name ?? "NO NAME",
@@ -218,18 +218,26 @@ struct ThreadScreen: View {
    
    @ViewBuilder
    var list: some View {
-      if isLoadingListItems {
-         VStack {
-            Spacer()
-            ProgressView()
-            Spacer()
+      ScrollViewReader { proxy in
+         if isLoadingListItems {
+            VStack {
+               Spacer()
+               ProgressView()
+               Spacer()
+            }
+         } else {
+            List(messagesProvider.chatDisplayMessages) { message in
+               ChatMessageRow(message: message, runMetadata: $runMetadata)
+                  .listRowSeparator(.hidden)
+            }
+            .listStyle(.plain)
+            .onChange(of: messagesProvider.chatDisplayMessages.last?.content) {
+               let lastMessage = messagesProvider.chatDisplayMessages.last
+               if let id = lastMessage?.id {
+                  proxy.scrollTo(id, anchor: .bottom)
+               }
+            }
          }
-      } else {
-         List(messagesProvider.chatDisplayMessages) { message in
-            ChatMessageRow(message: message, runMetadata: $runMetadata)
-               .listRowSeparator(.hidden)
-         }
-         .listStyle(.plain)
       }
    }
    
@@ -377,7 +385,6 @@ struct ThreadScreen: View {
       let lastRunSteps = try await runsProvider.getLastRunSteps(threadID: threadID, runID: run.id)
       
       if let lastToolCallStep = lastRunSteps.toolCallsStep {
-         
          for toolCall in lastToolCallStep.stepDetails.toolCalls ?? [] {
             switch toolCall.toolCall {
             case .codeInterpreterToolCall(let codeInterpreterToolCall):
