@@ -79,7 +79,6 @@ struct AssistantConfigurationScreen: View {
    
    var create: some View {
       CreateAssistantChatScreen(
-         service: service,
          provider: chatProvider,
          assistantParameters: $parameters,
          showAudioSpeech: $showAudioSpeech)
@@ -494,22 +493,3 @@ extension String {
       assistantID: nil,
       provider: SideMenuConfigurationProvider(service: service), service: service)
 }
-
-
-/**
- var body: some View {
-    NavigationView {
-       ZStack {
-          mainContent
-          if showAudioSpeech == true {
-             AudioSpeechScreen(audioProvider: .init(service: service), showScreen: $showAudioSpeech.orFalse)
-                .transition(.opacity) // Fade transition
-          }
-       }
-       .animation(.linear, value: showAudioSpeech) // Smooth fade animation
-       .sensoryFeedback(.impact, trigger: showAudioSpeech)
- 
-    }
- }
- 
- */
