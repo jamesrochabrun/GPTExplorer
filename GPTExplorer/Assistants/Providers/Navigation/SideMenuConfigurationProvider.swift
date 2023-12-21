@@ -34,6 +34,12 @@ enum ProviderState: Equatable {
    
    case uploadedFileError(message: String)
    
+   case createMessageError(runID: String, threadID: String, message: String)
+   case createMessageDisplayError(message: String)
+   
+   case cancelRunError(runID: String, threadID: String, message: String)
+   case cancelRunSuccess(message: String)
+
    var message: String {
       switch self {
       case .threadDeletedSuccess(_, let message): return message
@@ -55,6 +61,10 @@ enum ProviderState: Equatable {
       case .udpateSideMenuError(_, let message): return message
       case .assistantCreatedSuccess(message: let message): return message
       case .uploadedFileError(let message): return message
+      case .createMessageError(_, _, let message): return message
+      case .createMessageDisplayError(message: let message): return message
+      case .cancelRunError(_, _, let message): return message
+      case .cancelRunSuccess(message: let message): return message
       }
    }
 }

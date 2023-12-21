@@ -89,6 +89,20 @@ struct ThreadScreen: View {
                   try await createThreadWith(metadata: metadata)
                }
             }
+         case .createMessageError(let runID, let threadID, _):
+            ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
+            ActionButton("Cancel Run", actionIcon: nil, isLoading: .constant(false)) {
+               Task {
+                  try await cancelRun(runID: runID, threadID: threadID)
+               }
+            }
+         case .cancelRunError(let runID, let threadID, _):
+            ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
+            ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
+               Task {
+                  try await cancelRun(runID: runID, threadID: threadID)
+               }
+            }
          default:
             EmptyView()
          }
@@ -345,12 +359,24 @@ struct ThreadScreen: View {
       currentProviderState = threadResponse.state
    }
    
-   private func deleteThreadWith(id: String) async throws {
+   private func deleteThreadWith(id: String) 
+      async throws
+   {
       let deletionResponse = try await provider.deleteThread(id: id)
       if deletionResponse.item?.deleted == true {
          currentThread = nil
       }
       currentProviderState = deletionResponse.state
+   }
+   
+   private func cancelRun(
+      runID: String, 
+      threadID: String)
+      async throws
+   {
+      let cancelRunResponse = try await runsProvider.cancelRun(runID: runID, threadID: threadID)
+      // TODO: Do we need the canceled run?
+      currentProviderState = cancelRunResponse.state
    }
    
    private func dismissScreen() {
@@ -371,8 +397,16 @@ struct ThreadScreen: View {
    {
       let paramaters = MessageParameter(role: .user, content: prompt)
       // Tip: here we can modify the thread metadata with the prompt
-      guard let message = try await messagesProvider.createMessage(threadID: threadID, parameters: paramaters) else { return }
-      guard let messageDisplayModel = messagesProvider.createMessageDisplayModel(from: message) else { return }
+      let messageResponse = try await messagesProvider.createMessage(threadID: threadID, parameters: paramaters)
+      guard let message = messageResponse.item else {
+         currentProviderState = messageResponse.state
+         return
+      }
+      let messageDisplayModelResponse = messagesProvider.createMessageDisplayModel(from: message)
+      guard let messageDisplayModel = messageDisplayModelResponse.item else {
+         currentProviderState = messageDisplayModelResponse.state
+         return
+      }
       await messagesProvider.addMessage(messageDisplayModel)
    }
    
@@ -385,9 +419,20 @@ struct ThreadScreen: View {
       let paramaters = MessageParameter(role: .user, content: prompt)
       
       // Tip: here we can modify the thread metadata with the prompt
-      guard let userMessage = try await messagesProvider.createMessage(threadID: threadID, parameters: paramaters) else { return }
-      guard let userMessageDisplayModel = messagesProvider.createMessageDisplayModel(from: userMessage) else { return }
-      await messagesProvider.addMessage(userMessageDisplayModel)
+      let messageResponse = try await messagesProvider.createMessage(threadID: threadID, parameters: paramaters)
+      
+      guard let message = messageResponse.item else {
+         currentProviderState = messageResponse.state
+         return
+      }
+      
+      let messageDisplayModelResponse = messagesProvider.createMessageDisplayModel(from: message)
+      guard let messageDisplayModel = messageDisplayModelResponse.item else {
+         currentProviderState = messageDisplayModelResponse.state
+         return
+      }
+      
+      await messagesProvider.addMessage(messageDisplayModel)
       
       guard let run = try await runsProvider.runTheThread(threadID: threadID, parameters: RunParameter(assistantID: assistantID))
       else { return }
@@ -411,12 +456,16 @@ struct ThreadScreen: View {
          
          let assistantMessage = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: lastMessageCreationStep.stepDetails.messageCreation!.messageID)!
          
-         if let assistantMessageDisplayModel = messagesProvider.createMessageDisplayModel(
+          let assistantMessageDisplayModelResponse = messagesProvider.createMessageDisplayModel(
             from: assistantMessage,
             assistantName: assistantName,
             runID: run.id,
-            threadID: threadID) {
+            threadID: threadID)
+         
+         if let assistantMessageDisplayModel = assistantMessageDisplayModelResponse.item {
             await messagesProvider.addMessage(assistantMessageDisplayModel)
+         } else {
+            currentProviderState = assistantMessageDisplayModelResponse.state
          }
       }
    }
