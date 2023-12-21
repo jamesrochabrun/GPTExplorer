@@ -12,10 +12,12 @@ import SwiftOpenAI
 struct CreateAssistantChatScreen: View {
    
    init(
+      assistant: AssistantObject?,
       provider: ChatProvider,
       assistantParameters: Binding<AssistantParameters>,
       showAudioSpeech: Binding<Bool?>)
    {
+      self.assistant = assistant
       _chatProvider = State(initialValue: provider)
       _assistantParameters = assistantParameters
       _showAudioSpeech = showAudioSpeech
@@ -27,7 +29,7 @@ struct CreateAssistantChatScreen: View {
             VStack {
                Group {
                   if chatProvider.chatDisplayMessages.isEmpty {
-                     assistantEmptyView
+                     assistantView
                   } else {
                      chatList
                   }
@@ -49,15 +51,24 @@ struct CreateAssistantChatScreen: View {
       }
    }
    
-   var assistantEmptyView: some View {
+   var assistantView: some View {
       VStack {
          Spacer()
-         EmptyAssistantPlaceholderView(
-            imageURL: nil,
-            title: "Create an assistant",
-            subtitle: "You can also do this in the Configure tab.") {
-               Image(systemName: "oval.bottomhalf.filled")
-            }
+         if let assistant {
+            EmptyAssistantPlaceholderView(
+               imageURL: assistant.avatarURL,
+               title: assistant.name ?? "Assistant",
+               subtitle: assistant.description) {
+                  Image(systemName: "oval.bottomhalf.filled")
+               }
+         } else {
+            EmptyAssistantPlaceholderView(
+               imageURL: nil,
+               title: "Create an assistant",
+               subtitle: "You can also do this in the Configure tab.") {
+                  Image(systemName: "oval.bottomhalf.filled")
+               }
+         }
          Spacer()
       }
    }
@@ -114,6 +125,7 @@ struct CreateAssistantChatScreen: View {
       selectedImageURLS = []
    }
    
+   private let assistant: AssistantObject?
    @State private var isLoading = false
    @Binding private var showAudioSpeech: Bool?
    @State private var prompt = ""

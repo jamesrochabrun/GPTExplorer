@@ -51,59 +51,7 @@ struct AssistantConfigurationScreen: View {
       chatProvider = ChatProvider(service: service)
       self.service = service
    }
-   
-   enum Configuration: String, CaseIterable {
-      case create = "Create"
-      case configure = "Configure"
-   }
-   
-   var configuration: some View {
-      ScrollView {
-         VStack(spacing: Sizes.spacingExtraLarge) {
-            titleHeader
-            modelsPicker
-            avatarView
-            inputViews
-            knowledge
-            capabilities
-         }
-         .animation(.easeInOut, value: fileIDS)
-         .padding()
-         .padding(.horizontal, Sizes.spacingLarge)
-      }
-      .background(colorScheme == .dark ? Color.black : Color.white)
-      .safeAreaInset(edge: .bottom) {
-         footerActions
-      }
-   }
-   
-   var create: some View {
-      CreateAssistantChatScreen(
-         provider: chatProvider,
-         assistantParameters: $parameters,
-         showAudioSpeech: $showAudioSpeech)
-   }
-   
-   var mainContent: some View {
-      VStack {
-         Picker("", selection: $selectedSegment) {
-            Text(Configuration.create.rawValue).tag(Configuration.create)
-            Text(Configuration.configure.rawValue).tag(Configuration.configure)
-         }
-         .padding()
-         .pickerStyle(SegmentedPickerStyle())
-         ZStack {
-            switch selectedSegment {
-            case .create:
-               create
-            case .configure:
-               configuration
-            }
-         }
-         .animation(.easeInOut, value: selectedSegment)
-      }
-   }
-   
+
    var body: some View {
       ZStack {
          mainContent
@@ -207,28 +155,55 @@ struct AssistantConfigurationScreen: View {
       }
    }
    
-   private func setInitialParametersForAssistantWith(id: String)
-      async throws
-   {
-      let assistantResponse = try await provider.retrieveAssistant(id: id)
-      currentAssistant = assistantResponse.item
-      
-      if let parameters = assistantResponse.item?.assistantParameters() {
-         self.parameters = parameters
-         if let fileIDS = parameters.fileIDS {
-            filePickerInitialActions = fileIDS.map { .retrieveAndDisplay(id: $0) }
-            self.fileIDS = fileIDS
+   
+   var configuration: some View {
+      ScrollView {
+         VStack(spacing: Sizes.spacingExtraLarge) {
+            titleHeader
+            modelsPicker
+            avatarView
+            inputViews
+            knowledge
+            capabilities
          }
+         .animation(.easeInOut, value: fileIDS)
+         .padding()
+         .padding(.horizontal, Sizes.spacingLarge)
       }
-      if
-         let avatarURLString = parameters.avatarURL,
-         let avatarURL = URL(string: avatarURLString)
-      {
-         self.avatarURL = avatarURL
+      .background(colorScheme == .dark ? Color.black : Color.white)
+      .safeAreaInset(edge: .bottom) {
+         footerActions
       }
-      currentProviderState = assistantResponse.state
    }
    
+   var create: some View {
+      CreateAssistantChatScreen(
+         assistant: currentAssistant,
+         provider: chatProvider,
+         assistantParameters: $parameters,
+         showAudioSpeech: $showAudioSpeech)
+   }
+   
+   var mainContent: some View {
+      VStack {
+         Picker("", selection: $selectedSegment) {
+            Text(Configuration.create.rawValue).tag(Configuration.create)
+            Text(Configuration.configure.rawValue).tag(Configuration.configure)
+         }
+         .padding()
+         .pickerStyle(SegmentedPickerStyle())
+         ZStack {
+            switch selectedSegment {
+            case .create:
+               create
+            case .configure:
+               configuration
+            }
+         }
+         .animation(.easeInOut, value: selectedSegment)
+      }
+   }
+
    var footerActions: some View {
       HStack {
          ActionButton("Delete", isLoading: $isLoadingDeleteAction) {
@@ -268,46 +243,112 @@ struct AssistantConfigurationScreen: View {
                   .tint(.gray)
                   .symbolEffect(.variableColor.iterative.dimInactiveLayers)
             )
-      }
-      else if let avatarURL = avatarURL {
-         Menu {
-            Button {
-               Task {
-                  isAvatarLoading = true
-                  defer { isAvatarLoading = false }  // ensure isLoading is set to false when the
-                  let prompt = parameters.name ?? "Some random image for an avatar" // TODO: improve prompt
-                  try await setAvatarURL(prompt: prompt)
-               }
-            }  label: {
-               Text("Use DALL·E")
-            }
-         } label: {
-            URLImageView(url: avatarURL)
-         }
       } else {
          Menu {
-            Button {
-               Task {
-                  isAvatarLoading = true
-                  defer { isAvatarLoading = false }  // ensure isLoading is set to false when the
-                  let prompt = parameters.name ?? "Some random image for an avatar" // TODO: improve prompt
-                  try await setAvatarURL(prompt: prompt)
-               }
-            }  label: {
-               Text("Use DALL·E")
-            }
+            dalleMenuButton
          } label: {
-            Circle()
-               .stroke(.gray, style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
-               .frame(width: 100, height: 100)
-               .overlay(
-                  Image(systemName: "plus")
-                     .resizable()
-                     .frame(width: 20, height: 20)
-                     .tint(.gray)
-               )
+            if let avatarURL = avatarURL {
+               URLImageView(url: avatarURL)
+            } else {
+               Circle()
+                  .stroke(.gray, style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
+                  .frame(width: 100, height: 100)
+                  .overlay(
+                     Image(systemName: "plus")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .tint(.gray)
+                        .symbolEffect(.variableColor.iterative.dimInactiveLayers)
+                  )
+            }
+         }
+         .tint(.gray)
+      }
+   }
+   
+   var dalleMenuButton: some View {
+      Button {
+         Task {
+            isAvatarLoading = true
+            defer { isAvatarLoading = false }  // ensure isLoading is set to false when the
+            let prompt = parameters.name ?? "Some random image for an avatar" // TODO: improve prompt
+            try await setAvatarURL(prompt: prompt)
+         }
+      }  label: {
+         Text("Use DALL·E")
+      }
+   }
+   
+   var inputViews: some View {
+      VStack(spacing: Sizes.spacingExtraLarge) {
+         InputHeaderView(title: "Name") {
+            CustomTextField(text: $parameters.name.orEmpty, placeholder: "")
+         }
+         InputHeaderView(title: "Description") {
+            CustomTextField(text: $parameters.description.orEmpty, placeholder: "")
+         }
+         InputHeaderView(title: "Instructions") {
+            ZStack {
+               RoundedRectangle(cornerRadius: 4)
+                  .stroke(.gray)
+               TextEditor(text: $parameters.instructions.orEmpty)
+                  .foregroundStyle(.primary)
+                  .clipShape(RoundedRectangle(cornerRadius: 4))
+                  .frame(minHeight: 100)
+            }
          }
       }
+   }
+   
+   var knowledge: some View {
+      FilesPicker(
+         service: provider.service,
+         sectionTitle: "Knowledge",
+         actionTitle: "Upload files",
+         fileIDS: $fileIDS,
+         actions: $filePickerInitialActions)
+   }
+   
+   var capabilities: some View {
+      InputHeaderView(title: "Capabilities") {
+         VStack(spacing: Sizes.spacingExtraLarge) {
+            CheckboxRow(title: "Code interpreter", isChecked: isCodeInterpreterOn)
+            CheckboxRow(title: "Retrieval", isChecked: isRetrievalOn)
+            CheckboxRow(title: "DALL·E Image Generation", isChecked: isDalleToolOn)
+         }
+      }
+      .inputViewStyle(.init(verticalPadding: Sizes.spacingExtraLarge))
+   }
+   
+   var modelsPicker: some View {
+      ActionButton(parameters.model ?? "Select Model", actionIcon: .init(systemName: "chevron.right")) {
+         showModelsPicker = true
+      }
+      .actionButtonStyle(.plainTrailing)
+   }
+   
+   // MARK: Private
+   
+   private func setInitialParametersForAssistantWith(id: String)
+      async throws
+   {
+      let assistantResponse = try await provider.retrieveAssistant(id: id)
+      currentAssistant = assistantResponse.item
+      
+      if let parameters = assistantResponse.item?.assistantParameters() {
+         self.parameters = parameters
+         if let fileIDS = parameters.fileIDS {
+            filePickerInitialActions = fileIDS.map { .retrieveAndDisplay(id: $0) }
+            self.fileIDS = fileIDS
+         }
+      }
+      if
+         let avatarURLString = parameters.avatarURL,
+         let avatarURL = URL(string: avatarURLString)
+      {
+         self.avatarURL = avatarURL
+      }
+      currentProviderState = assistantResponse.state
    }
    
    private func setAvatarURL(prompt: String) async throws {
@@ -348,59 +389,7 @@ struct AssistantConfigurationScreen: View {
    private func dismissScreen() {
       presentationMode.wrappedValue.dismiss()
    }
-   
-   var inputViews: some View {
-      VStack(spacing: Sizes.spacingExtraLarge) {
-         InputHeaderView(title: "Name") {
-            CustomTextField(text: $parameters.name.orEmpty, placeholder: "")
-         }
-         InputHeaderView(title: "Description") {
-            CustomTextField(text: $parameters.description.orEmpty, placeholder: "")
-         }
-         InputHeaderView(title: "Instructions") {
-            ZStack {
-               RoundedRectangle(cornerRadius: 4)
-                  .stroke(.gray)
-               TextEditor(text: $parameters.instructions.orEmpty)
-                  .foregroundStyle(.primary)
-                  .clipShape(RoundedRectangle(cornerRadius: 4))
-                  .frame(minHeight: 100)
-            }
-         }
-      }
-   }
-   
-   @State private var presentImporter = false
-   
-   var knowledge: some View {
-      FilesPicker(
-         service: provider.service,
-         sectionTitle: "Knowledge",
-         actionTitle: "Upload files",
-         fileIDS: $fileIDS,
-         actions: $filePickerInitialActions)
-   }
-   
-   var capabilities: some View {
-      InputHeaderView(title: "Capabilities") {
-         VStack(spacing: Sizes.spacingExtraLarge) {
-            CheckboxRow(title: "Code interpreter", isChecked: isCodeInterpreterOn)
-            CheckboxRow(title: "Retrieval", isChecked: isRetrievalOn)
-            CheckboxRow(title: "DALL·E Image Generation", isChecked: isDalleToolOn)
-         }
-      }
-      .inputViewStyle(.init(verticalPadding: Sizes.spacingExtraLarge))
-   }
-   
-   var modelsPicker: some View {
-      ActionButton(parameters.model ?? "Select Model", actionIcon: .init(systemName: "chevron.right")) {
-         showModelsPicker = true
-      }
-      .actionButtonStyle(.plainTrailing)
-   }
-      
-   // MARK: Private
-   
+         
    private let service: OpenAIService
    private let assistantID: String?
    private let chatProvider: ChatProvider
@@ -419,6 +408,11 @@ struct AssistantConfigurationScreen: View {
    @State private var showAudioSpeech: Bool? = false
    @State private var showModelsPicker = false
    @State private var modelsPickerDetent = PresentationDetent.medium
+   
+   private enum Configuration: String, CaseIterable {
+      case create = "Create"
+      case configure = "Configure"
+   }
 
    @Environment (\.colorScheme) var colorScheme
                    
@@ -478,12 +472,6 @@ struct AssistantConfigurationScreen: View {
          }
       )
    }
-}
-
-extension String {
-    var fileName: String {
-        return (self as NSString).lastPathComponent
-    }
 }
 
 #Preview {

@@ -196,7 +196,7 @@ struct ThreadScreen: View {
             Spacer()
             EmptyAssistantPlaceholderView(
                imageURL: currentAssistant.avatarURL,
-               title: currentAssistant.name ?? "NO NAME",
+               title: currentAssistant.name ?? "Assistant",
                subtitle: currentAssistant.description) {
                   Image(systemName: "oval.bottomhalf.filled")
                }

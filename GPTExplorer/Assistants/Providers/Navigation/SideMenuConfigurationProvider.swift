@@ -180,7 +180,7 @@ enum SideMenuItem: Identifiable, Equatable {
    {
       do {
          let avatarURL = try await service.createImages(parameters: .init(prompt: prompt, model: .dalle3(.largeSquare))).data.compactMap(\.url).first
-         return .init(item: avatarURL, state: .assistantCreatedSuccess(message: "Avatar created."))
+         return .init(item: avatarURL, state: nil)
       } catch let error as APIError  {
          return .init(item: nil, state: .assistantAvatarCreatedError(prompt: prompt, message: error.displayDescription))
       }
