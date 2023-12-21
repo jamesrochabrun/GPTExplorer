@@ -54,9 +54,10 @@ struct CreateAssistantChatScreen: View {
          Spacer()
          EmptyAssistantPlaceholderView(
             imageURL: nil,
-            placeholder: Image(systemName: "oval.bottomhalf.filled"),
             title: "Create an assistant",
-            subtitle: "You can also do this in the Configure tab.")
+            subtitle: "You can also do this in the Configure tab.") {
+               Image(systemName: "oval.bottomhalf.filled")
+            }
          Spacer()
       }
    }

@@ -41,7 +41,7 @@ extension AssistantParameters: Equatable {
          if metadata == nil {
             metadata = [:]
          }
-         metadata![AssistantMetadataKeys.avatar] = newValue
+         metadata?[AssistantMetadataKeys.avatar] = newValue
       }
    }
    

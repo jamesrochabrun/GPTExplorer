@@ -12,7 +12,7 @@ import SwiftUI
 @Observable final class AudioSpeechProvider: NSObject {
    
    private let service: OpenAIService
-   private var responseModel: Model = .gpt41106Preview
+   private let responseModel: Model 
    private var audioPlayer: AVAudioPlayer!
    private var audioRecorder: AVAudioRecorder!
 #if !os(macOS)

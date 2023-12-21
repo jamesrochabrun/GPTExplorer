@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftOpenAI
 
 struct ChatScreen: View {
-
+   
    init(service: OpenAIService) {
       self.service = service
       _chatProvider = State(initialValue: ChatProvider(service: service))
@@ -17,18 +17,12 @@ struct ChatScreen: View {
    
    var body: some View {
       NavigationView {
-         ZStack {
-            mainContent
-            if showAudioSpeech == true {
-               AudioSpeechScreen(
-                  audioProvider: .init(
-                     service: service,
-                     responseModel: .custom(currentModel)),
-                  showScreen: $showAudioSpeech.orFalse)
+         AudioSpeechContainer(
+            service: service,
+            currentModel: .custom(currentModel),
+            showAudioSpeech: $showAudioSpeech.orFalse) {
+               mainContent
             }
-         }
-         .animation(.easeInOut, value: showAudioSpeech) // Smooth fade animation
-         .sensoryFeedback(.impact, trigger: showAudioSpeech)
       }
       .sheet(isPresented: $showModelsPicker) {
          ModelsListScreen(service: service, selectedModel: $currentModel)

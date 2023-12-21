@@ -52,5 +52,13 @@ extension Binding where Value == [String]? {
    }
 }
 
+extension Binding where Value == Double? {
+   var orDefaultOne: Binding<Double> {
+      .init(
+         get: { self.wrappedValue ?? 1 },
+         set: { self.wrappedValue = $0 }
+      )
+   }
+}
 
 

@@ -10,12 +10,24 @@ import SwiftUI
 
 // MARK: EmptyAssistantPlaceholderView
 
-struct EmptyAssistantPlaceholderView: View {
+struct EmptyAssistantPlaceholderView<PlaceHolder: View>: View {
    
    let imageURL: String?
-   let placeholder: Image?
+   let placeholder: PlaceHolder
    let title: String
    let subtitle: String?
+   
+   init(
+      imageURL: String?,
+      title: String,
+      subtitle: String?,
+      @ViewBuilder placeholder: () -> PlaceHolder)
+   {
+      self.imageURL = imageURL
+      self.title = title
+      self.subtitle = subtitle
+      self.placeholder = placeholder()
+   }
    
    var body: some View {
       VStack(spacing: Sizes.spacingExtraLarge) {
@@ -45,22 +57,54 @@ struct EmptyAssistantPlaceholderView: View {
 
 #Preview("All") {
    VStack {
-      EmptyAssistantPlaceholderView(imageURL: urlImageViewMockURL.absoluteString + "ll", placeholder: nil, title: "Some Assistant", subtitle: "The math assistant description")
-      EmptyAssistantPlaceholderView(imageURL: nil, placeholder: Image(systemName: "oval.bottomhalf.filled"), title: "Some Assistant", subtitle: "The math assistant description")
-      EmptyAssistantPlaceholderView(imageURL: urlImageViewMockURL.absoluteString, placeholder: Image(systemName: "oval.bottomhalf.filled"), title: "Some Assistant", subtitle: "The math assistant description")
+      EmptyAssistantPlaceholderView(
+         imageURL: urlImageViewMockURL.absoluteString + "ll",
+         title: "Some Assistant",
+         subtitle: "The math assistant description") {
+            Image(systemName: "oval.bottomhalf.filled")
+         }
+      EmptyAssistantPlaceholderView(
+         imageURL: nil,
+         title: "Some Assistant",
+         subtitle: "The math assistant description") {
+            Image(systemName: "oval.bottomhalf.filled")
+         }
+      EmptyAssistantPlaceholderView(
+         imageURL: urlImageViewMockURL.absoluteString, 
+         title: "Some Assistant",
+         subtitle: "The math assistant description") {
+            Image(systemName: "oval.bottomhalf.filled")
+         }
    }
 }
 
 #Preview("Error") {
-   VStack {
-      EmptyAssistantPlaceholderView(imageURL: urlImageViewMockURL.absoluteString + "ll", placeholder: nil, title: "Some Assistant", subtitle: "The math assistant description")
+   @State var toggle: Bool = false
+   return VStack {
+      EmptyAssistantPlaceholderView(
+         imageURL: urlImageViewMockURL.absoluteString + "ll",
+         title: toggle ? "fuc" : "Some Assistant",
+         subtitle: "The math assistant description") {
+            Image(systemName: "exclamationmark.triangle.fill")
+         }
    }
 }
 
 #Preview("Empty url")  {
-   EmptyAssistantPlaceholderView(imageURL: nil, placeholder: Image(systemName: "oval.bottomhalf.filled"), title: "Some Assistant", subtitle: "The math assistant description")
+   EmptyAssistantPlaceholderView(
+      imageURL: nil,
+      title: "Some Assistant",
+      subtitle: "The math assistant description") {
+         Image(systemName: "oval.bottomhalf.filled")
+      }
 }
 
 #Preview("Valid url")  {
-   EmptyAssistantPlaceholderView(imageURL: urlImageViewMockURL.absoluteString, placeholder: Image(systemName: "oval.bottomhalf.filled"), title: "Some Assistant", subtitle: "The math assistant description")
+   EmptyAssistantPlaceholderView(
+      imageURL: urlImageViewMockURL.absoluteString
+      , title: "Some Assistant",
+      subtitle: "The math assistant description") {
+        Image(systemName: "oval.bottomhalf.filled")
+            .symbolEffect(.pulse, options: .repeating, value: true)
+      }
 }

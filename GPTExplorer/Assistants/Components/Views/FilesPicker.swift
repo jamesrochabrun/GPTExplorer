@@ -9,6 +9,8 @@ import SwiftUI
 import SwiftOpenAI
 
 
+// MARK: FilePickerAction
+
 enum FilePickerAction: Identifiable, Equatable {
    
    case request(FileParameters)
@@ -22,6 +24,7 @@ enum FilePickerAction: Identifiable, Equatable {
    }
 }
 
+// MARK: FilesPicker
 
 struct FilesPicker: View {
    
@@ -70,13 +73,12 @@ struct FilesPicker: View {
                   files.forEach { file in
                      // gain access to the directory
                      let gotAccess = file.startAccessingSecurityScopedResource()
-                     if !gotAccess { return }
-                     // access the directory URL
-                     /// DO stuff
-                     let data = try! Data(contentsOf: file.absoluteURL)
-                     let parameter = FileParameters(fileName: file.lastPathComponent, file: data, purpose: "assistants")
-                     self.actions.append(.request(parameter))
-                     // release access
+                     guard gotAccess else { return }
+                     if
+                        let data = try? Data(contentsOf: file.absoluteURL) {
+                        let parameter = FileParameters(fileName: file.lastPathComponent, file: data, purpose: "assistants")
+                        self.actions.append(.request(parameter))
+                     }
                      file.stopAccessingSecurityScopedResource()
                   }
                case .failure(let error):

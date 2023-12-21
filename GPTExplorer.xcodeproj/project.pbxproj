@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B0C00AE2B33A1C000177FC5 /* Filles+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0C00AD2B33A1C000177FC5 /* Filles+Extension.swift */; };
+		7B0C00B02B33A21000177FC5 /* MetadataKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0C00AF2B33A21000177FC5 /* MetadataKeys.swift */; };
+		7B0C00B32B33A27C00177FC5 /* ThreadObject+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0C00B22B33A27C00177FC5 /* ThreadObject+Extension.swift */; };
+		7B0C00B52B33A2A900177FC5 /* ModifyThreadParameters+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0C00B42B33A2A900177FC5 /* ModifyThreadParameters+Extension.swift */; };
+		7B0C00B72B33ABD500177FC5 /* AudioSpeechContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0C00B62B33ABD500177FC5 /* AudioSpeechContainer.swift */; };
+		7B0C00BB2B33B64100177FC5 /* OpenAIServiceFactory+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0C00BA2B33B64100177FC5 /* OpenAIServiceFactory+Mock.swift */; };
+		7B0C00BD2B340B0B00177FC5 /* ChatCompletionParameters+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0C00BC2B340B0B00177FC5 /* ChatCompletionParameters+Extension.swift */; };
 		7B1C76522B0C7B23008E161D /* GPTExplorerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76512B0C7B23008E161D /* GPTExplorerApp.swift */; };
 		7B1C76542B0C7B23008E161D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76532B0C7B23008E161D /* ContentView.swift */; };
 		7B1C76562B0C7B23008E161D /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76552B0C7B23008E161D /* Item.swift */; };
@@ -89,6 +96,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B0C00AD2B33A1C000177FC5 /* Filles+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Filles+Extension.swift"; sourceTree = "<group>"; };
+		7B0C00AF2B33A21000177FC5 /* MetadataKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataKeys.swift; sourceTree = "<group>"; };
+		7B0C00B22B33A27C00177FC5 /* ThreadObject+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ThreadObject+Extension.swift"; sourceTree = "<group>"; };
+		7B0C00B42B33A2A900177FC5 /* ModifyThreadParameters+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModifyThreadParameters+Extension.swift"; sourceTree = "<group>"; };
+		7B0C00B62B33ABD500177FC5 /* AudioSpeechContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSpeechContainer.swift; sourceTree = "<group>"; };
+		7B0C00BA2B33B64100177FC5 /* OpenAIServiceFactory+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OpenAIServiceFactory+Mock.swift"; sourceTree = "<group>"; };
+		7B0C00BC2B340B0B00177FC5 /* ChatCompletionParameters+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatCompletionParameters+Extension.swift"; sourceTree = "<group>"; };
 		7B1C764E2B0C7B23008E161D /* GPTExplorer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPTExplorer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B1C76512B0C7B23008E161D /* GPTExplorerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTExplorerApp.swift; sourceTree = "<group>"; };
 		7B1C76532B0C7B23008E161D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -182,6 +196,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7B0C00B12B33A23800177FC5 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				7B83BEA52B283820000F37C0 /* RunStepObject+Extension.swift */,
+				7B0C00BA2B33B64100177FC5 /* OpenAIServiceFactory+Mock.swift */,
+				7B1C76BF2B0EBD34008E161D /* View+Extensions.swift */,
+				7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */,
+				7B9DB5992B218A1A00610D63 /* Binding+Extension.swift */,
+				7B0C00AD2B33A1C000177FC5 /* Filles+Extension.swift */,
+				7BE370762B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift */,
+				7BE370742B292D37005E7D51 /* RunStepToolCall+Extension.swift */,
+				7B0C00B22B33A27C00177FC5 /* ThreadObject+Extension.swift */,
+				7B0C00B42B33A2A900177FC5 /* ModifyThreadParameters+Extension.swift */,
+				7B0C00BC2B340B0B00177FC5 /* ChatCompletionParameters+Extension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		7B1C76452B0C7B23008E161D = {
 			isa = PBXGroup;
 			children = (
@@ -293,6 +325,7 @@
 		7B1C769F2B0C8764008E161D /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				7B3B8BA42B21962F00ABE6D7 /* AudioWave */,
 				7B1C769D2B0C8746008E161D /* CheckboxView.swift */,
 				7B1C76892B0C7BC9008E161D /* URLImageView.swift */,
 				7B1C76A32B0C87D2008E161D /* InputHeaderView.swift */,
@@ -336,14 +369,9 @@
 		7B1C76BA2B0DCAE5008E161D /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				7B3B8BA42B21962F00ABE6D7 /* AudioWave */,
+				7B0C00B12B33A23800177FC5 /* Extensions */,
 				7B1C76BB2B0DCB4A008E161D /* UserDefaultsIDStorage.swift */,
-				7B83BEA52B283820000F37C0 /* RunStepObject+Extension.swift */,
-				7B1C76BF2B0EBD34008E161D /* View+Extensions.swift */,
-				7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */,
-				7B9DB5992B218A1A00610D63 /* Binding+Extension.swift */,
-				7BE370742B292D37005E7D51 /* RunStepToolCall+Extension.swift */,
-				7BE370762B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift */,
+				7B0C00AF2B33A21000177FC5 /* MetadataKeys.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -381,6 +409,7 @@
 			isa = PBXGroup;
 			children = (
 				7B8973BE2B20661000908753 /* AudioSpeechScreen.swift */,
+				7B0C00B62B33ABD500177FC5 /* AudioSpeechContainer.swift */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -607,10 +636,12 @@
 			files = (
 				7B1C76A22B0C87A5008E161D /* CheckboxRow.swift in Sources */,
 				7B1C76B72B0D78E4008E161D /* ChatMessageRow.swift in Sources */,
+				7B0C00B32B33A27C00177FC5 /* ThreadObject+Extension.swift in Sources */,
 				7B1C76912B0C7DCF008E161D /* SideMenuScreen.swift in Sources */,
 				7BC197882B1E870A0083ACB3 /* FileAttachmentView.swift in Sources */,
 				7B1C768A2B0C7BC9008E161D /* URLImageView.swift in Sources */,
 				7B1C76842B0C7B98008E161D /* Sizes.swift in Sources */,
+				7B0C00B02B33A21000177FC5 /* MetadataKeys.swift in Sources */,
 				7B7A12C12B23CECA00999925 /* ChatScreen.swift in Sources */,
 				7B1C76A82B0C948E008E161D /* ActionButton.swift in Sources */,
 				7B83BEA42B282E17000F37C0 /* RunDetailsScreen.swift in Sources */,
@@ -623,6 +654,7 @@
 				7B1C76942B0C7E39008E161D /* SideMenuConfigurationProvider.swift in Sources */,
 				7BE3707B2B2AC800005E7D51 /* ChatParametersEditScreen.swift in Sources */,
 				7B1C76562B0C7B23008E161D /* Item.swift in Sources */,
+				7B0C00AE2B33A1C000177FC5 /* Filles+Extension.swift in Sources */,
 				7B8973B32B205FCF00908753 /* Shaders.metal in Sources */,
 				7B7A12BD2B23CE1B00999925 /* ChatProvider.swift in Sources */,
 				7B8973BD2B20652500908753 /* AudioSpeechProvider.swift in Sources */,
@@ -630,6 +662,7 @@
 				7B1C76B92B0D7B76008E161D /* EmptyAssistantPlaceholderView.swift in Sources */,
 				7BE370752B292D37005E7D51 /* RunStepToolCall+Extension.swift in Sources */,
 				7BC1978C2B1EE9CA0083ACB3 /* FilesPicker.swift in Sources */,
+				7B0C00BB2B33B64100177FC5 /* OpenAIServiceFactory+Mock.swift in Sources */,
 				7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */,
 				7B83BE992B2462EE000F37C0 /* CreateAssistantChatScreen.swift in Sources */,
 				7BE370772B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift in Sources */,
@@ -639,10 +672,12 @@
 				7B1C76522B0C7B23008E161D /* GPTExplorerApp.swift in Sources */,
 				7B1C76AE2B0D72CA008E161D /* PhotoPicker.swift in Sources */,
 				7B1C76C72B116200008E161D /* AssistantParameters+Extension.swift in Sources */,
+				7B0C00BD2B340B0B00177FC5 /* ChatCompletionParameters+Extension.swift in Sources */,
 				7B1C76C02B0EBD34008E161D /* View+Extensions.swift in Sources */,
 				7B8973B72B2063D800908753 /* AudioModels.swift in Sources */,
 				7B1C76B22B0D74A3008E161D /* ChatTextArea.swift in Sources */,
 				7B1C768E2B0C7C24008E161D /* AuthenticationScreen.swift in Sources */,
+				7B0C00B52B33A2A900177FC5 /* ModifyThreadParameters+Extension.swift in Sources */,
 				7B1C76862B0C7BA5008E161D /* ThemeColor.swift in Sources */,
 				7BC1978A2B1E91CD0083ACB3 /* AttachmentView.swift in Sources */,
 				7B83BEA62B283820000F37C0 /* RunStepObject+Extension.swift in Sources */,
@@ -652,6 +687,7 @@
 				7B83BE9F2B27DCAE000F37C0 /* CircleBouncingView.swift in Sources */,
 				7BC197842B1B22600083ACB3 /* LoadingDotsView.swift in Sources */,
 				7B1C769E2B0C8746008E161D /* CheckboxView.swift in Sources */,
+				7B0C00B72B33ABD500177FC5 /* AudioSpeechContainer.swift in Sources */,
 				7B8973BF2B20661000908753 /* AudioSpeechScreen.swift in Sources */,
 				7B3B8BA62B21967500ABE6D7 /* AudioWaveView.swift in Sources */,
 				7B1C76C52B0F3665008E161D /* PushedScreen.swift in Sources */,

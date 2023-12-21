@@ -8,22 +8,22 @@
 import SwiftUI
 import SwiftOpenAI
 
-extension ChatCompletionParameters: Equatable {
-   
-   public static func == (lhs: ChatCompletionParameters, rhs: ChatCompletionParameters) -> Bool {
-      lhs.frequencyPenalty == rhs.frequencyPenalty &&
-      lhs.logitBias == rhs.logitBias &&
-      lhs.maxTokens == rhs.maxTokens &&
-      lhs.n == rhs.n &&
-      lhs.presencePenalty == rhs.presencePenalty &&
-      lhs.responseFormat == rhs.responseFormat &&
-      lhs.seed == rhs.seed &&
-      lhs.stop == rhs.stop &&
-      lhs.temperature == rhs.temperature &&
-      lhs.topP == rhs.topP &&
-      lhs.user == rhs.user
-   }
-}
+//extension ChatCompletionParameters: Equatable {
+//   
+//   public static func == (lhs: ChatCompletionParameters, rhs: ChatCompletionParameters) -> Bool {
+//      lhs.frequencyPenalty == rhs.frequencyPenalty &&
+//      lhs.logitBias == rhs.logitBias &&
+//      lhs.maxTokens == rhs.maxTokens &&
+//      lhs.n == rhs.n &&
+//      lhs.presencePenalty == rhs.presencePenalty &&
+//      lhs.responseFormat == rhs.responseFormat &&
+//      lhs.seed == rhs.seed &&
+//      lhs.stop == rhs.stop &&
+//      lhs.temperature == rhs.temperature &&
+//      lhs.topP == rhs.topP &&
+//      lhs.user == rhs.user
+//   }
+//}
 
 struct ChatParametersEditScreen: View {
    
@@ -66,9 +66,9 @@ struct ChatParametersEditScreen: View {
             .onFirstAppear {
                print("Parameters: initial parameters \(parameters)")
             }
-            .onChange(of: parameters) { oldValue, newValue in
-               print("Parameters: changed parameters \(newValue)")
-            }
+//            .onChange(of: parameters) { oldValue, newValue in
+//               print("Parameters: changed parameters \(newValue)")
+//            }
             .padding()
             .tint(ThemeColor.brandColor)
          }
@@ -292,33 +292,13 @@ struct ChatParametersEditScreen: View {
    @State private var isTemperatureExpanded = false
    @State private var isTopPExpanded = false
    @State private var isUserExpanded = false
-
-}
-
-extension ChatCompletionParameters.ResponseFormat: Hashable, Equatable {
-   public static func == (lhs: ChatCompletionParameters.ResponseFormat, rhs: ChatCompletionParameters.ResponseFormat) -> Bool {
-      lhs.type == rhs.type
-   }
-   
-   public func hash(into hasher: inout Hasher) {
-      hasher.combine(type)
-   }
-}
-
-private extension Binding where Value == Double? {
-   var orDefaultOne: Binding<Double> {
-      .init(
-         get: { self.wrappedValue ?? 1 },
-         set: { self.wrappedValue = $0 }
-      )
-   }
 }
 
 #Preview {
    ChatParametersEditScreen(parameters: .constant(.init(messages: [], model: .gpt35Turbo0613)))
 }
 
-struct LogitBiasView: View {
+private struct LogitBiasView: View {
    @Binding var tokenBiasMap: [Int: Double]
    @State private var tokenBiasPairs: [TokenBiasPair]
    
@@ -366,12 +346,12 @@ struct LogitBiasView: View {
    }
 }
 
-struct TokenBiasPair: Equatable {
+private struct TokenBiasPair: Equatable {
    var token: Int
    var bias: Double
 }
 
-struct StopSequencesView: View {
+private struct StopSequencesView: View {
    
    @Binding var stopSequences: [String]?
    private let maxSequences = 4

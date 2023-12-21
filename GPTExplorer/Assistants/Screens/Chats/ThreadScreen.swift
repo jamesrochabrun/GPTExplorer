@@ -24,7 +24,7 @@ struct ThreadScreen: View {
       _navigationProvider = State(initialValue: provider.navigationProvider)
       _messagesProvider = State(initialValue: MessagesProvider(service: service))
       _runsProvider = State(initialValue: RunsProvider(service: service))
-      self._item = item
+      _item = item
       switch item.wrappedValue {
       case .assistant(let assistantObject):
          _currentAssistant = State(initialValue: assistantObject)
@@ -32,6 +32,19 @@ struct ThreadScreen: View {
          _currentThread = State(initialValue: thread)
       default:
          fatalError("This is programming error")
+      }
+   }
+   
+   var body: some View {
+      if let currentAssistant {
+         AudioSpeechContainer(
+            service: provider.service,
+            currentModel: .custom(currentAssistant.model),
+            showAudioSpeech: $showAudioSpeech.orFalse) {
+               threadContent
+            }
+      } else {
+         emptyAssistantPlaceholder
       }
    }
    
@@ -44,11 +57,7 @@ struct ThreadScreen: View {
       }
       .onFirstAppear {
          Task {
-            // We need to request the current assistatnt associated to this thread at the moment we display this
-            // screen for the first time.
-            if let assistantID = currentThread?.assistantID {
-               currentAssistant = try await provider.retrieveAssistant(id: assistantID).item
-            }
+            try await assistantFromThreadMetadata()
          }
       }
       .alert(currentProviderState?.message ?? "", isPresented: Binding<Bool>(
@@ -131,17 +140,6 @@ struct ThreadScreen: View {
       }
    }
    
-   var body: some View {
-      ZStack {
-         threadContent
-         if showAudioSpeech == true {
-            AudioSpeechScreen(audioProvider: .init(service: provider.service, responseModel: .custom(currentAssistant!.model)), showScreen: $showAudioSpeech.orFalse)
-         }
-      }
-      .animation(.easeInOut, value: showAudioSpeech) // Smooth fade animation
-      .sensoryFeedback(.impact, trigger: showAudioSpeech)
-   }
-   
    @ViewBuilder
    var mainContent: some View {
       VStack(spacing: 0) {
@@ -189,16 +187,6 @@ struct ThreadScreen: View {
       .padding(.horizontal)
    }
    
-   private var assistantName: String {
-      currentAssistant?.name ?? currentThread?.assistantName ?? "Assistant"
-   }
-   
-   func clearErrorMessages() {
-      currentErrorMessage = nil
-      messagesProvider.errorMessage = nil
-      runsProvider.errorMessage = nil
-   }
-   
    @ViewBuilder
    var assistantPlaceholder: some View {
       if let currentAssistant {
@@ -206,13 +194,32 @@ struct ThreadScreen: View {
             Spacer()
             EmptyAssistantPlaceholderView(
                imageURL: currentAssistant.avatarURL,
-               placeholder: Image(systemName: "oval.bottomhalf.filled"),
                title: currentAssistant.name ?? "NO NAME",
-               subtitle: currentAssistant.description)
+               subtitle: currentAssistant.description) {
+                  Image(systemName: "oval.bottomhalf.filled")
+               }
             Spacer()
          }
       } else {
          EmptyView()
+      }
+   }
+   
+   var emptyAssistantPlaceholder: some View {
+      VStack {
+         Spacer()
+         EmptyAssistantPlaceholderView(
+            imageURL: nil,
+            title: "Error loading Assistamt",
+            subtitle: nil) {
+               Image(systemName: "exclamationmark.triangle.fill")
+            }
+         ActionButton("Retry") {
+            Task {
+               try await assistantFromThreadMetadata()
+            }
+         }
+         Spacer()
       }
    }
    
@@ -254,15 +261,16 @@ struct ThreadScreen: View {
             case .assistant(let assistant):
                isAddAndRunActionLoading = true
                // If the item is assistant, no thread has been created:
-               // - Create a new thread only for first time.
+               // - 1 Create a new thread only for first time.
                if currentThread == nil {
                   try await createThreadWith(assistant: assistant)
                }
-               // - Add the message to the thread.
-               if let threadID = currentThread?.id {
+               // - 2 Add the message to the Run.
+               if let thread = currentThread {
                   prompt = ""
-                  try await addAndRun(threadID: threadID, assistantID: assistant.id, prompt: input)
-                  startThread()
+                  try await addAndRun(threadID: thread.id, assistantID: assistant.id, prompt: input)
+                  // - 3 Navigate to the newly created thread.
+                  navigateTo(thread: thread)
                }
                isAddAndRunActionLoading = false
             case .thread(let thread):
@@ -276,7 +284,7 @@ struct ThreadScreen: View {
             default:
                break
             }
-            try await provider.defineThreadSnippetForMetadata(thread: currentThread, prompt: input)
+            try await provider.setInitialSnippetFor(thread: currentThread, prompt: input)
          }
       } addMessageAction: {
          Task {
@@ -289,11 +297,12 @@ struct ThreadScreen: View {
                if currentThread == nil {
                   try await createThreadWith(assistant: assistant)
                }
-               // - Add the message to the thread.
-               if let threadID = currentThread?.id {
+               // - 1 Add the message to the thread.
+               if let thread = currentThread {
                   prompt = ""
-                  try await addMessage(threadID: threadID, prompt: input)
-                  startThread()
+                  try await addMessage(threadID: thread.id, prompt: input)
+                  // - 2 Navigate to the newly created thread.
+                  navigateTo(thread: thread)
                }
                isAddMessageActionLoading = false
             case .thread(let thread):
@@ -305,12 +314,31 @@ struct ThreadScreen: View {
             default:
                break
             }
-            try await provider.defineThreadSnippetForMetadata(thread: currentThread, prompt: input)
+            try await provider.setInitialSnippetFor(thread: currentThread, prompt: input)
          }
       }
    }
    
    // MARK: Private
+   
+   private var assistantName: String {
+      currentAssistant?.name ?? currentThread?.assistantName ?? "Assistant"
+   }
+   
+   private func clearErrorMessages() {
+      currentErrorMessage = nil
+      messagesProvider.errorMessage = nil
+      runsProvider.errorMessage = nil
+   }
+   
+   /// To be used if `item` is not `.assistant` and we need to retrieve an assistant from the metadata thread.
+   private func assistantFromThreadMetadata()
+      async throws
+   {
+      if let assistantID = currentThread?.assistantID {
+         currentAssistant = try await provider.retrieveAssistant(id: assistantID).item
+      }
+   }
    
    private func createThreadWith(
       assistant: AssistantObject)
@@ -346,11 +374,10 @@ struct ThreadScreen: View {
       currentThread = nil
    }
    
-   private func startThread() {
-      guard let currentThread else {
-         fatalError("currentThread should not be nil")
-      }
-      navigationProvider.changeToSelectedItem = (selectedItem: .thread(currentThread), animated: true)
+   private func navigateTo(
+      thread: ThreadObject)
+   {
+      navigationProvider.changeToSelectedItem = (selectedItem: .thread(thread), animated: true)
    }
    
    private func addMessage(
@@ -359,8 +386,7 @@ struct ThreadScreen: View {
       async throws
    {
       let paramaters = MessageParameter(role: .user, content: prompt)
-      // TODO: here we can modify the thread metadata with the prompt
-      
+      // Tip: here we can modify the thread metadata with the prompt
       guard let message = try await messagesProvider.createMessage(threadID: threadID, parameters: paramaters) else { return }
       guard let messageDisplayModel = messagesProvider.createMessageDisplayModel(from: message) else { return }
       await messagesProvider.addMessage(messageDisplayModel)
@@ -374,7 +400,7 @@ struct ThreadScreen: View {
    {
       let paramaters = MessageParameter(role: .user, content: prompt)
       
-      // TODO: here we can modify the thread metadata with the prompt
+      // Tip: here we can modify the thread metadata with the prompt
       guard let userMessage = try await messagesProvider.createMessage(threadID: threadID, parameters: paramaters) else { return }
       guard let userMessageDisplayModel = messagesProvider.createMessageDisplayModel(from: userMessage) else { return }
       await messagesProvider.addMessage(userMessageDisplayModel)
@@ -432,17 +458,23 @@ struct ThreadScreen: View {
    
    /// USED FOR NOW ONLY FOR RUNS AND MESSAGES
    @State private var currentErrorMessage: String? = nil
-   
-
 }
 
 // MARK: Mock+Preview
 
-//#Preview {
-//   ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.assistant(.init(id: UUID().uuidString, object: "", createdAt: 0, name: "Robocop", description: "", model: "", instructions: "", tools: [], fileIDS: [], metadata: [:]))), didCreateThread: { _ in }, didDeleteThread: { _ in })
-//}
-//
-//#Preview {
-//   ThreadScreen(service: OpenAIServiceFactory.service(apiKey: ""), item: .constant(.thread(.init(id: "", object: "", createdAt: 0, metadata: [:]))), didCreateThread: { _ in }, didDeleteThread: { _ in })
-//      .disabled(true)
-//}
+#Preview("Assistant") {
+   let mockService = OpenAIServiceFactory.mockService()
+   return ThreadScreen(
+      service: mockService,
+      provider: .init(service: mockService),
+      item: .constant(
+         .assistant(.init(id: UUID().uuidString, object: "", createdAt: 0, name: "Robocop", description: "", model: "", instructions: "", tools: [], fileIDS: [], metadata: [:]))))
+}
+
+#Preview("Thread") {
+   let mockService = OpenAIServiceFactory.mockService()
+   return ThreadScreen(
+      service: mockService,
+      provider: .init(service: mockService),
+      item: .constant(.thread(.init(id: "", object: "", createdAt: 0, metadata: [:]))))
+}

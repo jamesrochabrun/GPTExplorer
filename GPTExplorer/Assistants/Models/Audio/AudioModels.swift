@@ -48,10 +48,10 @@ enum VoiceChatState: Equatable {
 }
 
 enum AudioError: String, Error {
-   case permissionRequestError = "Microphon Permission Request Error"
+   
+   case permissionRequestError = "Microphone Permission Request Error"
    case configurationError = "Configuration Error"
    case startCaptureAudioError = "Start Capturing Audio Error"
    case finishCaptureAudioError = "Finish Capturing Audio Error"
    case processSpeechError = "Process Speech Error"
-   
 }

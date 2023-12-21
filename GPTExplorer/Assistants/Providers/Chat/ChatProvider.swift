@@ -89,7 +89,8 @@ enum FunctionCallDefinition: String, CaseIterable {
    
    func chat(
       content: ChatMessageDisplayModel.DisplayContent.DisplayMessageType,
-      _ parameters: ChatCompletionParameters)  async throws
+      _ parameters: ChatCompletionParameters)  
+      async throws
    {
       defer {
          functionsToCallsMap = [:]
@@ -386,7 +387,6 @@ extension ChatProvider {
       -> String
    {
       print("FUNCTIONCALL Generate Assistant \(arguments)")
-      
       let dictionary = arguments.toDictionary()!
       let name = dictionary["name"] as! String
       let description = dictionary["description"] as? String
@@ -428,7 +428,6 @@ private extension String {
          print("Failed to convert JSON string to Data.")
          return nil
       }
-      
       do {
          let dict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any]
          return dict
