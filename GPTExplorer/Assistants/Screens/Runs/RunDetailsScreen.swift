@@ -66,7 +66,7 @@ struct RunDetailsScreen: View {
       .padding(.top, 24)
       .onFirstAppear {
          Task {
-            try await runsProvider.getRunSteps(threadID: runMetadata.threadID, runID: runMetadata.runID)
+            try await runsProvider.setRunSteps(threadID: runMetadata.threadID, runID: runMetadata.runID)
          }
       }
    }

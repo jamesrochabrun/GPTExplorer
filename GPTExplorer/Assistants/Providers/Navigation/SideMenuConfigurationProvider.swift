@@ -37,6 +37,7 @@ enum ProviderState: Equatable {
    case createMessageError(runID: String, threadID: String, message: String)
    case createMessageDisplayError(message: String)
    
+   case createRunError(threadID: String, assistantID: String, message: String)
    case cancelRunError(runID: String, threadID: String, message: String)
    case cancelRunSuccess(message: String)
 
@@ -65,6 +66,7 @@ enum ProviderState: Equatable {
       case .createMessageDisplayError(message: let message): return message
       case .cancelRunError(_, _, let message): return message
       case .cancelRunSuccess(message: let message): return message
+      case .createRunError(_, _, let message): return message
       }
    }
 }

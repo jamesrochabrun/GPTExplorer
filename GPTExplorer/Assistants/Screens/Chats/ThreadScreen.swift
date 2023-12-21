@@ -96,6 +96,13 @@ struct ThreadScreen: View {
                   try await cancelRun(runID: runID, threadID: threadID)
                }
             }
+         case .createRunError(let threadID, let assistantID, _):
+            ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
+            ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
+               Task {
+                  try await createRun(threadID: threadID, assistantID: assistantID)
+               }
+            }
          case .cancelRunError(let runID, let threadID, _):
             ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
             ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
@@ -263,11 +270,14 @@ struct ThreadScreen: View {
                if currentThread == nil {
                   try await createThreadWith(assistant: assistant)
                }
-               // - 2 Add the message to the Run.
                if let thread = currentThread {
                   prompt = ""
-                  try await addAndRun(threadID: thread.id, assistantID: assistant.id, prompt: input)
-                  // - 3 Navigate to the newly created thread.
+                  // - 2 Add the message to the Run.
+                  try await prepareMessageForRun(threadID: thread.id, prompt: input)
+                  // - 3 Create the run.
+                  try await createRun(threadID: thread.id, assistantID: assistant.id)
+
+                  // - 4 Navigate to the newly created thread.
                   navigateTo(thread: thread)
                }
                isAddAndRunActionLoading = false
@@ -277,7 +287,8 @@ struct ThreadScreen: View {
                isAddAndRunActionLoading = true
                let input = prompt
                prompt = ""
-               try await addAndRun(threadID: threadID, assistantID: assistantID, prompt: input)
+               try await prepareMessageForRun(threadID: threadID, prompt: input)
+               try await createRun(threadID: thread.id, assistantID: assistantID)
                isAddAndRunActionLoading = false
             default:
                break
@@ -410,9 +421,8 @@ struct ThreadScreen: View {
       await messagesProvider.addMessage(messageDisplayModel)
    }
    
-   private func addAndRun(
+   private func prepareMessageForRun(
       threadID: String,
-      assistantID: String,
       prompt: String)
       async throws
    {
@@ -433,39 +443,64 @@ struct ThreadScreen: View {
       }
       
       await messagesProvider.addMessage(messageDisplayModel)
+   }
       
-      guard let run = try await runsProvider.runTheThread(threadID: threadID, parameters: RunParameter(assistantID: assistantID))
-      else { return }
+   private func createRun(
+      threadID: String,
+      assistantID: String)
+      async throws
+   {
+      let runResponse = try await runsProvider.createRun(threadID: threadID, parameters: RunParameter(assistantID: assistantID))
       
+      guard let run = runResponse.item else {
+         // Remeber that this will show repeated information to user. We may want to avoid this.
+         currentProviderState = runResponse.state
+         return
+      }
       let lastRunSteps = try await runsProvider.getLastRunSteps(threadID: threadID, runID: run.id)
       
-      if let lastToolCallStep = lastRunSteps.toolCallsStep {
-         for toolCall in lastToolCallStep.stepDetails.toolCalls ?? [] {
-            switch toolCall.toolCall {
-            case .codeInterpreterToolCall(let codeInterpreterToolCall):
-               let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.codeInterpreter(codeInterpreterToolCall)
-               let displayMessage = ChatMessageDisplayModel(
-                  content: displayToolCallContent,
-                  origin: .received(.asssistant(.codeInterpreter)))
-               await messagesProvider.addMessage(displayMessage)
-            default: break // TODO: test this when payload examples are available
-            }
-         }
-      }
       if let lastMessageCreationStep = lastRunSteps.messageCreationStep {
-         
-         let assistantMessage = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: lastMessageCreationStep.stepDetails.messageCreation!.messageID)!
-         
-          let assistantMessageDisplayModelResponse = messagesProvider.createMessageDisplayModel(
-            from: assistantMessage,
-            assistantName: assistantName,
-            runID: run.id,
-            threadID: threadID)
-         
-         if let assistantMessageDisplayModel = assistantMessageDisplayModelResponse.item {
-            await messagesProvider.addMessage(assistantMessageDisplayModel)
-         } else {
-            currentProviderState = assistantMessageDisplayModelResponse.state
+         try await configureMessageCreationStep(lastMessageCreationStep, threadID: threadID, runID: run.id)
+      }
+      
+      if let lastToolCallStep = lastRunSteps.toolCallsStep {
+         await configureToolCallStep(lastToolCallStep)
+      }
+   }
+   
+   private func configureMessageCreationStep(
+      _ step: RunStepObject,
+      threadID: String,
+      runID: String)
+      async throws
+   {
+      let assistantMessage = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: step.stepDetails.messageCreation!.messageID)!
+      
+       let assistantMessageDisplayModelResponse = messagesProvider.createMessageDisplayModel(
+         from: assistantMessage,
+         assistantName: assistantName,
+         runID: runID,
+         threadID: threadID)
+      
+      if let assistantMessageDisplayModel = assistantMessageDisplayModelResponse.item {
+         await messagesProvider.addMessage(assistantMessageDisplayModel)
+      } else {
+         currentProviderState = assistantMessageDisplayModelResponse.state
+      }
+   }
+   
+   private func configureToolCallStep(_ step: RunStepObject) 
+      async
+   {
+      for toolCall in step.stepDetails.toolCalls ?? [] {
+         switch toolCall.toolCall {
+         case .codeInterpreterToolCall(let codeInterpreterToolCall):
+            let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.codeInterpreter(codeInterpreterToolCall)
+            let displayMessage = ChatMessageDisplayModel(
+               content: displayToolCallContent,
+               origin: .received(.asssistant(.codeInterpreter)))
+            await messagesProvider.addMessage(displayMessage)
+         default: break // TODO: test this when payload examples are available
          }
       }
    }
