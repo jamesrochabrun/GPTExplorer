@@ -96,6 +96,8 @@ struct ThreadScreen: View {
                   try await cancelRun(runID: runID, threadID: threadID)
                }
             }
+         case .messageCreationIDError:
+            ActionButton("Ok", actionIcon: nil, isLoading: .constant(false)) {}
          case .createRunError(let threadID, let assistantID, _):
             ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
             ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
@@ -457,13 +459,18 @@ struct ThreadScreen: View {
          currentProviderState = runResponse.state
          return
       }
-      let lastRunSteps = try await runsProvider.getLastRunSteps(threadID: threadID, runID: run.id)
+      let lastRunStepResponse = try await runsProvider.getLastRunSteps(threadID: threadID, runID: run.id)
       
-      if let lastMessageCreationStep = lastRunSteps.messageCreationStep {
+      guard let lastRunStep = lastRunStepResponse.item else {
+         currentProviderState = lastRunStepResponse.state
+         return
+      }
+      
+      if let lastMessageCreationStep = lastRunStep.messageCreationStep {
          try await configureMessageCreationStep(lastMessageCreationStep, threadID: threadID, runID: run.id)
       }
       
-      if let lastToolCallStep = lastRunSteps.toolCallsStep {
+      if let lastToolCallStep = lastRunStep.toolCallsStep {
          await configureToolCallStep(lastToolCallStep)
       }
    }
@@ -474,10 +481,18 @@ struct ThreadScreen: View {
       runID: String)
       async throws
    {
-      let assistantMessage = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: step.stepDetails.messageCreation!.messageID)!
+      guard let messageID = step.stepDetails.messageCreation?.messageID else {
+         currentProviderState = .messageCreationIDError(message: "Failed to get a valid message ID from step details.")
+         return
+      }
+      let messageResponse = try await messagesProvider.retrieveMessage(threadID: threadID, messageID: messageID)
       
+      guard let message = messageResponse.item else {
+         currentProviderState = messageResponse.state
+         return
+      }
        let assistantMessageDisplayModelResponse = messagesProvider.createMessageDisplayModel(
-         from: assistantMessage,
+         from: message,
          assistantName: assistantName,
          runID: runID,
          threadID: threadID)

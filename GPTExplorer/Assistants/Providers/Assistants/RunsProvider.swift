@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftOpenAI
 
+typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: RunStepObject?)
 
 @Observable class RunsProvider {
    
@@ -66,10 +67,10 @@ import SwiftOpenAI
    func getLastRunSteps(
       threadID: String,
       runID: String)
-      async throws -> (messageCreationStep: RunStepObject?, toolCallsStep: RunStepObject?) {
+      async throws -> ResultItem<LastRunStep> {
       do {
          let timeoutDuration = 30_000_000_000 // 30 seconds in nanoseconds
-         var runStepObjects: (messageCreationStep: RunStepObject?, toolCallsStep: RunStepObject?) = (nil, nil)
+         var lastRunStep: (messageCreationStep: RunStepObject?, toolCallsStep: RunStepObject?) = (nil, nil)
          
          try await withThrowingTaskGroup(of: (RunStepObject?, RunStepObject?).self) { group in
             // Polling task
@@ -85,7 +86,7 @@ import SwiftOpenAI
             
             // Wait for the first task to complete
             for try await result in group {
-               runStepObjects = result
+               lastRunStep = result
                break
             }
             
@@ -93,10 +94,9 @@ import SwiftOpenAI
             group.cancelAll()
          }
          
-         return runStepObjects
+         return .init(item: lastRunStep, state: nil)
       } catch let error as APIError {
-         errorMessage = error.displayDescription
-         return (nil, nil)
+         return .init(item: nil, state: .lastRunStepsError(message: error.displayDescription))
       }
    }
    

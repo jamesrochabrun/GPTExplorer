@@ -52,13 +52,13 @@ import SwiftOpenAI
    func retrieveMessage(
       threadID: String,
       messageID: String)
-      async throws -> MessageObject?
+      async throws -> ResultItem<MessageObject>
    {
       do {
-         return try await service.retrieveMessage(threadID: threadID, messageID: messageID)
+         let message = try await service.retrieveMessage(threadID: threadID, messageID: messageID)
+         return .init(item: message, state: nil)
       } catch let error as APIError  {
-         errorMessage = error.displayDescription
-         return nil
+         return .init(item: nil, state: .retrieveMessageError(threadID: threadID, messageID: messageID, message: error.displayDescription))
       }
    }
    
