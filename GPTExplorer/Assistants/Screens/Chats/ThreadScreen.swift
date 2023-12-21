@@ -36,29 +36,24 @@ struct ThreadScreen: View {
    }
    
    var body: some View {
-      if let currentAssistant {
+      NavigationView {
          AudioSpeechContainer(
             service: provider.service,
-            currentModel: .custom(currentAssistant.model),
+            currentModel: .custom(currentAssistant?.model ?? ""),
             showAudioSpeech: $showAudioSpeech.orFalse) {
                threadContent
-            }
-      } else {
-         emptyAssistantPlaceholder
+            }      }
+      .onFirstAppear {
+         Task {
+            try await retrieveAssistantFromThreadMetadata()
+         }
       }
    }
    
    var threadContent: some View {
-      NavigationView {
-         VStack(spacing: 0) {
-            mainContent
-            bottomTextArea
-         }
-      }
-      .onFirstAppear {
-         Task {
-            try await assistantFromThreadMetadata()
-         }
+      VStack(spacing: 0) {
+         mainContent
+         bottomTextArea
       }
       .alert(currentProviderState?.message ?? "", isPresented: Binding<Bool>(
          get: { currentProviderState != nil },
@@ -69,7 +64,14 @@ struct ThreadScreen: View {
          }
       )) {
          switch currentProviderState {
-         case .threadDeletedSuccess(_, _):
+         case .asssitantRetrievedError:
+            ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
+            ActionButton("Retry", actionIcon: nil, isLoading: .constant(false)) {
+               Task {
+                  try await retrieveAssistantFromThreadMetadata()
+               }
+            }
+         case .threadDeletedSuccess:
             Button("Ok", role: .cancel) {
                dismissScreen()
             }
@@ -105,7 +107,7 @@ struct ThreadScreen: View {
          get: { currentErrorMessage != nil },
          set: {
             if !$0 {
-             clearErrorMessages()
+               clearErrorMessages()
             }
          }
       )) {
@@ -202,24 +204,6 @@ struct ThreadScreen: View {
          }
       } else {
          EmptyView()
-      }
-   }
-   
-   var emptyAssistantPlaceholder: some View {
-      VStack {
-         Spacer()
-         EmptyAssistantPlaceholderView(
-            imageURL: nil,
-            title: "Error loading Assistamt",
-            subtitle: nil) {
-               Image(systemName: "exclamationmark.triangle.fill")
-            }
-         ActionButton("Retry") {
-            Task {
-               try await assistantFromThreadMetadata()
-            }
-         }
-         Spacer()
       }
    }
    
@@ -332,7 +316,7 @@ struct ThreadScreen: View {
    }
    
    /// To be used if `item` is not `.assistant` and we need to retrieve an assistant from the metadata thread.
-   private func assistantFromThreadMetadata()
+   private func retrieveAssistantFromThreadMetadata()
       async throws
    {
       if let assistantID = currentThread?.assistantID {
