@@ -33,6 +33,7 @@ struct ChatMessageDisplayModel: Identifiable {
 
       case content(DisplayMessageType)
       case codeInterpreter(CodeInterpreterToolCall)
+      case loading(LoadingSource)
       case error(String)
 
       static func ==(lhs: DisplayContent, rhs: DisplayContent) -> Bool {
@@ -41,6 +42,8 @@ struct ChatMessageDisplayModel: Identifiable {
              return a == b
          case let (.codeInterpreter(a), .codeInterpreter(b)):
              return a == b
+         case let (.loading(a), .loading(b)):
+            return a == b
          case let (.error(a), .error(b)):
             return a == b
          default:
@@ -51,6 +54,10 @@ struct ChatMessageDisplayModel: Identifiable {
       struct DisplayMessageType: Equatable {
          var text: String?
          var urls: [URL]? = nil
+      }
+      
+      enum LoadingSource: Equatable {
+         case dalle
       }
    }
 

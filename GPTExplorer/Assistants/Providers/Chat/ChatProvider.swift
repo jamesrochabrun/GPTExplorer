@@ -290,13 +290,13 @@ enum FunctionCallDefinition: String, CaseIterable {
    
    @MainActor
    private func updateLastAssistantMessage(
-      _ message: ChatMessageDisplayModel)
+      _ newMessage: ChatMessageDisplayModel)
    {
       guard let id = lastDisplayedMessageID, let index = chatDisplayMessages.firstIndex(where: { $0.id == id }) else { return }
       
       var lastMessage = chatDisplayMessages[index]
       
-      switch message.content {
+      switch newMessage.content {
       case .content(let newMedia):
          switch lastMessage.content {
          case .content(let lastMedia):
@@ -314,11 +314,14 @@ enum FunctionCallDefinition: String, CaseIterable {
             lastMessage.content = .content(updatedMedia)
          case .error:
             break
+         case .loading:
+            lastMessage.content = newMessage.content
          case .codeInterpreter:
             break // There is not code interpreter in this context
          }
-      case .error:
-         lastMessage.content = message.content
+      case .error, .loading:
+         // This is because at this level we already have a error message passed at the callsite.
+         lastMessage.content = newMessage.content
       case .codeInterpreter:
          break // There is not code interpreter in this context
       }
@@ -326,7 +329,7 @@ enum FunctionCallDefinition: String, CaseIterable {
       chatDisplayMessages[index] = ChatMessageDisplayModel(
          id: id,
          content: lastMessage.content,
-         origin: message.origin)
+         origin: newMessage.origin)
    }
    
    @MainActor
@@ -355,13 +358,15 @@ extension ChatProvider {
       -> String
    {
       print("FUNCTIONCALL Generate image \(arguments)")
-      let dictionary = arguments.toDictionary()!
-      let prompt = dictionary["prompt"] as! String
+      guard 
+         let dictionary = arguments.toDictionary(),
+         let prompt = dictionary["prompt"] as? String else {
+         return "Image creation failed. Please try again later."
+      }
       let count = (dictionary["count"]  as? Int) ??  1
       
-      // TODO: Improve the loading state
       let assistantMessage = ChatMessageDisplayModel(
-         content: .content(.init(text: "Generating images...")),
+         content: .loading(.dalle),
          origin: .received(.gpt))
       updateLastAssistantMessage(assistantMessage)
       
