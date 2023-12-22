@@ -316,13 +316,13 @@ enum FunctionCallDefinition: String, CaseIterable {
             break
          case .loading:
             lastMessage.content = newMessage.content
-         case .codeInterpreter:
+         case .toolCall:
             break // There is not code interpreter in this context
          }
       case .error, .loading:
          // This is because at this level we already have a error message passed at the callsite.
          lastMessage.content = newMessage.content
-      case .codeInterpreter:
+      case .toolCall:
          break // There is not code interpreter in this context
       }
       

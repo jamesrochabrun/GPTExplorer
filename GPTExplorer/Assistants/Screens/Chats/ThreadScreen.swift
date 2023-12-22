@@ -96,7 +96,7 @@ struct ThreadScreen: View {
                   try await cancelRun(runID: runID, threadID: threadID)
                }
             }
-         case .messageCreationIDError:
+         case .messageCreationIDError, .getRunStepsError, .lastRunStepsError:
             ActionButton("Ok", actionIcon: nil, isLoading: .constant(false)) {}
          case .createRunError(let threadID, let assistantID, _):
             ActionButton("Cancel", actionIcon: nil, isLoading: .constant(false)) {}
@@ -510,12 +510,23 @@ struct ThreadScreen: View {
       for toolCall in step.stepDetails.toolCalls ?? [] {
          switch toolCall.toolCall {
          case .codeInterpreterToolCall(let codeInterpreterToolCall):
-            let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.codeInterpreter(codeInterpreterToolCall)
+            let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.toolCall(.codeInterpreterToolCall(codeInterpreterToolCall))
             let displayMessage = ChatMessageDisplayModel(
                content: displayToolCallContent,
-               origin: .received(.asssistant(.codeInterpreter)))
+               origin: .received(.asssistant(.toolCall(.codeInterpreter))))
             await messagesProvider.addMessage(displayMessage)
-         default: break // TODO: test this when payload examples are available
+         case .functionToolCall(let functionToolCall):
+            let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.toolCall(.functionToolCall(functionToolCall))
+            let displayMessage = ChatMessageDisplayModel(
+               content: displayToolCallContent,
+               origin: .received(.asssistant(.toolCall(.function))))
+            await messagesProvider.addMessage(displayMessage)
+         case .retrieveToolCall(let retrieveToolCall):
+            let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.toolCall(.retrieveToolCall(retrieveToolCall))
+            let displayMessage = ChatMessageDisplayModel(
+               content: displayToolCallContent,
+               origin: .received(.asssistant(.toolCall(.retrieval))))
+            await messagesProvider.addMessage(displayMessage)
          }
       }
    }

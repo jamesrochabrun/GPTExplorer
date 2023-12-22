@@ -30,8 +30,15 @@ struct ChatMessageRow: View {
             switch message.content {
             case .content(let mediaType):
                contentDisplay(type: mediaType)
-            case .codeInterpreter(let codeInterpreter):
-               codeInterpreterToolCall(codeInterpreter)
+            case .toolCall(let runStepToolCall):
+               switch runStepToolCall {
+               case .codeInterpreterToolCall(let codeInterpreter):
+                  codeInterpreterToolCallView(codeInterpreter)
+               case .retrieveToolCall:
+                  Text("Retrieval")
+               case .functionToolCall(let functionToolCall):
+                  functionToolCallView(functionToolCall)
+               }
             case .loading(let source):
                loadingView(source: source)
             case .error(let error):
@@ -54,7 +61,7 @@ struct ChatMessageRow: View {
       .transition(.opacity)
    }
    
-   func codeInterpreterToolCall(
+   func codeInterpreterToolCallView(
       _ codeInterpreter: CodeInterpreterToolCall)
       -> some View
    {
@@ -77,6 +84,13 @@ struct ChatMessageRow: View {
       .transition(.opacity)
    }
    
+   func functionToolCallView(
+      _ function: FunctionToolCall)
+      -> some View
+   {
+      Text(function.name).bold().font(.body) + Text("(\(function.arguments))").font(.callout)
+   }
+   
    @ViewBuilder
    var header: some View {
       switch message.origin {
@@ -92,7 +106,7 @@ struct ChatMessageRow: View {
                headerWith("person.circle", title: "You")
             case .assistant(let assistantName):
                headerWith("wand.and.stars", title: assistantName)
-            case .codeInterpreter:
+            case .toolCall:
                EmptyView()
             }
          }

@@ -7,12 +7,30 @@
 
 import SwiftOpenAI
 
-extension RunStepToolCall {
-   
-   var codeInterpreter: CodeInterpreterToolCall? {
-      switch self {
-      case .codeInterpreterToolCall(let codeInterpreter): return codeInterpreter
-      default: return nil
-      }
-   }
+extension RunStepToolCall: Equatable {
+    public static func == (lhs: RunStepToolCall, rhs: RunStepToolCall) -> Bool {
+        switch (lhs, rhs) {
+        case let (.codeInterpreterToolCall(lhsValue), .codeInterpreterToolCall(rhsValue)):
+            return lhsValue == rhsValue
+        case let (.retrieveToolCall(lhsValue), .retrieveToolCall(rhsValue)):
+            return lhsValue == rhsValue
+        case let (.functionToolCall(lhsValue), .functionToolCall(rhsValue)):
+            return lhsValue == rhsValue
+        default:
+            return false
+        }
+    }
 }
+
+extension RetrievalToolCall: Equatable {
+    public static func == (lhs: RetrievalToolCall, rhs: RetrievalToolCall) -> Bool {
+        return lhs.retrieval == rhs.retrieval
+    }
+}
+
+extension FunctionToolCall: Equatable {
+    public static func == (lhs: FunctionToolCall, rhs: FunctionToolCall) -> Bool {
+        return lhs.name == rhs.name && lhs.arguments == rhs.arguments && lhs.output == rhs.output
+    }
+}
+

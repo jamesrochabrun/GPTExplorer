@@ -70,12 +70,12 @@ typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: Run
       async throws -> ResultItem<LastRunStep> {
       do {
          let timeoutDuration = 30_000_000_000 // 30 seconds in nanoseconds
-         var lastRunStep: (messageCreationStep: RunStepObject?, toolCallsStep: RunStepObject?) = (nil, nil)
-         
-         try await withThrowingTaskGroup(of: (RunStepObject?, RunStepObject?).self) { group in
+         var lastRunStep: ResultItem<LastRunStep> = .init(item: nil, state: nil)
+      
+         try await withThrowingTaskGroup(of: ResultItem<LastRunStep>.self) { group in
             // Polling task
             group.addTask { [weak self] in
-               return try await self?.pollForCompletionLastRuns(threadID: threadID, runID: runID) ?? (nil, nil)
+               return try await self?.pollForCompletionLastRuns(threadID: threadID, runID: runID) ?? .init(item: nil, state: nil)
             }
             
             // Timeout task
@@ -94,7 +94,19 @@ typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: Run
             group.cancelAll()
          }
          
-         return .init(item: lastRunStep, state: nil)
+         if let item = lastRunStep.item {
+            
+            if item.messageCreationStep == nil && item.toolCallsStep == nil {
+               return .init(item: nil, state: .lastRunStepsError(message: "No Step details found for \(threadID) with \(runID)"))
+
+            } else {
+               return .init(item: item, state: nil)
+            }
+            
+         } else {
+            return .init(item: nil, state: lastRunStep.state)
+         }
+               
       } catch let error as APIError {
          return .init(item: nil, state: .lastRunStepsError(message: error.displayDescription))
       }
@@ -105,7 +117,7 @@ typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: Run
    private func pollForCompletionLastRuns(
       threadID: String,
       runID: String)
-      async throws -> (messageCreationStep: RunStepObject?, toolCallsStep: RunStepObject?)
+      async throws -> ResultItem<LastRunStep>
    {
       var lastMessageCreationStep: RunStepObject? = nil
       var lastToolCallsStep: RunStepObject? = nil
@@ -118,21 +130,43 @@ typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: Run
             break
          }
          
-         let data = try await getRunSteps(threadID: threadID, runID: runID)
-         for step in data {
-            if let status = RunStepObject.Status(rawValue: step.status), status != .inProgress {
+         let runStepsResponse = try await getRunSteps(threadID: threadID, runID: runID)
+         guard let steps = runStepsResponse.item else {
+            return .init(item: nil, state: runStepsResponse.state)
+         }
+         
+         for step in steps {
                switch step.stepDetails.type {
                case "message_creation":
-                  lastMessageCreationStep = step
-               case "tool_calls":
-                  if let toolCalls = step.stepDetails.toolCalls,
-                     toolCalls.contains(where: { $0.type == "code_interpreter" && !($0.toolCall.codeInterpreter?.outputs.isEmpty ?? true) }) {
-                     lastToolCallsStep = step
+                  // We need status to be "completed" so we can get a valid message id.
+                  if let status = RunStepObject.Status(rawValue: step.status), status == .completed {
+                     lastMessageCreationStep = step
                   }
+               case "tool_calls":
+                  // TODO!: This can return many tool calls of type "code_interpreter", "retrieval" or "function" consider updating
+                  // `LastRunStep` to return an array of tool calls. This is important so we can handle multiple function calls.
+                  // For now we just get the first one
+                  
+                  if let toolCall = step.stepDetails.toolCalls?.first {
+                     switch toolCall.toolCall {
+                     case .codeInterpreterToolCall(let codeInterpreterToolCall):
+                        if !codeInterpreterToolCall.outputs.isEmpty {
+                           lastToolCallsStep = step
+                        }
+                     case .retrieveToolCall(let retrievalToolCall):
+                        if let retrieval = retrievalToolCall.retrieval, !retrieval.isEmpty {
+                           lastToolCallsStep = step
+                        }
+                     case .functionToolCall(let functionToolCall):
+                        if !functionToolCall.arguments.isEmpty {
+                           lastToolCallsStep = step
+                        }
+                     }
+                  }
+                  
                default:
                   break
                }
-            }
          }
          
          if lastMessageCreationStep != nil && lastToolCallsStep != nil {
@@ -142,19 +176,19 @@ typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: Run
             currentRetryCount += 1
          }
       }
-      return (lastMessageCreationStep, lastToolCallsStep)
+      return .init(item: (lastMessageCreationStep, lastToolCallsStep), state: nil)
    }
       
    private func getRunSteps(
       threadID: String,
       runID: String)
-      async throws -> [RunStepObject]
+      async throws -> ResultItem<[RunStepObject]>
    {
       do {
-         return try await service.listRunSteps(threadID: threadID, runID: runID, limit: nil, order: nil, after: nil, before: nil).data
+         let runSteps = try await service.listRunSteps(threadID: threadID, runID: runID, limit: nil, order: nil, after: nil, before: nil).data
+         return .init(item: runSteps, state: nil)
       } catch let error as APIError {
-         errorMessage = error.displayDescription
-         throw error
+         return .init(item: nil, state: .getRunStepsError(message: error.displayDescription))
       }
    }
 }
