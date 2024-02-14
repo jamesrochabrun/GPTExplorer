@@ -163,12 +163,13 @@ typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: Run
                         }
                      }
                   }
-                  
                default:
                   break
                }
          }
          
+         // TODO: We need to revisit this, with this logic the only thing saving us is the time out
+         // Consider returning just either a message creation or the toolcall.
          if lastMessageCreationStep != nil && lastToolCallsStep != nil {
             isCompleted = true  // Set the flag to true to break the loop
          } else {
