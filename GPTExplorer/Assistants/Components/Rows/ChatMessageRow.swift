@@ -10,10 +10,11 @@ import SwiftUI
 import SwiftOpenAI
 
 struct ChatMessageRow: View {
+   
    @State var isAnimating = false
-
-   let message: ChatMessageDisplayModel
    @Binding private var runMetadata: ChatMessageDisplayModel.RunMetadata?
+   let generator = UISelectionFeedbackGenerator()
+   let message: ChatMessageDisplayModel
    
    init(
       message: ChatMessageDisplayModel,
@@ -56,7 +57,7 @@ struct ChatMessageRow: View {
    {
       VStack(alignment: .leading, spacing: Sizes.spacingMedium) {
          imagesFrom(urls: type.urls ?? [])
-         textMessage(type.text)
+         textMessage(type.text, isFinished: type.isFinished)
       }
       .transition(.opacity)
    }
@@ -74,7 +75,7 @@ struct ChatMessageRow: View {
                HStack {
                   Image(systemName: "arrow.turn.down.right")
                      .foregroundColor(.primary)
-                  textMessage(output.logs)
+                  textMessage(output.logs, isFinished: true) // TODO: When Assistant API supports Stream
                }
             case .images:
                EmptyView()
@@ -140,17 +141,18 @@ struct ChatMessageRow: View {
    {
       Text(message)
          .padding()
-         .font(.callout)
+         .font(.custom("Roboto-Regular", size: 16)) // Use the Roboto font
          .background(
             RoundedRectangle(cornerRadius: 20)
                .foregroundColor(.red.opacity(0.7))
          )
          .transition(.opacity)
    }
-
+   
    @ViewBuilder
    func textMessage(
-      _ text: String?)
+      _ text: String?,
+      isFinished: Bool)
       -> some View
    {
       if let text = text {
@@ -159,8 +161,14 @@ struct ChatMessageRow: View {
             CircleBouncingView(animationDuration: 0.5)
                .frame(width: 10, height: 10)
          } else {
-            Text(text)
-               .font(.body)
+            if isFinished {
+               Text(text)
+                  .font(.body)
+            } else {
+               let _ = generator.selectionChanged()
+               Text(text)
+                  .font(.body) + Text(Image(systemName: "circle.fill"))
+            }
          }
       } else {
          EmptyView()
@@ -208,24 +216,26 @@ struct ChatMessageRow: View {
 }
 
 #Preview {
-
+   
    return ScrollView {
       VStack(spacing: 20) {
-         ChatMessageRow(message: .init(content: .content(.init(text: "What is the capital of Peru? and what is the population")), origin: .sent))
+         ChatMessageRow(message: .init(content: .content(.init(text: "What is the capital of Peru? and what is the population", isFinished: true)), origin: .sent))
          Divider()
-         ChatMessageRow(message: .init(content: .content(.init(text: "Lima, an its 28 million habitants.")), origin: .received(.gpt), runMetadata: .init(runID: "dddddd", threadID: "dddddd")))
+         ChatMessageRow(message: .init(content: .content(.init(text: "Lima, an its 28 million habitants.", isFinished: true)), origin: .received(.gpt), runMetadata: .init(runID: "dddddd", threadID: "dddddd")))
          Divider()
          ChatMessageRow(
             message: .init(
-               content: .content(.init(text: "The image you requested is ready 🐱",
-                                       urls: [URL(string: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg")!])),
+               content: .content(
+                  .init(
+                     text: "The image you requested is ready 🐱",
+                     urls: [URL(string: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg")!], isFinished: true)),
                origin: .received(.dalle),
                runMetadata: nil))
          Divider()
-         ChatMessageRow(message: .init(content: .content(.init(text: "")), origin: .received(.gpt)))
+         ChatMessageRow(message: .init(content: .content(.init(text: "", isFinished: true)), origin: .received(.gpt)))
          Divider()
          ChatMessageRow(message: .init(content: .loading(.dalle), origin: .received(.gpt)))
-
+         
       }
    }
    .padding()

@@ -76,6 +76,7 @@
 		7BE370792B29838B005E7D51 /* ModelsListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE370782B29838B005E7D51 /* ModelsListScreen.swift */; };
 		7BE3707B2B2AC800005E7D51 /* ChatParametersEditScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3707A2B2AC800005E7D51 /* ChatParametersEditScreen.swift */; };
 		7BE3707D2B2C3E8D005E7D51 /* CustomNumericTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3707C2B2C3E8D005E7D51 /* CustomNumericTextField.swift */; };
+		7BFE26A02B7C98E8008C4DF3 /* FunctionCallDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFE269F2B7C98E8008C4DF3 /* FunctionCallDefinition.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -168,6 +169,7 @@
 		7BE370782B29838B005E7D51 /* ModelsListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsListScreen.swift; sourceTree = "<group>"; };
 		7BE3707A2B2AC800005E7D51 /* ChatParametersEditScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatParametersEditScreen.swift; sourceTree = "<group>"; };
 		7BE3707C2B2C3E8D005E7D51 /* CustomNumericTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNumericTextField.swift; sourceTree = "<group>"; };
+		7BFE269F2B7C98E8008C4DF3 /* FunctionCallDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionCallDefinition.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -436,6 +438,7 @@
 			isa = PBXGroup;
 			children = (
 				7B7A12BC2B23CE1B00999925 /* ChatProvider.swift */,
+				7BFE269F2B7C98E8008C4DF3 /* FunctionCallDefinition.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -636,6 +639,7 @@
 			files = (
 				7B1C76A22B0C87A5008E161D /* CheckboxRow.swift in Sources */,
 				7B1C76B72B0D78E4008E161D /* ChatMessageRow.swift in Sources */,
+				7BFE26A02B7C98E8008C4DF3 /* FunctionCallDefinition.swift in Sources */,
 				7B0C00B32B33A27C00177FC5 /* ThreadObject+Extension.swift in Sources */,
 				7B1C76912B0C7DCF008E161D /* SideMenuScreen.swift in Sources */,
 				7BC197882B1E870A0083ACB3 /* FileAttachmentView.swift in Sources */,

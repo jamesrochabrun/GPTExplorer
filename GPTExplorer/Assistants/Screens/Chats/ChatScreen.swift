@@ -85,7 +85,7 @@ struct ChatScreen: View {
                chatCompletionParameters.messages = [systemMessage]
                
                // Create the initial users content
-               let userContent = ChatMessageDisplayModel.DisplayContent.DisplayMessageType(text: userPrompt, urls: selectedImageURLS)
+               let userContent = ChatMessageDisplayModel.DisplayContent.DisplayMessageType(text: userPrompt, urls: selectedImageURLS, isFinished: true)
                                
                resetImageInputs()
                /// TODO: I think we need to also clear the `selectedItems` in `PhotoPicker`

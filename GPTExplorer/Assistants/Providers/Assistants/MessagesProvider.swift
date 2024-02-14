@@ -129,7 +129,7 @@ import SwiftOpenAI
             }
             let displayMessage = ChatMessageDisplayModel(
                id: message.id,
-               content: .content(.init(text: content.text.value)),
+               content: .content(.init(text: content.text.value, isFinished: true)),
                origin: .received(.asssistant(origin)),
                runMetadata: runMetadata)
             return .init(item: displayMessage, state: nil)

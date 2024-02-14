@@ -8,68 +8,7 @@
 import SwiftUI
 import SwiftOpenAI
 
-/**
- This is a demo in how to implement parallel function calling when using the completion API stream = true
- */
-
-struct FunctionCallStreamedResponse {
-   let name: String
-   let id: String
-   let toolCall: ToolCall
-   var argument: String
-}
-
-enum FunctionCallDefinition: String, CaseIterable {
-   
-   static var lastFunction: FunctionCallDefinition?
-
-   case createImage = "create_image"
-   case buildAssistant = "build_assistant"
-   // Add more functions if needed, parallel function calling is supported.
-
-   var functionTool: ChatCompletionParameters.Tool {
-      switch self {
-      case .createImage:
-         return .init(function: .init(
-            name: self.rawValue,
-            description: "Call this function if the request asks to generate an image",
-            parameters: .init(
-               type: .object,
-               properties: [
-                  "prompt": .init(type: .string, description: "The exact prompt passed in."),
-                  "count": .init(type: .integer, description: "The number of images requested")
-               ],
-               required: ["prompt", "count"])))
-      case .buildAssistant:
-         return .init(function: .init(
-            name: self.rawValue,
-            description: "Call this function if the request is associated to build an assistant to certain parameters, the values we need to extract are, name, description, instructions., enabling tools such code interpreter, retrieval or Dalle",
-            parameters: .init(
-               type: .object,
-               properties: [
-                  "name": .init(type: .string, description: "The name for the assistant."),
-                  "description": .init(type: .string, description: "The assistant's description"),
-                  "instructions": .init(type: .string, description: "The assistant's instructions"),
-                  "code_interpreter": .init(type: .boolean, description: "A bool se to true if user requests code interpreter tool"),
-                  "retrieval": .init(type: .boolean, description: "A bool se to true if user requests code retrieval tool"),
-                  "dalle": .init(type: .boolean, description: "A bool se to true if user requests dalle image generator tool"),
-                  "avatar_description": .init(type: .string, description: "The description of the image that was requested by the user.")
-               ],
-               required: ["name"])))
-      }
-   }
-}
-
 @Observable class ChatProvider {
-   
-   // MARK: - Private Properties
-   
-   private let service: OpenAIService
-   private var lastDisplayedMessageID: String?
-   /// To be used for a new request
-   private var chatMessageParameters: [ChatCompletionParameters.Message] = []
-   private var functionsToCallsMap: [FunctionCallDefinition: FunctionCallStreamedResponse] = [:]
-   private var availableFunctions: [FunctionCallDefinition: (@MainActor (String) async throws -> String)] = [:]
    
    // MARK: - Public Properties
    
@@ -78,7 +17,7 @@ enum FunctionCallDefinition: String, CaseIterable {
    /// The updates assistant parameters
    var assistantParameters: AssistantParameters = AssistantParameters(action: .create(model: Model.gpt41106Preview.value))
    var assistantURL: URL?
-   
+      
    // MARK: - Initializer
    
    init(service: OpenAIService) {
@@ -107,7 +46,8 @@ enum FunctionCallDefinition: String, CaseIterable {
       /// # Step 2: Create a user message with the given content.
       let userMessage = createUserMessage(content)
       chatMessageParameters.append(userMessage)
-      /// # Step 2.1 : do not forget to also add that new user message to the parameters that will be used for the chat request.
+      /// # Step 2.1 : do not forget to also add that new user message to the parameters that will be used when continuing a conversation is needed.
+      /// e.g: After a function call
       var localParameters = parameters
       localParameters.messages.append(userMessage)
       
@@ -125,79 +65,74 @@ enum FunctionCallDefinition: String, CaseIterable {
             /// # Step 2: check if the model wanted to call a function
             if let toolCalls = choice.delta.toolCalls {
                
-               /// # Step 3: Define the available functions to be called IMPORTANT
+               /// # Step 3: Define the available functions to be called `IMPORTANT`
                availableFunctions = [
-                  .createImage: generateImage(arguments:),
-                  .buildAssistant: generateAssistantParameters(arguments:)
+                  .createImage: generateImage(arguments: model:),
+                  .buildAssistant: generateAssistantParameters(arguments: model:)
                ]
-               
-               /// IMPORTANT,
                assert(availableFunctions.count == FunctionCallDefinition.allCases.count, "This is programming error, all the functions declared in FunctionCallDefinition, must provide a function implementation.")
-
                mapStreamedToolCallsResponse(toolCalls)
             }
-            
-            /// The streamed content to display
-            if let newContent = choice.delta.content {
-               await updateLastAssistantMessage(.init(
-                  content: .content(.init(text: newContent)),
+            await updateLastAssistantMessage(.init(
+                  content: .content(.init(text: choice.delta.content ?? "", isFinished: choice.finishReason != nil)),
                   origin: .received(.gpt)))
-            }
          }
-         // # extend conversation with assistant's reply
+         // # extend conversation with assistant's reply.
          // Append the `assistantMessage` in to the `chatMessageParameters` to extend the conversation
          if !functionsToCallsMap.isEmpty {
             
             let assistantMessage = createAssistantMessage()
             chatMessageParameters.append(assistantMessage)
             /// # Step 4: send the info for each function call and function response to the model
-            let toolMessages = try await createToolsMessages()
+            let toolMessages = try await createToolsMessages(model: .custom(parameters.model))
             chatMessageParameters.append(contentsOf: toolMessages)
             
-            // Lastly call the chat again
-            await continueChat()
+            // Lastly call the chat again, and pass the model from the parameters.
+            await continueChatAfterFunctionCall(model: .custom(parameters.model))
          }
-         
-         // TUTORIAL
       } catch {
          // If an error occurs, update the UI to display the error message.
          await updateLastAssistantMessage(.init(content: .error("\(error)"), origin: .received(.gpt)))
       }
    }
+      
+   // MARK: - Private Methods
    
-   /// This gets triggered multiple time.
-   func mapStreamedToolCallsResponse(
-      _ toolCalls:  [ToolCall])
+   private func mapStreamedToolCallsResponse(
+      _ toolCalls: [ToolCall])
    {
       assert(toolCalls.count == 1)
+      
+      // This is the only way to not override the last function, remember that toolCall.function.name is
+      // not nil Only on the first `mapStreamedToolCallsResponse` call.
+      func stream(_ name: String?) -> FunctionCallDefinition? {
+          if let name = name, let newFunction = FunctionCallDefinition(rawValue: name) {
+             FunctionCallDefinition.lastFunction = newFunction
+          }
+          return FunctionCallDefinition.lastFunction
+      }
       for toolCall in toolCalls {
-         // Intentionally force unwrapped to catch errrors quickly on demo. // This should be properly handled.
          if let function = stream(toolCall.function.name) {
             if var streamedFunctionCallResponse = functionsToCallsMap[function] {
                streamedFunctionCallResponse.argument += toolCall.function.arguments
                functionsToCallsMap[function] = streamedFunctionCallResponse
             } else {
-               let streamedFunctionCallResponse = FunctionCallStreamedResponse(
-                  name: toolCall.function.name!,
-                  id: toolCall.id!,
-                  toolCall: toolCall,
-                  argument: toolCall.function.arguments)
-               functionsToCallsMap[function] = streamedFunctionCallResponse
+               if
+                  let functionName = toolCall.function.name,
+                  let toolCallID = toolCall.id {
+                  let streamedFunctionCallResponse = FunctionCallStreamedResponse(
+                     name: functionName,
+                     id: toolCallID,
+                     toolCall: toolCall,
+                     argument: toolCall.function.arguments)
+                  functionsToCallsMap[function] = streamedFunctionCallResponse
+               }
             }
          }
       }
    }
-   
-   // This is the only way to not override the last function, remember that toolCall.function.name is
-   // not nil Only on the first `mapStreamedToolCallsResponse` call.
-   func stream(_ name: String?) -> FunctionCallDefinition? {
-       if let name = name, let newFunction = FunctionCallDefinition(rawValue: name) {
-          FunctionCallDefinition.lastFunction = newFunction
-       }
-       return FunctionCallDefinition.lastFunction
-   }
-   
-   func createUserMessage(
+      
+   private func createUserMessage(
       _ content: ChatMessageDisplayModel.DisplayContent.DisplayMessageType)
       -> ChatCompletionParameters.Message
    {
@@ -211,45 +146,53 @@ enum FunctionCallDefinition: String, CaseIterable {
       return ChatCompletionParameters.Message(role: .user, content: .contentArray(inputs))
    }
    
-   func createAssistantMessage() -> ChatCompletionParameters.Message {
+   private func createAssistantMessage()
+      -> ChatCompletionParameters.Message
+   {
       var toolCalls: [ToolCall] = []
       for (_, functionCallStreamedResponse) in functionsToCallsMap {
          let toolCall = functionCallStreamedResponse.toolCall
-         // Intentionally force unwrapped to catch errrors quickly on demo. // This should be properly handled.
-         let messageToolCall = ToolCall(
-            id: toolCall.id!,
-            function: .init(arguments: toolCall.function.arguments, name: toolCall.function.name!))
-         toolCalls.append(messageToolCall)
+         if
+            let functionName = toolCall.function.name,
+            let toolCallID = toolCall.id {
+            let messageToolCall = ToolCall(
+               id: toolCallID,
+               function: .init(arguments: toolCall.function.arguments, name: functionName))
+            toolCalls.append(messageToolCall)
+         }
       }
       return .init(role: .assistant, content: .text(""), toolCalls: toolCalls)
    }
    
-   func createToolsMessages() async throws
-   -> [ChatCompletionParameters.Message]
+   private func createToolsMessages(
+      model: Model)
+      async throws -> [ChatCompletionParameters.Message]
    {
       var toolMessages: [ChatCompletionParameters.Message] = []
       for (key, functionCallStreamedResponse) in functionsToCallsMap {
-         
-         let name = functionCallStreamedResponse.name
-         let id = functionCallStreamedResponse.id
-         let functionToCall = availableFunctions[key]!
-         let arguments = functionCallStreamedResponse.argument
-         let content = try await functionToCall(arguments)
-         let toolMessage = ChatCompletionParameters.Message(
-            role: .tool,
-            content: .text(content),
-            name: name,
-            toolCallID: id)
-         toolMessages.append(toolMessage)
+         if let functionToCall = availableFunctions[key] {
+            let name = functionCallStreamedResponse.name
+            let id = functionCallStreamedResponse.id
+            let arguments = functionCallStreamedResponse.argument
+            let content = try await functionToCall(arguments, model)
+            let toolMessage = ChatCompletionParameters.Message(
+               role: .tool,
+               content: .text(content),
+               name: name,
+               toolCallID: id)
+            toolMessages.append(toolMessage)
+         }
       }
       return toolMessages
    }
    
-   func continueChat() async {
-      
+   private func continueChatAfterFunctionCall(
+      model: Model)
+      async
+   {
       let paramsForChat = ChatCompletionParameters(
          messages: chatMessageParameters,
-         model: .gpt41106Preview)
+         model: model)
       do {
          // Begin the chat stream with the updated parameters.
          let stream = try await service.startStreamedChat(parameters: paramsForChat)
@@ -258,17 +201,17 @@ enum FunctionCallDefinition: String, CaseIterable {
             guard let choice = result.choices.first else { return }
             
             /// The streamed content to display
-            if let newContent = choice.delta.content {
-               await updateLastAssistantMessage(.init(content: .content(.init(text: newContent)), origin: .received(.gpt)))
-            }
+               await updateLastAssistantMessage(
+                  .init(content: .content(
+                     .init(text: choice.delta.content ?? "",
+                           isFinished: choice.finishReason != nil)),
+                        origin: .received(.gpt)))
          }
       } catch {
          // If an error occurs, update the UI to display the error message.
          await updateLastAssistantMessage(.init(content: .error("\(error)"), origin: .received(.gpt)))
       }
    }
-   
-   // MARK: - Private Methods
    
    @MainActor
    private func startNewUserDisplayMessage(
@@ -283,7 +226,7 @@ enum FunctionCallDefinition: String, CaseIterable {
    @MainActor
    private func startNewAssistantEmptyDisplayMessage() {
       let newMessage = ChatMessageDisplayModel(
-         content: .content(.init(text: "")),
+         content: .content(.init(text: "", isFinished: false)),
          origin: .received(.gpt))
       addMessage(newMessage)
    }
@@ -311,6 +254,7 @@ enum FunctionCallDefinition: String, CaseIterable {
             if let urls = newMedia.urls {
                updatedMedia.urls = urls
             }
+            updatedMedia.isFinished = newMedia.isFinished
             lastMessage.content = .content(updatedMedia)
          case .error:
             break
@@ -340,6 +284,15 @@ enum FunctionCallDefinition: String, CaseIterable {
          chatDisplayMessages.append(message)
       }
    }
+   
+   // MARK: - Private Properties
+   
+   private let service: OpenAIService
+   private var lastDisplayedMessageID: String?
+   /// To be used for a new request
+   private var chatMessageParameters: [ChatCompletionParameters.Message] = []
+   private var functionsToCallsMap: [FunctionCallDefinition: FunctionCallStreamedResponse] = [:]
+   private var availableFunctions: [FunctionCallDefinition: (@MainActor (String, Model?) async throws -> String)] = [:]
 }
 
 // MARK: Functions
@@ -352,8 +305,9 @@ extension ChatProvider {
    /// 2- Return a string that can be used for the model as a follow up message.
 
    @MainActor
-   func generateImage(
-      arguments: String)
+   private func generateImage(
+      arguments: String,
+      model: Model?)
       async throws
       -> String
    {
@@ -363,7 +317,7 @@ extension ChatProvider {
          let prompt = dictionary["prompt"] as? String else {
          return "Image creation failed. Please try again later."
       }
-      let count = (dictionary["count"]  as? Int) ??  1
+      let count = (dictionary["count"] as? Int) ??  1
       
       let assistantMessage = ChatMessageDisplayModel(
          content: .loading(.dalle),
@@ -374,7 +328,7 @@ extension ChatProvider {
          parameters: .init(prompt: prompt, model: .dalle2(.small), numberOfImages: count)).data.compactMap(\.url)
       
       let dalleAssistantMessage = ChatMessageDisplayModel(
-         content: .content(.init(text: nil, urls: urls)),
+         content: .content(.init(text: nil, urls: urls, isFinished: true)),
          origin: .received(.dalle))
       updateLastAssistantMessage(dalleAssistantMessage)
       
@@ -382,18 +336,23 @@ extension ChatProvider {
       if let url = urls.first, assistantParameters.name != nil {
          assistantParameters.avatarURL = url.absoluteString
       }
-      
       return prompt
    }
    
    @MainActor
-   func generateAssistantParameters(
-      arguments: String)
+   private func generateAssistantParameters(
+      arguments: String,
+      model: Model?)
       -> String
    {
       print("FUNCTIONCALL Generate Assistant \(arguments)")
-      let dictionary = arguments.toDictionary()!
-      let name = dictionary["name"] as! String
+      guard
+         let dictionary = arguments.toDictionary(),
+         let model,
+         let name = dictionary["name"] as? String
+      else {
+         return ""
+      }
       let description = dictionary["description"] as? String
       let instructions = dictionary["instructions"] as? String
       let codeInterpreter = dictionary["code_interpreter"] as? Bool
@@ -402,7 +361,7 @@ extension ChatProvider {
       let avatarDescription = dictionary["avatar_description"] as? String
       
       var assistantParameters = AssistantParameters(
-         action: .create(model: Model.gpt41106Preview.value),
+         action: .create(model: model.value),
          name: name,
          description: description,
          instructions: instructions)
@@ -426,6 +385,8 @@ extension ChatProvider {
    }
 }
 
+// MARK: Helpers
+
 private extension String {
    
    func toDictionary() -> [String: Any]? {
@@ -439,6 +400,19 @@ private extension String {
       } catch let error {
          print("Failed to deserialize JSON: \(error.localizedDescription)")
          return nil
+      }
+   }
+}
+
+extension IntOrStringValue: Equatable {
+   public static func == (lhs: IntOrStringValue, rhs: IntOrStringValue) -> Bool {
+      switch (lhs, rhs) {
+      case (let .string(lhsString), let .string(rhsString)):
+          return lhsString == rhsString
+      case (let .int(lhsInt), let .int(rhsInt)):
+         return lhsInt == rhsInt
+      default:
+          return false
       }
    }
 }

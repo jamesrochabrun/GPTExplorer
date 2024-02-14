@@ -54,6 +54,7 @@ struct ChatMessageDisplayModel: Identifiable {
       struct DisplayMessageType: Equatable {
          var text: String?
          var urls: [URL]? = nil
+         var isFinished: Bool
       }
       
       enum LoadingSource: Equatable {
