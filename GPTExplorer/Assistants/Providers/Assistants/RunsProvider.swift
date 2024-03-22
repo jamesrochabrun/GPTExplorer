@@ -150,7 +150,7 @@ typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: Run
                   if let toolCall = step.stepDetails.toolCalls?.first {
                      switch toolCall.toolCall {
                      case .codeInterpreterToolCall(let codeInterpreterToolCall):
-                        if !codeInterpreterToolCall.outputs.isEmpty {
+                        if let outputs = codeInterpreterToolCall.outputs, outputs.isEmpty {
                            lastToolCallsStep = step
                         }
                      case .retrieveToolCall(let retrievalToolCall):

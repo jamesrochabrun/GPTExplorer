@@ -62,27 +62,30 @@ struct ChatMessageRow: View {
       .transition(.opacity)
    }
    
+   @ViewBuilder
    func codeInterpreterToolCallView(
       _ codeInterpreter: CodeInterpreterToolCall)
       -> some View
    {
-      VStack(alignment: .leading) {
-         Text("code_interpreter").bold().font(.body) + Text("(\(codeInterpreter.input))").font(.callout)
-         ForEach(codeInterpreter.outputs.indices, id: \.self) { index in
-            let output = codeInterpreter.outputs[index]
-            switch output {
-            case .logs(let output):
-               HStack {
-                  Image(systemName: "arrow.turn.down.right")
-                     .foregroundColor(.primary)
-                  textMessage(output.logs, isFinished: true) // TODO: When Assistant API supports Stream
+      if let outputs = codeInterpreter.outputs {
+         VStack(alignment: .leading) {
+            Text("code_interpreter").bold().font(.body) + Text("(\(codeInterpreter.input ?? "No input"))").font(.callout)
+            ForEach(outputs.indices, id: \.self) { index in
+               let output = outputs[index]
+               switch output {
+               case .logs(let output):
+                  HStack {
+                     Image(systemName: "arrow.turn.down.right")
+                        .foregroundColor(.primary)
+                     textMessage(output.logs, isFinished: true) // TODO: When Assistant API supports Stream
+                  }
+               case .images:
+                  EmptyView()
                }
-            case .images:
-               EmptyView()
             }
          }
+         .transition(.opacity)
       }
-      .transition(.opacity)
    }
    
    func functionToolCallView(

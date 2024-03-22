@@ -22,7 +22,6 @@
 		7B1C76662B0C7B25008E161D /* GPTExplorerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76652B0C7B25008E161D /* GPTExplorerTests.swift */; };
 		7B1C76702B0C7B25008E161D /* GPTExplorerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C766F2B0C7B25008E161D /* GPTExplorerUITests.swift */; };
 		7B1C76722B0C7B25008E161D /* GPTExplorerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76712B0C7B25008E161D /* GPTExplorerUITestsLaunchTests.swift */; };
-		7B1C76802B0C7B49008E161D /* SwiftOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 7B1C767F2B0C7B49008E161D /* SwiftOpenAI */; };
 		7B1C76842B0C7B98008E161D /* Sizes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76832B0C7B98008E161D /* Sizes.swift */; };
 		7B1C76862B0C7BA5008E161D /* ThemeColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76852B0C7BA5008E161D /* ThemeColor.swift */; };
 		7B1C768A2B0C7BC9008E161D /* URLImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76892B0C7BC9008E161D /* URLImageView.swift */; };
@@ -53,6 +52,7 @@
 		7B1C76CB2B13395A008E161D /* ContentViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CA2B13395A008E161D /* ContentViewScreen.swift */; };
 		7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1C76CE2B15DAE6008E161D /* NavigationProvider.swift */; };
 		7B3B8BA62B21967500ABE6D7 /* AudioWaveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3B8BA52B21967500ABE6D7 /* AudioWaveView.swift */; };
+		7B3DDCD52BAE275D004B5C96 /* SwiftOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 7B3DDCD42BAE275D004B5C96 /* SwiftOpenAI */; };
 		7B7A12B92B2309FF00999925 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12B82B2309FF00999925 /* CustomTextField.swift */; };
 		7B7A12BD2B23CE1B00999925 /* ChatProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12BC2B23CE1B00999925 /* ChatProvider.swift */; };
 		7B7A12C12B23CECA00999925 /* ChatScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7A12C02B23CECA00999925 /* ChatScreen.swift */; };
@@ -177,7 +177,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B1C76802B0C7B49008E161D /* SwiftOpenAI in Frameworks */,
+				7B3DDCD52BAE275D004B5C96 /* SwiftOpenAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -518,7 +518,7 @@
 			);
 			name = GPTExplorer;
 			packageProductDependencies = (
-				7B1C767F2B0C7B49008E161D /* SwiftOpenAI */,
+				7B3DDCD42BAE275D004B5C96 /* SwiftOpenAI */,
 			);
 			productName = GPTExplorer;
 			productReference = 7B1C764E2B0C7B23008E161D /* GPTExplorer.app */;
@@ -593,7 +593,7 @@
 			);
 			mainGroup = 7B1C76452B0C7B23008E161D;
 			packageReferences = (
-				7B1C767E2B0C7B49008E161D /* XCRemoteSwiftPackageReference "SwiftOpenAI" */,
+				7B3DDCD32BAE275D004B5C96 /* XCRemoteSwiftPackageReference "SwiftOpenAI" */,
 			);
 			productRefGroup = 7B1C764F2B0C7B23008E161D /* Products */;
 			projectDirPath = "";
@@ -1059,7 +1059,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		7B1C767E2B0C7B49008E161D /* XCRemoteSwiftPackageReference "SwiftOpenAI" */ = {
+		7B3DDCD32BAE275D004B5C96 /* XCRemoteSwiftPackageReference "SwiftOpenAI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/jamesrochabrun/SwiftOpenAI";
 			requirement = {
@@ -1070,9 +1070,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		7B1C767F2B0C7B49008E161D /* SwiftOpenAI */ = {
+		7B3DDCD42BAE275D004B5C96 /* SwiftOpenAI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7B1C767E2B0C7B49008E161D /* XCRemoteSwiftPackageReference "SwiftOpenAI" */;
+			package = 7B3DDCD32BAE275D004B5C96 /* XCRemoteSwiftPackageReference "SwiftOpenAI" */;
 			productName = SwiftOpenAI;
 		};
 /* End XCSwiftPackageProductDependency section */
