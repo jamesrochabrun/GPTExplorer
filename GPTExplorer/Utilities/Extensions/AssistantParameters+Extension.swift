@@ -6,7 +6,6 @@
 //
 
 import SwiftOpenAI
-import UIKit
 
 extension AssistantObject: Equatable {
    

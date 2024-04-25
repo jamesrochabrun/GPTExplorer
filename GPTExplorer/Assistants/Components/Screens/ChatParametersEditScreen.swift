@@ -73,7 +73,9 @@ struct ChatParametersEditScreen: View {
             .tint(ThemeColor.brandColor)
          }
          .navigationTitle("Chat Parameters")
+#if os(iOS)
          .navigationBarTitleDisplayMode(.large)
+#endif
       }
    }
 
@@ -176,7 +178,7 @@ struct ChatParametersEditScreen: View {
          .pickerStyle(SegmentedPickerStyle())
          .onChange(of: apiResponseFormat) { oldValue, newValue in
             if oldValue != newValue {
-               parameters.responseFormat = .init(type: newValue.rawValue)
+               parameters.responseFormat = .type(newValue.rawValue)
                print("Selected format: \(String(describing: newValue))")
             }
          }

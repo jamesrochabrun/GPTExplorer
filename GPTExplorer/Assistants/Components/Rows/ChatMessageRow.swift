@@ -8,12 +8,14 @@
 import Foundation
 import SwiftUI
 import SwiftOpenAI
+#if os(iOS)
+import UIKit
+#endif
 
 struct ChatMessageRow: View {
    
    @State var isAnimating = false
    @Binding private var runMetadata: ChatMessageDisplayModel.RunMetadata?
-   let generator = UISelectionFeedbackGenerator()
    let message: ChatMessageDisplayModel
    
    init(
@@ -168,7 +170,9 @@ struct ChatMessageRow: View {
                Text(text)
                   .font(.body)
             } else {
-               let _ = generator.selectionChanged()
+#if os(iOS)
+               let _ = UISelectionFeedbackGenerator().selectionChanged()
+#endif
                Text(text)
                   .font(.body) + Text(Image(systemName: "circle.fill"))
             }
