@@ -72,7 +72,6 @@
 		7BC1978A2B1E91CD0083ACB3 /* AttachmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC197892B1E91CD0083ACB3 /* AttachmentView.swift */; };
 		7BC1978C2B1EE9CA0083ACB3 /* FilesPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC1978B2B1EE9CA0083ACB3 /* FilesPicker.swift */; };
 		7BE370752B292D37005E7D51 /* RunStepToolCall+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE370742B292D37005E7D51 /* RunStepToolCall+Extension.swift */; };
-		7BE370772B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE370762B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift */; };
 		7BE370792B29838B005E7D51 /* ModelsListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE370782B29838B005E7D51 /* ModelsListScreen.swift */; };
 		7BE3707B2B2AC800005E7D51 /* ChatParametersEditScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3707A2B2AC800005E7D51 /* ChatParametersEditScreen.swift */; };
 		7BE3707D2B2C3E8D005E7D51 /* CustomNumericTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3707C2B2C3E8D005E7D51 /* CustomNumericTextField.swift */; };
@@ -165,7 +164,6 @@
 		7BC197892B1E91CD0083ACB3 /* AttachmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentView.swift; sourceTree = "<group>"; };
 		7BC1978B2B1EE9CA0083ACB3 /* FilesPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesPicker.swift; sourceTree = "<group>"; };
 		7BE370742B292D37005E7D51 /* RunStepToolCall+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RunStepToolCall+Extension.swift"; sourceTree = "<group>"; };
-		7BE370762B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodeInterpreterToolCall+Extension.swift"; sourceTree = "<group>"; };
 		7BE370782B29838B005E7D51 /* ModelsListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsListScreen.swift; sourceTree = "<group>"; };
 		7BE3707A2B2AC800005E7D51 /* ChatParametersEditScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatParametersEditScreen.swift; sourceTree = "<group>"; };
 		7BE3707C2B2C3E8D005E7D51 /* CustomNumericTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNumericTextField.swift; sourceTree = "<group>"; };
@@ -207,7 +205,6 @@
 				7B1C76C62B116200008E161D /* AssistantParameters+Extension.swift */,
 				7B9DB5992B218A1A00610D63 /* Binding+Extension.swift */,
 				7B0C00AD2B33A1C000177FC5 /* Filles+Extension.swift */,
-				7BE370762B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift */,
 				7BE370742B292D37005E7D51 /* RunStepToolCall+Extension.swift */,
 				7B0C00B22B33A27C00177FC5 /* ThreadObject+Extension.swift */,
 				7B0C00B42B33A2A900177FC5 /* ModifyThreadParameters+Extension.swift */,
@@ -669,7 +666,6 @@
 				7B0C00BB2B33B64100177FC5 /* OpenAIServiceFactory+Mock.swift in Sources */,
 				7B1C76CF2B15DAE6008E161D /* NavigationProvider.swift in Sources */,
 				7B83BE992B2462EE000F37C0 /* CreateAssistantChatScreen.swift in Sources */,
-				7BE370772B293BF4005E7D51 /* CodeInterpreterToolCall+Extension.swift in Sources */,
 				7B9DB59A2B218A1A00610D63 /* Binding+Extension.swift in Sources */,
 				7B1C76A62B0C8B85008E161D /* ThreadScreen.swift in Sources */,
 				7B1C76BC2B0DCB4A008E161D /* UserDefaultsIDStorage.swift in Sources */,

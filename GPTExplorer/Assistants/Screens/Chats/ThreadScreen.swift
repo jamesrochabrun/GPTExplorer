@@ -521,11 +521,11 @@ struct ThreadScreen: View {
                content: displayToolCallContent,
                origin: .received(.asssistant(.toolCall(.function))))
             await messagesProvider.addMessage(displayMessage)
-         case .retrieveToolCall(let retrieveToolCall):
-            let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.toolCall(.retrieveToolCall(retrieveToolCall))
+         case .fileSearchToolCall(let fileSearchToolCall):
+            let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.toolCall(.fileSearchToolCall(fileSearchToolCall))
             let displayMessage = ChatMessageDisplayModel(
                content: displayToolCallContent,
-               origin: .received(.asssistant(.toolCall(.retrieval))))
+               origin: .received(.asssistant(.toolCall(.fileSearch))))
             await messagesProvider.addMessage(displayMessage)
          }
       }
@@ -562,7 +562,7 @@ struct ThreadScreen: View {
       service: mockService,
       provider: .init(service: mockService),
       item: .constant(
-         .assistant(.init(id: UUID().uuidString, object: "", createdAt: 0, name: "Robocop", description: "", model: "", instructions: "", tools: [], fileIDS: [], metadata: [:]))))
+         .assistant(.init(id: "Robocop", object: "", createdAt: 0, name: "", description: "", model: "", instructions: "", tools: [], toolResources: nil, metadata: [:], temperature: nil, topP: nil, responseFormat: nil))))
 }
 
 #Preview("Thread") {

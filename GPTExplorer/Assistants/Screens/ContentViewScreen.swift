@@ -29,7 +29,10 @@ struct ContentViewScreen: View {
    }
    
    var mainBackground: some View {
-      navigationProvider.isOpen ? Color(hex: "1f1f1f") : Color(.systemBackground)
+#if os(iOS)
+      return navigationProvider.isOpen ? Color(hex: "1f1f1f") : Color(.systemBackground)
+#endif
+      return navigationProvider.isOpen ? Color(hex: "1f1f1f") : Color.red
    }
    
    var body: some View {

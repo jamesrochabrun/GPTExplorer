@@ -75,7 +75,9 @@ struct AudioSpeechScreen: View {
       }
       .onChange(of: audioProvider.state) { oldValue, newValue in
          if oldValue != newValue {
-            UISelectionFeedbackGenerator().selectionChanged()
+#if os(iOS)
+               UISelectionFeedbackGenerator().selectionChanged()
+#endif
          }
       }
       .onDisappear {

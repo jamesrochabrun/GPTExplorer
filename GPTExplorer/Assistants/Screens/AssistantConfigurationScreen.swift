@@ -65,10 +65,8 @@ struct AssistantConfigurationScreen: View {
       }
       .animation(.linear, value: showAudioSpeech) // Smooth fade animation
       .sensoryFeedback(.impact, trigger: showAudioSpeech)
-      .onChange(of: fileIDS) { oldValue, newValue in
-         if oldValue != newValue {
-            parameters.fileIDS = newValue
-         }
+      .onChange(of: fileIDS) { _, _ in
+         print("TODO: ADD THIS TO A VECTOR STORE OR AS ATTACHMENTS")
       }
       .onChange(of: avatarURL) { oldValue, newValue in
          if let newValue = newValue, oldValue != newValue {
@@ -313,7 +311,7 @@ struct AssistantConfigurationScreen: View {
       InputHeaderView(title: "Capabilities") {
          VStack(spacing: Sizes.spacingExtraLarge) {
             CheckboxRow(title: "Code interpreter", isChecked: isCodeInterpreterOn)
-            CheckboxRow(title: "Retrieval", isChecked: isRetrievalOn)
+            CheckboxRow(title: "File Search", isChecked: isFileSearchOn)
             CheckboxRow(title: "DALL·E Image Generation", isChecked: isDalleToolOn)
          }
       }
@@ -337,10 +335,11 @@ struct AssistantConfigurationScreen: View {
       
       if let parameters = assistantResponse.item?.assistantParameters() {
          self.parameters = parameters
-         if let fileIDS = parameters.fileIDS {
-            filePickerInitialActions = fileIDS.map { .retrieveAndDisplay(id: $0) }
-            self.fileIDS = fileIDS
-         }
+         // TODO: Migrate this to existing vector store.
+//         if let fileIDS = parameters.fileIDS {
+//            filePickerInitialActions = fileIDS.map { .retrieveAndDisplay(id: $0) }
+//            self.fileIDS = fileIDS
+//         }
       }
       if
          let avatarURLString = parameters.avatarURL,
@@ -456,18 +455,18 @@ struct AssistantConfigurationScreen: View {
       )
    }
    
-   private var isRetrievalOn: Binding<Bool> {
+   private var isFileSearchOn: Binding<Bool> {
       Binding(
          get: {
             let contains =
-            self.parameters.tools.contains { $0.displayToolType == .retrieval } == true
+            self.parameters.tools.contains { $0.displayToolType == .fileSearch } == true
             return contains
          },
          set: { newValue in
             if newValue {
-               self.parameters.tools.append(AssistantObject.Tool(type: .retrieval))
+               self.parameters.tools.append(AssistantObject.Tool(type: .fileSearch))
             } else {
-               self.parameters.tools.removeAll { $0.displayToolType == .retrieval }
+               self.parameters.tools.removeAll { $0.displayToolType == .fileSearch }
             }
          }
       )

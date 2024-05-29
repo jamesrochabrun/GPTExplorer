@@ -89,7 +89,8 @@ import SwiftOpenAI
             limit: nil,
             order: "asc",
             after: nil,
-            before: nil)
+            before: nil,
+            runID: nil)
          for message in messagesData.data {
             if let messageDisplayModel = createMessageDisplayModel(
                from: message,
