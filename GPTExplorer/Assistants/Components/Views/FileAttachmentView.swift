@@ -85,7 +85,7 @@ struct FileAttachmentView: View {
    private let fileDeletedCompletion: (_ action: FilePickerAction, _ id: String) -> Void
    private let action: FilePickerAction
    @State private var fileObject: FileObject?
-   @State private var fileDeleteStatus: FileObject.DeletionStatus?
+   @State private var fileDeleteStatus: DeletionStatus?
    @State private var deleted: Bool = false
 }
 

@@ -37,8 +37,8 @@ struct ChatMessageRow: View {
                switch runStepToolCall {
                case .codeInterpreterToolCall(let codeInterpreter):
                   codeInterpreterToolCallView(codeInterpreter)
-               case .retrieveToolCall:
-                  Text("Retrieval")
+               case .fileSearchToolCall:
+                  Text("File Search tool call")
                case .functionToolCall(let functionToolCall):
                   functionToolCallView(functionToolCall)
                }
@@ -94,7 +94,7 @@ struct ChatMessageRow: View {
       _ function: FunctionToolCall)
       -> some View
    {
-      Text(function.name).bold().font(.body) + Text("(\(function.arguments))").font(.callout)
+      Text(function.name ?? "No name for Function call").bold().font(.body) + Text("(\(function.arguments))").font(.callout)
    }
    
    @ViewBuilder

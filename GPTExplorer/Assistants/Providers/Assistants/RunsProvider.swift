@@ -153,8 +153,8 @@ typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: Run
                         if let outputs = codeInterpreterToolCall.outputs, outputs.isEmpty {
                            lastToolCallsStep = step
                         }
-                     case .retrieveToolCall(let retrievalToolCall):
-                        if let retrieval = retrievalToolCall.retrieval, !retrieval.isEmpty {
+                     case .fileSearchToolCall(let fileSearchCall):
+                        if let fileSearch = fileSearchCall.fileSearch, !fileSearch.isEmpty {
                            lastToolCallsStep = step
                         }
                      case .functionToolCall(let functionToolCall):

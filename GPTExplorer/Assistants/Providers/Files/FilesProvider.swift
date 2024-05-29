@@ -14,7 +14,7 @@ final class FilesProvider {
    
    var files: [FileObject] = []
    var uploadedFile: FileObject? = nil
-   var deletedStatus: FileObject.DeletionStatus? = nil
+   var deletedStatus: DeletionStatus? = nil
    var retrievedFile: FileObject? = nil
    var fileContent: [[String: Any]] = []
 
@@ -35,7 +35,7 @@ final class FilesProvider {
    
    func deleteFileWith(
       id: String)
-      async throws -> FileObject.DeletionStatus?
+      async throws -> DeletionStatus?
    {
       try await service.deleteFileWith(id: id)
    }

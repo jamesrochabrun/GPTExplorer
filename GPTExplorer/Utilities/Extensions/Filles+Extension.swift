@@ -8,8 +8,8 @@
 import Foundation
 import SwiftOpenAI
 
-extension FileObject.DeletionStatus: Equatable {
-   public static func == (lhs: FileObject.DeletionStatus, rhs: FileObject.DeletionStatus) -> Bool {
+extension DeletionStatus: Equatable {
+   public static func == (lhs: DeletionStatus, rhs: DeletionStatus) -> Bool {
       lhs.id == rhs.id
    }
 }

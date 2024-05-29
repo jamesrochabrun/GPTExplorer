@@ -174,7 +174,7 @@ enum SideMenuItem: Identifiable, Equatable {
      
    func deleteAssistant(
       id: String)
-      async throws -> ResultItem<AssistantObject.DeletionStatus>
+      async throws -> ResultItem<DeletionStatus>
    {
       do {
          let deletionStatus = try await service.deleteAssistant(id: id)
@@ -235,7 +235,7 @@ enum SideMenuItem: Identifiable, Equatable {
    
    func deleteThread(
       id: String)
-      async throws -> ResultItem<ThreadObject.DeletionStatus>
+      async throws -> ResultItem<DeletionStatus>
    {
       do {
          let deletionStatus = try await service.deleteThread(id: id)
@@ -257,18 +257,18 @@ enum SideMenuItem: Identifiable, Equatable {
    }
    
    func deleteThreads()
-      async throws -> ResultItem<[ThreadObject.DeletionStatus]>
+      async throws -> ResultItem<[DeletionStatus]>
    {
       do {
          let ids = threadsIDStorage.retrieve()
          
-         var tasks: [Task<ThreadObject.DeletionStatus, Error>] = []
+         var tasks: [Task<DeletionStatus, Error>] = []
          
          for id in ids {
             let task = Task { try await service.deleteThread(id: id) }
             tasks.append(task)
          }
-         var deletionStatuses: [ThreadObject.DeletionStatus] = []
+         var deletionStatuses: [DeletionStatus] = []
          
          for task in tasks {
             let deletionStatus = try await task.value

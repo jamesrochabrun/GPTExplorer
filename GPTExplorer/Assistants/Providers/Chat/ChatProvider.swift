@@ -370,7 +370,7 @@ extension ChatProvider {
          assistantParameters.tools.append(AssistantObject.Tool(type: .codeInterpreter))
       }
       if retrieval != nil {
-         assistantParameters.tools.append(AssistantObject.Tool(type: .retrieval))
+         assistantParameters.tools.append(AssistantObject.Tool(type: .fileSearch))
       }
       if dalle != nil {
          assistantParameters.tools.append(AssistantFunctionCallDefinition.createImage.functionTool)

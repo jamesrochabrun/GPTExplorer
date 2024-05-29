@@ -91,7 +91,7 @@ struct ChatMessageDisplayModel: Identifiable {
             
             enum ToolCall {
                case codeInterpreter
-               case retrieval
+               case fileSearch
                case function
             }
          }
