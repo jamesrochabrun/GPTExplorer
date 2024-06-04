@@ -74,7 +74,7 @@ import SwiftOpenAI
                mapStreamedToolCallsResponse(toolCalls)
             }
             await updateLastAssistantMessage(.init(
-                  content: .content(.init(text: choice.delta.content ?? "", isFinished: choice.finishReason != nil)),
+               content: .content(message: .init(text: choice.delta.content ?? "", isFinished: choice.finishReason != nil)),
                   origin: .received(.gpt)))
          }
          // # extend conversation with assistant's reply.
@@ -203,7 +203,7 @@ import SwiftOpenAI
             /// The streamed content to display
                await updateLastAssistantMessage(
                   .init(content: .content(
-                     .init(text: choice.delta.content ?? "",
+                     message: .init(text: choice.delta.content ?? "",
                            isFinished: choice.finishReason != nil)),
                         origin: .received(.gpt)))
          }
@@ -218,7 +218,7 @@ import SwiftOpenAI
       _ content: ChatMessageDisplayModel.DisplayContent.DisplayMessageType)
    {
       let startingMessage = ChatMessageDisplayModel(
-         content: .content(content),
+         content: .content(message: content),
          origin: .sent)
       addMessage(startingMessage)
    }
@@ -226,7 +226,7 @@ import SwiftOpenAI
    @MainActor
    private func startNewAssistantEmptyDisplayMessage() {
       let newMessage = ChatMessageDisplayModel(
-         content: .content(.init(text: "", isFinished: false)),
+         content: .content(message: .init(text: "", isFinished: false)),
          origin: .received(.gpt))
       addMessage(newMessage)
    }
@@ -240,9 +240,9 @@ import SwiftOpenAI
       var lastMessage = chatDisplayMessages[index]
       
       switch newMessage.content {
-      case .content(let newMedia):
+      case .content(let newMedia, let toolCall):
          switch lastMessage.content {
-         case .content(let lastMedia):
+         case .content(let lastMedia, let toolCall):
             var updatedMedia = lastMedia
             if let newText = newMedia.text,
                var lastMediaText = lastMedia.text {
@@ -255,19 +255,15 @@ import SwiftOpenAI
                updatedMedia.urls = urls
             }
             updatedMedia.isFinished = newMedia.isFinished
-            lastMessage.content = .content(updatedMedia)
+            lastMessage.content = .content(message: updatedMedia)
          case .error:
             break
          case .loading:
             lastMessage.content = newMessage.content
-         case .toolCall:
-            break // There is not code interpreter in this context
          }
       case .error, .loading:
          // This is because at this level we already have a error message passed at the callsite.
          lastMessage.content = newMessage.content
-      case .toolCall:
-         break // There is not code interpreter in this context
       }
       
       chatDisplayMessages[index] = ChatMessageDisplayModel(
@@ -328,7 +324,7 @@ extension ChatProvider {
          parameters: .init(prompt: prompt, model: .dalle2(.small), numberOfImages: count)).data.compactMap(\.url)
       
       let dalleAssistantMessage = ChatMessageDisplayModel(
-         content: .content(.init(text: nil, urls: urls, isFinished: true)),
+         content: .content(message: .init(text: nil, urls: urls, isFinished: true)),
          origin: .received(.dalle))
       updateLastAssistantMessage(dalleAssistantMessage)
       

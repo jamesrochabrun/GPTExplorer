@@ -31,16 +31,12 @@ struct ChatMessageRow: View {
          header
          Group {
             switch message.content {
-            case .content(let mediaType):
-               contentDisplay(type: mediaType)
-            case .toolCall(let runStepToolCall):
-               switch runStepToolCall {
-               case .codeInterpreterToolCall(let codeInterpreter):
-                  codeInterpreterToolCallView(codeInterpreter)
-               case .fileSearchToolCall:
-                  Text("File Search tool call")
-               case .functionToolCall(let functionToolCall):
-                  functionToolCallView(functionToolCall)
+            case .content(let message, let runStepToolCalls):
+               VStack(alignment: .leading) {
+                  if let runStepToolCalls {
+                     toolCalls(runStepToolCalls)
+                  }
+                  contentDisplay(type: message)
                }
             case .loading(let source):
                loadingView(source: source)
@@ -49,6 +45,20 @@ struct ChatMessageRow: View {
             }
          }
          .padding(.leading, 23)
+      }
+   }
+   
+   @ViewBuilder
+   func toolCalls(_ toolCalls: [RunStepToolCall]) -> some View {
+      ForEach(Array(toolCalls.enumerated()), id: \.offset) { _, toolCall in
+         switch toolCall {
+         case .codeInterpreterToolCall(let codeInterpreter):
+            codeInterpreterToolCallView(codeInterpreter)
+         case .fileSearchToolCall:
+            Text("File Search tool call")
+         case .functionToolCall(let functionToolCall):
+            functionToolCallView(functionToolCall)
+         }
       }
    }
    
@@ -112,8 +122,6 @@ struct ChatMessageRow: View {
                headerWith("person.circle", title: "You")
             case .assistant(let assistantName):
                headerWith("wand.and.stars", title: assistantName)
-            case .toolCall:
-               EmptyView()
             }
          }
       case .sent:
@@ -226,20 +234,20 @@ struct ChatMessageRow: View {
    
    return ScrollView {
       VStack(spacing: 20) {
-         ChatMessageRow(message: .init(content: .content(.init(text: "What is the capital of Peru? and what is the population", isFinished: true)), origin: .sent))
+         ChatMessageRow(message: .init(content: .content(message: .init(text: "What is the capital of Peru? and what is the population", isFinished: true)), origin: .sent))
          Divider()
-         ChatMessageRow(message: .init(content: .content(.init(text: "Lima, an its 28 million habitants.", isFinished: true)), origin: .received(.gpt), runMetadata: .init(runID: "dddddd", threadID: "dddddd")))
+         ChatMessageRow(message: .init(content: .content(message: .init(text: "Lima, an its 28 million habitants.", isFinished: true)), origin: .received(.gpt), runMetadata: .init(runID: "dddddd", threadID: "dddddd")))
          Divider()
          ChatMessageRow(
             message: .init(
                content: .content(
-                  .init(
+                  message: .init(
                      text: "The image you requested is ready 🐱",
                      urls: [URL(string: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg")!], isFinished: true)),
                origin: .received(.dalle),
                runMetadata: nil))
          Divider()
-         ChatMessageRow(message: .init(content: .content(.init(text: "", isFinished: true)), origin: .received(.gpt)))
+         ChatMessageRow(message: .init(content: .content(message: .init(text: "", isFinished: true)), origin: .received(.gpt)))
          Divider()
          ChatMessageRow(message: .init(content: .loading(.dalle), origin: .received(.gpt)))
          

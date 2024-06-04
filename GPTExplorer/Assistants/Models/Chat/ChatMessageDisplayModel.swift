@@ -31,17 +31,14 @@ struct ChatMessageDisplayModel: Identifiable {
 
    enum DisplayContent: Equatable {
 
-      case content(DisplayMessageType)
-      case toolCall(RunStepToolCall)
+      case content(message: DisplayMessageType, toolCall: [RunStepToolCall]? = nil)
       case loading(LoadingSource)
       case error(String)
 
       static func ==(lhs: DisplayContent, rhs: DisplayContent) -> Bool {
          switch (lhs, rhs) {
-         case let (.content(a), .content(b)):
-             return a == b
-         case let (.toolCall(a), .toolCall(b)):
-             return a == b
+         case let (.content(messageA, toolCallA), .content(messageB, toolCallB)):
+            return messageA == messageB && toolCallA == toolCallB
          case let (.loading(a), .loading(b)):
             return a == b
          case let (.error(a), .error(b)):
@@ -87,13 +84,6 @@ struct ChatMessageDisplayModel: Identifiable {
          enum Assistant {
             case user
             case assistant(String)
-            case toolCall(ToolCall)
-            
-            enum ToolCall {
-               case codeInterpreter
-               case fileSearch
-               case function
-            }
          }
       }
    }

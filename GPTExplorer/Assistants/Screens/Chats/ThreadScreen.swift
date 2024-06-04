@@ -275,9 +275,9 @@ struct ThreadScreen: View {
                if let thread = currentThread {
                   prompt = ""
                   // - 2 Add the message to the Run.
-                  try await prepareMessageForRun(threadID: thread.id, prompt: input)
-                  // - 3 Create the run.
-                  try await createRun(threadID: thread.id, assistantID: assistant.id)
+                  try await prepareUserMessageForRun(threadID: thread.id, prompt: input)
+                  // - 3 Create the run and stream the message.
+                  try await createRunAndStreamMessage(threadID: thread.id, assistantID: assistant.id)
 
                   // - 4 Navigate to the newly created thread.
                   navigateTo(thread: thread)
@@ -289,8 +289,10 @@ struct ThreadScreen: View {
                isAddAndRunActionLoading = true
                let input = prompt
                prompt = ""
-               try await prepareMessageForRun(threadID: threadID, prompt: input)
-               try await createRun(threadID: thread.id, assistantID: assistantID)
+               try await prepareUserMessageForRun(threadID: threadID, prompt: input)
+               // - Create the run and stream the message.
+               try await createRunAndStreamMessage(threadID: thread.id, assistantID: assistantID)
+              
                isAddAndRunActionLoading = false
             default:
                break
@@ -311,7 +313,7 @@ struct ThreadScreen: View {
                // - 1 Add the message to the thread.
                if let thread = currentThread {
                   prompt = ""
-                  try await addMessage(threadID: thread.id, prompt: input)
+                  try await addUserMessage(threadID: thread.id, prompt: input)
                   // - 2 Navigate to the newly created thread.
                   navigateTo(thread: thread)
                }
@@ -320,7 +322,7 @@ struct ThreadScreen: View {
                let threadID = thread.id
                isAddMessageActionLoading = true
                prompt = ""
-               try await addMessage(threadID: threadID, prompt: input)
+               try await addUserMessage(threadID: threadID, prompt: input)
                isAddMessageActionLoading = false
             default:
                break
@@ -382,6 +384,63 @@ struct ThreadScreen: View {
       currentProviderState = deletionResponse.state
    }
    
+   private func createRunAndStreamMessage(
+      threadID: String,
+      assistantID: String) async throws
+   {
+      let runParameter = RunParameter(assistantID: assistantID)
+      
+      var result: ResultItem<ChatMessageDisplayModel> = .init(item: .init(content: .content(message: .init(isFinished: false), toolCall: nil), origin: .received(.asssistant(.assistant(assistantName)))), state: nil)
+      await messagesProvider.addMessage(result.item!)
+      do {
+         let runStepStream = try await service.createRunStream(threadID: threadID, parameters: runParameter)
+         var message = ""
+         var codeInterpreterToolCall: RunStepToolCall?
+         var fileSearchToolCall: RunStepToolCall?
+         var functionToolCall: RunStepToolCall?
+         do {
+            for try await stream in runStepStream {
+            
+               switch stream {
+               case .threadMessageDelta(let messageDelta):
+                  let content = messageDelta.delta.content.first
+                  switch content {
+                  case .imageFile, nil:
+                     break
+                  case .text(let textContent):
+                     message += textContent.text.value
+                  }
+               case .threadRunStepDelta(let runStepDelta):
+                  if let toolCall = runStepDelta.delta.stepDetails.toolCalls?.first?.toolCall {
+                     switch toolCall {
+                     case .codeInterpreterToolCall(let toolCall):
+                        codeInterpreterToolCall = .codeInterpreterToolCall(toolCall)
+                     case .fileSearchToolCall(let toolCall):
+                        fileSearchToolCall = .fileSearchToolCall(toolCall)
+                     case .functionToolCall(let toolCall):
+                        functionToolCall = .functionToolCall(toolCall)
+                     }
+                  }
+               case .threadRunCompleted:
+                  print("This is completed")
+               default:
+                  break
+               }
+                           
+               let toolCalls: [RunStepToolCall] = [codeInterpreterToolCall, fileSearchToolCall, functionToolCall].compactMap { $0 }
+               
+               if var last = messagesProvider.chatDisplayMessages.popLast() {
+                  last.content = .content(
+                     message: .init(text: message, isFinished: false), toolCall: toolCalls)
+                  messagesProvider.chatDisplayMessages.append(last)
+               }
+            }
+         }
+      } catch {
+         currentProviderState = .createRunError(threadID: threadID, assistantID: runParameter.assistantID, message: "Stream Failed")
+      }
+   }
+   
    private func cancelRun(
       runID: String, 
       threadID: String)
@@ -403,7 +462,7 @@ struct ThreadScreen: View {
       navigationProvider.changeToSelectedItem = (selectedItem: .thread(thread), animated: true)
    }
    
-   private func addMessage(
+   private func addUserMessage(
       threadID: String,
       prompt: String)
       async throws
@@ -423,7 +482,7 @@ struct ThreadScreen: View {
       await messagesProvider.addMessage(messageDisplayModel)
    }
    
-   private func prepareMessageForRun(
+   private func prepareUserMessageForRun(
       threadID: String,
       prompt: String)
       async throws
@@ -446,34 +505,33 @@ struct ThreadScreen: View {
       
       await messagesProvider.addMessage(messageDisplayModel)
    }
-      
-   private func createRun(
-      threadID: String,
-      assistantID: String)
-      async throws
-   {
-      let runResponse = try await runsProvider.createRun(threadID: threadID, parameters: RunParameter(assistantID: assistantID))
-      
-      guard let run = runResponse.item else {
-         // Remeber that this will show repeated information to user. We may want to avoid this.
-         currentProviderState = runResponse.state
-         return
-      }
-      let lastRunStepResponse = try await runsProvider.getLastRunSteps(threadID: threadID, runID: run.id)
-      
-      guard let lastRunStep = lastRunStepResponse.item else {
-         currentProviderState = lastRunStepResponse.state
-         return
-      }
-      
-      if let lastMessageCreationStep = lastRunStep.messageCreationStep {
-         try await configureMessageCreationStep(lastMessageCreationStep, threadID: threadID, runID: run.id)
-      }
-      
-      if let lastToolCallStep = lastRunStep.toolCallsStep {
-         await configureToolCallStep(lastToolCallStep)
-      }
-   }
+
+   private let service: OpenAIService
+   @Binding private var item: SideMenuItem
+   @State private var navigationProvider: NavigationProvider
+   @State private var messagesProvider: MessagesProvider
+   @State private var runsProvider: RunsProvider
+   @State private var provider: SideMenuConfigurationProvider
+   @State private var isLoadingListItems = false
+   @State private var currentAssistant: AssistantObject?
+   @State private var currentThread: ThreadObject?
+   @State private var prompt = ""
+   @State private var currentProviderState: ProviderState?
+   @State private var showDeleteThreadAlert = false
+   @State private var showAssistantConfigurationModal = false
+   @State private var isAddAndRunActionLoading: Bool? = false
+   @State private var isAddMessageActionLoading: Bool? = false
+   @State private var showAudioSpeech: Bool? = false
+   @State private var runMetadata: ChatMessageDisplayModel.RunMetadata? = nil
+   @Environment(\.presentationMode) private var presentationMode
+   
+   /// USED FOR NOW ONLY FOR RUNS AND MESSAGES
+   @State private var currentErrorMessage: String? = nil
+}
+
+// MARK: Deprecated Non Stream Run
+
+extension ThreadScreen {
    
    private func configureMessageCreationStep(
       _ step: RunStepObject,
@@ -504,54 +562,29 @@ struct ThreadScreen: View {
       }
    }
    
-   private func configureToolCallStep(_ step: RunStepObject) 
-      async
+   private func createRun(
+      threadID: String,
+      assistantID: String)
+      async throws
    {
-      for toolCall in step.stepDetails.toolCalls ?? [] {
-         switch toolCall.toolCall {
-         case .codeInterpreterToolCall(let codeInterpreterToolCall):
-            let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.toolCall(.codeInterpreterToolCall(codeInterpreterToolCall))
-            let displayMessage = ChatMessageDisplayModel(
-               content: displayToolCallContent,
-               origin: .received(.asssistant(.toolCall(.codeInterpreter))))
-            await messagesProvider.addMessage(displayMessage)
-         case .functionToolCall(let functionToolCall):
-            let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.toolCall(.functionToolCall(functionToolCall))
-            let displayMessage = ChatMessageDisplayModel(
-               content: displayToolCallContent,
-               origin: .received(.asssistant(.toolCall(.function))))
-            await messagesProvider.addMessage(displayMessage)
-         case .fileSearchToolCall(let fileSearchToolCall):
-            let displayToolCallContent = ChatMessageDisplayModel.DisplayContent.toolCall(.fileSearchToolCall(fileSearchToolCall))
-            let displayMessage = ChatMessageDisplayModel(
-               content: displayToolCallContent,
-               origin: .received(.asssistant(.toolCall(.fileSearch))))
-            await messagesProvider.addMessage(displayMessage)
-         }
+      let runResponse = try await runsProvider.createRun(threadID: threadID, parameters: RunParameter(assistantID: assistantID))
+      
+      guard let run = runResponse.item else {
+         // Remeber that this will show repeated information to user. We may want to avoid this.
+         currentProviderState = runResponse.state
+         return
+      }
+      let lastRunStepResponse = try await runsProvider.getLastRunSteps(threadID: threadID, runID: run.id)
+      
+      guard let lastRunStep = lastRunStepResponse.item else {
+         currentProviderState = lastRunStepResponse.state
+         return
+      }
+      
+      if let lastMessageCreationStep = lastRunStep.messageCreationStep {
+         try await configureMessageCreationStep(lastMessageCreationStep, threadID: threadID, runID: run.id)
       }
    }
-
-   private let service: OpenAIService
-   @Binding private var item: SideMenuItem
-   @State private var navigationProvider: NavigationProvider
-   @State private var messagesProvider: MessagesProvider
-   @State private var runsProvider: RunsProvider
-   @State private var provider: SideMenuConfigurationProvider
-   @State private var isLoadingListItems = false
-   @State private var currentAssistant: AssistantObject?
-   @State private var currentThread: ThreadObject?
-   @State private var prompt = ""
-   @State private var currentProviderState: ProviderState?
-   @State private var showDeleteThreadAlert = false
-   @State private var showAssistantConfigurationModal = false
-   @State private var isAddAndRunActionLoading: Bool? = false
-   @State private var isAddMessageActionLoading: Bool? = false
-   @State private var showAudioSpeech: Bool? = false
-   @State private var runMetadata: ChatMessageDisplayModel.RunMetadata? = nil
-   @Environment(\.presentationMode) private var presentationMode
-   
-   /// USED FOR NOW ONLY FOR RUNS AND MESSAGES
-   @State private var currentErrorMessage: String? = nil
 }
 
 // MARK: Mock+Preview

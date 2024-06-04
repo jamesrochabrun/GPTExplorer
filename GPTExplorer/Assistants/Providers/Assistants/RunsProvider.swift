@@ -10,6 +10,15 @@ import SwiftOpenAI
 
 typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: RunStepObject?)
 
+struct RunStreamViewModel {
+   
+   var message: String = ""
+   var codeInterpreterText: String = ""
+   var fileSearchText: String = ""
+   var functionCallText: String = ""
+   
+}
+
 @Observable class RunsProvider {
    
    private let service: OpenAIService
@@ -17,7 +26,7 @@ typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: Run
    var errorMessage: String?
    var lastRunStepObject: RunStepObject?
    var runSteps: [RunStepObject] = []
-   
+      
    // MARK: - Initializer
    
    init(service: OpenAIService) {
@@ -64,6 +73,66 @@ typealias LastRunStep = (messageCreationStep: RunStepObject?, toolCallsStep: Run
       }
    }
    
+   // MARK: Stream
+   
+   private func createRunAndStreamMessage(
+      threadID: String,
+      parameters: RunParameter)
+      async throws -> AsyncThrowingStream<RunStreamViewModel, Error>
+   {
+      AsyncThrowingStream<RunStreamViewModel, Error> { continuation in
+         Task { [weak self] in
+            guard let stream = try await self?.service.createRunStream(threadID: threadID, parameters: parameters) else {
+               fatalError()
+            }
+            var runStreamViewModel = RunStreamViewModel()
+            do {
+               for try await result in stream {
+                  
+                  switch result {
+                  case .threadMessageDelta(let messageDelta):
+                     let content = messageDelta.delta.content.first
+                     switch content {
+                     case .imageFile, nil:
+                        break
+                     case .text(let textContent):
+                        runStreamViewModel.message += textContent.text.value
+                        continuation.yield(runStreamViewModel)
+                     }
+                  case .threadRunStepDelta(let runStepDelta):
+                     let toolCall = runStepDelta.delta.stepDetails.toolCalls?.first?.toolCall
+                     switch toolCall {
+                     case .codeInterpreterToolCall(let toolCall):
+                        runStreamViewModel.codeInterpreterText += toolCall.input ?? ""
+                        continuation.yield(runStreamViewModel)
+                        
+                     case .fileSearchToolCall(let toolCall):
+                        print("PROVIDER: File search tool call \(toolCall)")
+                     case .functionToolCall(let toolCall):
+                        runStreamViewModel.functionCallText += toolCall.arguments
+                        continuation.yield(runStreamViewModel)
+                        
+                     case nil:
+                        print("PROVIDER: tool call nil")
+                     }
+                  default: break
+                  }
+               }
+               continuation.finish()
+            } catch {
+               continuation.finish(throwing: error)
+            }
+         }
+      }
+   }
+}
+
+// MARK: Deprecated non Stream
+
+
+extension RunsProvider {
+   
+      
    func getLastRunSteps(
       threadID: String,
       runID: String)
